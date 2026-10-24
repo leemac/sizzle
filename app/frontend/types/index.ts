@@ -10,6 +10,20 @@ export type SharedProps = {
   app: { claude_configured: boolean }
 }
 
+export type SetupStatus = {
+  claude_configured: boolean
+}
+
+export type ManualRecipeInput = {
+  title: string
+  description: string
+  ingredients: string
+  steps: string
+  servings: string
+  prep_minutes: string
+  cook_minutes: string
+}
+
 export type RecipeCard = {
   id: number
   title: string

@@ -15,6 +15,14 @@ class PageScraperTest < ActiveSupport::TestCase
     assert_equal "Weeknight Chickpea Curry", @page.structured_recipe["name"]
   end
 
+  test "supports fully qualified Recipe types and ignores malformed image values" do
+    html = '<script type="application/ld+json">{"@type":"https://schema.org/Recipe","name":"Rice","image":[42,{"url":false}]}</script>'
+    page = PageScraper.parse(html, base_url: "https://example.com/rice")
+
+    assert_equal "Rice", page.structured_recipe["name"]
+    assert_empty page.images
+  end
+
   test "keeps the recipe text and strips scripts, navigation and comments" do
     assert_includes @page.text, "Simmer everything for 20 minutes."
     refute_includes @page.text, "window.ads"

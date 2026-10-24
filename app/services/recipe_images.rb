@@ -1,4 +1,4 @@
-# Downloads the images Claude picked, rejects anything that isn't a real
+# Downloads recipe image candidates, rejects anything that isn't a real
 # photo, and stores them as size-capped WebP. Remote images are untrusted: we
 # check magic bytes before handing them to libvips, cap the download size, and
 # re-encode everything (which also strips metadata such as GPS EXIF).

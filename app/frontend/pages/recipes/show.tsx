@@ -105,6 +105,7 @@ RecipeShow.layout = AppLayout
 function Ingredients({ recipe }: { recipe: RecipeDetail }) {
   const [checked, setChecked] = useState<Set<number>>(new Set())
   const indexed = recipe.ingredients.map((ingredient, index) => ({ ...ingredient, index }))
+  const hasAmounts = recipe.ingredients.some((ingredient) => Boolean(formatAmount(ingredient)))
 
   const toggle = (index: number) =>
     setChecked((previous) => {
@@ -134,7 +135,7 @@ function Ingredients({ recipe }: { recipe: RecipeDetail }) {
                     onClick={() => toggle(ingredient.index)}
                     className={`flex w-full gap-3 py-3 text-left transition-colors ${done ? 'text-graphite' : ''}`}
                   >
-                    <span className="w-20 shrink-0 font-medium tabular-nums">{amount}</span>
+                    {hasAmounts && <span className="w-20 shrink-0 font-medium tabular-nums">{amount}</span>}
                     <span className={done ? 'highlight' : ''}>
                       {ingredient.item}
                       {ingredient.preparation && <span className="text-graphite">, {ingredient.preparation}</span>}

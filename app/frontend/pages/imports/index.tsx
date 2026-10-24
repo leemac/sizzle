@@ -1,10 +1,11 @@
 import { Head, Link, router, useForm, usePage, usePoll } from '@inertiajs/react'
 import { useEffect } from 'react'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
+import ManualRecipeForm from '@/components/ManualRecipeForm'
 import AppLayout from '@/layouts/AppLayout'
 import type { Import } from '@/types'
 
-export default function ImportsIndex({ imports }: { imports: Import[] }) {
+export default function ImportsIndex({ imports, mode }: { imports: Import[]; mode: 'import' | 'manual' }) {
   const { app } = usePage().props
   const form = useForm({ input: '' })
   const { start, stop } = usePoll(2000, { only: ['imports'] }, { autoStart: false })
@@ -26,41 +27,81 @@ export default function ImportsIndex({ imports }: { imports: Import[] }) {
       <Head title="Add a recipe" />
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Add a recipe</h1>
       <p className="mt-3 text-graphite">
-        Paste a link to a recipe page, or the recipe text itself. Sizzle cleans it up and adds it to your cookbook.
+        Import a recipe link or write a recipe yourself. Your cookbook works without AI.
       </p>
 
-      {!app.claude_configured && (
-        <p className="mt-6 rounded-2xl bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-          Imports need a Claude API key. Set ANTHROPIC_API_KEY in your environment and restart Sizzle.
-        </p>
-      )}
-
-      <form onSubmit={submit} className="mt-8">
-        <label htmlFor="input" className="sr-only">
-          Recipe link or text
-        </label>
-        <textarea
-          id="input"
-          rows={3}
-          value={form.data.input}
-          onChange={(event) => form.setData('input', event.target.value)}
-          placeholder="https://…"
-          className="w-full resize-y rounded-photo border-hairline bg-paper px-5 py-4 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
-        />
-        {form.errors.input && <p className="mt-2 text-sm text-danger">{form.errors.input}</p>}
-        <div className="mt-4 flex items-center justify-between gap-4">
-          <Link href="/share" className="text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">
-            Share straight from your phone instead
-          </Link>
-          <button
-            type="submit"
-            disabled={form.processing || form.data.input.trim() === ''}
-            className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+      <nav aria-label="Add recipe method" className="mt-8 flex gap-2">
+        {(
+          [
+            ['import', 'Import a link'],
+            ['manual', 'Write a recipe'],
+          ] as const
+        ).map(([value, label]) => (
+          <Link
+            key={value}
+            href={value === 'manual' ? '/imports?mode=manual' : '/imports'}
+            aria-current={mode === value ? 'page' : undefined}
+            className={`rounded-full px-4 py-2 text-sm ${mode === value ? 'bg-yolk font-semibold text-[#18181b]' : 'ring-1 ring-hairline hover:ring-ink/30'}`}
           >
-            Import
-          </button>
-        </div>
-      </form>
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      {mode === 'manual' ? (
+        <ManualRecipeForm />
+      ) : (
+        <form onSubmit={submit} className="mt-8">
+          <p className="mb-4 text-sm text-graphite">
+            Links with recipe data import directly, without AI.{' '}
+            {app.claude_configured ? (
+              'Claude can extract other pages and pasted recipe text when needed.'
+            ) : (
+              <>
+                For other pages or unstructured pasted text,{' '}
+                <Link href="/imports?mode=manual" className="underline underline-offset-4">
+                  write a recipe
+                </Link>{' '}
+                or{' '}
+                <Link href="/setup?step=claude" className="underline underline-offset-4">
+                  set up optional AI
+                </Link>
+                .
+              </>
+            )}
+          </p>
+          <label htmlFor="input" className="text-sm font-medium">
+            {app.claude_configured ? 'Recipe link or text' : 'Recipe link'}
+          </label>
+          <textarea
+            id="input"
+            aria-describedby={form.errors.input ? 'input-error' : undefined}
+            aria-invalid={!!form.errors.input}
+            rows={3}
+            value={form.data.input}
+            onChange={(event) => form.setData('input', event.target.value)}
+            placeholder="https://…"
+            className="mt-2 w-full resize-y rounded-photo border-hairline bg-paper px-5 py-4 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
+          />
+          {form.errors.input && (
+            <p id="input-error" role="alert" className="mt-2 text-sm text-danger">
+              {form.errors.input}
+            </p>
+          )}
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <Link href="/share" className="text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">
+              Share straight from your phone instead
+            </Link>
+            <button
+              type="submit"
+              disabled={form.processing || form.data.input.trim() === ''}
+              className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+            >
+              Import
+            </button>
+          </div>
+        </form>
+      )}
 
       {imports.length > 0 && (
         <section className="mt-16">
@@ -95,13 +136,18 @@ function ImportRow({ item }: { item: Import }) {
         {item.error && <p className="mt-1 text-sm text-graphite">{item.error}</p>}
       </div>
       {item.status === 'failed' && (
-        <button
-          type="button"
-          onClick={() => router.post(`/imports/${item.id}/retry`, {}, { preserveScroll: true })}
-          className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
-        >
-          Try again
-        </button>
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
+          <Link href="/imports?mode=manual" className="text-sm text-graphite underline underline-offset-4">
+            Write manually
+          </Link>
+          <button
+            type="button"
+            onClick={() => router.post(`/imports/${item.id}/retry`, {}, { preserveScroll: true })}
+            className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
+          >
+            Try again
+          </button>
+        </div>
       )}
     </li>
   )
