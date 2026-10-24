@@ -21,6 +21,14 @@ class SafeHttp
   class BlockedUrl < Error; end
   class TooLarge < Error; end
   class BadResponse < Error; end
+  class HttpError < BadResponse
+    attr_reader :status
+
+    def initialize(status)
+      @status = status.to_i
+      super("HTTP #{@status}")
+    end
+  end
   class DeadlineExceeded < Error; end
 
   Response = Data.define(:url, :status, :content_type, :body)
@@ -119,7 +127,7 @@ class SafeHttp
                               content_type: res["content-type"].to_s.split(";").first&.strip&.downcase,
                               body:)
         else
-          raise BadResponse, "HTTP #{res.code}"
+          raise HttpError.new(res.code)
         end
       end
     end

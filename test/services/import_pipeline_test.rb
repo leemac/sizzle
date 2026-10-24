@@ -103,6 +103,31 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal 0, Recipe.count
   end
 
+  test "a blocked site suggests pasting recipe text without calling Claude" do
+    stub_request(:get, URL).to_return(status: 403, body: "upstream challenge markup")
+    import = url_import
+
+    run_import(import)
+
+    assert_equal "failed", import.reload.status
+    assert_match "This site blocked Sizzle's request (HTTP 403)", import.error
+    assert_match "copy and paste its text into Add a recipe", import.error
+    assert_not_includes import.error, "upstream challenge markup"
+    assert_empty @extractor.pages
+    assert_equal 0, Recipe.count
+  end
+
+  test "other HTTP failures keep their status in the error" do
+    stub_request(:get, URL).to_return(status: 404)
+    import = url_import
+
+    run_import(import)
+
+    assert_equal "failed", import.reload.status
+    assert_equal "Couldn't load that page (HTTP 404).", import.error
+    assert_empty @extractor.pages
+  end
+
   test "fails cleanly when the URL points into a private network" do
     import = perform_enqueued_jobs(only: []) { Import.create!(kind: "url", url: "http://router.example/", origin: "web") }
     ImportPipeline.new(import, http: safe_http("router.example" => "192.168.1.1"), extractor: @extractor).run
