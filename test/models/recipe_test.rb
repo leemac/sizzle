@@ -51,6 +51,21 @@ class RecipeTest < ActiveSupport::TestCase
     assert_equal 2, Recipe.filter_by(nonsense: "x").count
   end
 
+  test "favorites can be added, removed and filtered" do
+    favorite = create_recipe(title: "Lemon Bars")
+    create_recipe(title: "Apple Pie")
+
+    favorite.favorite!
+    assert favorite.favorite?
+    assert_equal [ favorite ], Recipe.filter_by(favorites: "1").to_a
+    assert_equal 2, Recipe.filter_by(favorites: "0").count
+    assert_equal 1, Recipe.facets[:favorites]
+
+    favorite.unfavorite!
+    assert_not favorite.reload.favorite?
+    assert_empty Recipe.filter_by(favorites: "1")
+  end
+
   test "facets count each value" do
     create_recipe(course: "main", diets: [ "vegan" ])
     create_recipe(course: "main", diets: [ "vegan", "gluten-free" ])

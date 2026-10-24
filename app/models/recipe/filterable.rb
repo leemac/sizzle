@@ -2,7 +2,7 @@
 module Recipe::Filterable
   extend ActiveSupport::Concern
 
-  FILTER_KEYS = %i[q course cuisine diet main max_minutes].freeze
+  FILTER_KEYS = %i[q favorites course cuisine diet main max_minutes].freeze
   MAX_MINUTES_OPTIONS = [ 30, 60, 120 ].freeze
 
   class_methods do
@@ -10,6 +10,7 @@ module Recipe::Filterable
       filters = filters.to_h.symbolize_keys.slice(*FILTER_KEYS).compact_blank
       scope = order(created_at: :desc)
       scope = scope.search(filters[:q]) if filters[:q]
+      scope = scope.favorites if ActiveModel::Type::Boolean.new.cast(filters[:favorites])
       scope = scope.where(course: filters[:course]) if filters[:course]
       scope = scope.where(cuisine: filters[:cuisine]) if filters[:cuisine]
       scope = scope.where(main_ingredient: filters[:main]) if filters[:main]
@@ -22,6 +23,7 @@ module Recipe::Filterable
 
     def facets
       {
+        favorites: favorites.count,
         courses: count_by(:course),
         cuisines: count_by(:cuisine),
         main_ingredients: count_by(:main_ingredient).first(24),

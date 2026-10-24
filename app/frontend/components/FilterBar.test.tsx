@@ -8,6 +8,7 @@ import type { Facets, RecipeFilters } from '@/types'
 
 vi.mock('@inertiajs/react', () => ({ router: { get: vi.fn<() => void>() } }))
 const facets: Facets = {
+  favorites: 0,
   courses: [{ value: 'main', count: 1 }],
   cuisines: [],
   diets: [],
@@ -33,8 +34,8 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-function render(filters: RecipeFilters) {
-  act(() => root.render(<FilterBar filters={filters} facets={facets} />))
+function render(filters: RecipeFilters, overrides: Partial<Facets> = {}) {
+  act(() => root.render(<FilterBar filters={filters} facets={{ ...facets, ...overrides }} />))
 }
 
 function typeQuery(value: string) {
@@ -95,4 +96,17 @@ it('preserves typing when polling returns the same search filter', () => {
 
   expect(container.querySelector('input')!.value).toBe('pie')
   expect(router.get).toHaveBeenCalledExactlyOnceWith('/', { q: 'pie' }, expect.any(Object))
+})
+
+it('shows the favorites chip only when there are favorites, and toggles the filter', () => {
+  render({})
+  expect(container.textContent).not.toContain('Favorites')
+
+  render({}, { favorites: 2 })
+  click('Favorites')
+  expect(router.get).toHaveBeenLastCalledWith('/', { favorites: '1' }, expect.any(Object))
+
+  render({ favorites: '1' }, { favorites: 0 })
+  click('Favorites')
+  expect(router.get).toHaveBeenLastCalledWith('/', {}, expect.any(Object))
 })

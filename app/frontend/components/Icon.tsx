@@ -6,15 +6,25 @@ const PATHS = {
   close: 'M6 6l12 12M18 6 6 18',
   share: 'M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',
   check: 'M5 12.5 10 17 19 7',
+  heart:
+    'M12 20s-7.5-4.6-9.2-9.4C1.6 7.2 3.8 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.2 0 5.4 2.7 4.2 6.1C19.5 15.4 12 20 12 20Z',
 } as const
 
 export type IconName = keyof typeof PATHS
 
-export default function Icon({ name, className = 'size-5' }: { name: IconName; className?: string }) {
+export default function Icon({
+  name,
+  className = 'size-5',
+  filled = false,
+}: {
+  name: IconName
+  className?: string
+  filled?: boolean
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth={1.8}
       strokeLinecap="round"

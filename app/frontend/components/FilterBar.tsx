@@ -56,6 +56,14 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
       </label>
 
       <div className="relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+        {(facets.favorites > 0 || filters.favorites) && (
+          <Chip selected={Boolean(filters.favorites)} onClick={() => set('favorites', '1')}>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="heart" filled={Boolean(filters.favorites)} className="size-4" />
+              Favorites
+            </span>
+          </Chip>
+        )}
         {facets.courses.map(({ value }) => (
           <Chip key={value} selected={filters.course === value} onClick={() => set('course', value)}>
             {value}
