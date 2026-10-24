@@ -117,10 +117,10 @@ function EmptyCookbook() {
         and drops the ads and the scrolling.
       </p>
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link
-          href="/imports"
-          className="rounded-full bg-yolk px-5 py-3 font-semibold text-[#18181b] hover:brightness-95"
-        >
+        <Link href="/setup" className="rounded-full bg-yolk px-5 py-3 font-semibold text-[#18181b] hover:brightness-95">
+          Set up Sizzle
+        </Link>
+        <Link href="/imports" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">
           Add your first recipe
         </Link>
         <Link href="/share" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">

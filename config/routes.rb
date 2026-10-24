@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     post :retry, on: :member
   end
   get "share", to: "share#show"
+  get "setup", to: "setup#show"
 
   namespace :api do
     resources :imports, only: %i[create show]
