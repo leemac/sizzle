@@ -69,9 +69,7 @@ export default function RecipesIndex({
         </section>
       )}
 
-      {total_count === 0 && !pending ? (
-        <EmptyCookbook />
-      ) : (
+      {(total_count > 0 || pending) && (
         <>
           <FilterBar filters={filters} facets={facets} />
 
@@ -125,30 +123,5 @@ function PageLink({ filters, page, label }: { filters: RecipeFilters; page: numb
     >
       {label}
     </Link>
-  )
-}
-
-function EmptyCookbook() {
-  return (
-    <div className="mx-auto max-w-xl py-16 sm:py-24">
-      <h2 className="font-display text-5xl leading-[0.95] font-semibold text-balance sm:text-7xl">
-        Every recipe you love, minus the life story.
-      </h2>
-      <p className="mt-6 text-lg text-graphite">
-        Share a recipe page from your phone or paste a link. Sizzle keeps the ingredients, the steps and the best photo,
-        and drops the ads and the scrolling.
-      </p>
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Link href="/setup" className="rounded-full bg-yolk px-5 py-3 font-semibold text-[#18181b] hover:brightness-95">
-          Set up Sizzle
-        </Link>
-        <Link href="/imports" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">
-          Add your first recipe
-        </Link>
-        <Link href="/share" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">
-          Set up sharing from your phone
-        </Link>
-      </div>
-    </div>
   )
 }
