@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount, formatMinutes, formatQuantity, groupBySection } from './format'
+import { formatAmount, formatDay, formatMinutes, formatQuantity, groupBySection, isToday } from './format'
 
 describe('formatMinutes', () => {
   it('formats minutes and hours', () => {
@@ -58,5 +58,28 @@ describe('groupBySection', () => {
       ],
       ['Sauce', [{ section: 'Sauce', text: 'b' }]],
     ])
+  })
+})
+
+const now = new Date(2026, 9, 24, 9, 30)
+const iso = (year: number, month: number, day: number, hour = 12, minute = 0) =>
+  new Date(year, month, day, hour, minute).toISOString()
+
+describe('formatDay', () => {
+  it('says today and yesterday by calendar day, not by 24 hours', () => {
+    expect(formatDay(iso(2026, 9, 24, 0, 5), now)).toBe('Today')
+    expect(formatDay(iso(2026, 9, 23, 23, 55), now)).toBe('Yesterday')
+  })
+
+  it('drops the year only within the current year', () => {
+    expect(formatDay(iso(2026, 9, 3), now)).toBe('Oct 3')
+    expect(formatDay(iso(2025, 11, 31), now)).toBe('Dec 31, 2025')
+  })
+})
+
+describe('isToday', () => {
+  it('is true from midnight to midnight', () => {
+    expect(isToday(iso(2026, 9, 24, 0, 5), now)).toBe(true)
+    expect(isToday(iso(2026, 9, 23, 23, 55), now)).toBe(false)
   })
 })
