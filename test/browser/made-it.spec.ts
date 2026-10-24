@@ -27,7 +27,7 @@ for (const width of [390, 1280]) {
     const details = page.getByRole('complementary', { name: 'Recipe details' })
     await expect(details.getByRole('link', { name: 'example.com' })).toBeVisible()
     await expect(details).toContainText('MadeNot yet')
-    await expect(details).toContainText('AddedToday')
+    await expect(details).toContainText('AddedJust now')
     await expect(details).not.toContainText('Updated')
 
     await page.getByRole('button', { name: 'I made this', exact: true }).click()
@@ -44,7 +44,7 @@ for (const width of [390, 1280]) {
     await page.getByRole('link', { name: 'Edit recipe', exact: true }).first().click()
     await page.getByLabel('Recipe title', { exact: true }).fill(`${title} with spinach`)
     await page.getByRole('button', { name: 'Save changes', exact: true }).click()
-    await expect(details).toContainText('UpdatedToday')
+    await expect(details).toContainText('UpdatedJust now')
     expect(errors).toEqual([])
   })
 }

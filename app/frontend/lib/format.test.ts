@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount, formatDay, formatMinutes, formatQuantity, groupBySection, isToday } from './format'
+import { formatAmount, formatDay, formatMinutes, formatQuantity, groupBySection, isToday, timeAgo } from './format'
 
 describe('formatMinutes', () => {
   it('formats minutes and hours', () => {
@@ -81,5 +81,23 @@ describe('isToday', () => {
   it('is true from midnight to midnight', () => {
     expect(isToday(iso(2026, 9, 24, 0, 5), now)).toBe(true)
     expect(isToday(iso(2026, 9, 23, 23, 55), now)).toBe(false)
+  })
+})
+
+const ago = (seconds: number) => new Date(now.getTime() - seconds * 1000).toISOString()
+
+describe('timeAgo', () => {
+  it('counts up from minutes to years', () => {
+    expect(timeAgo(ago(20), now)).toBe('Just now')
+    expect(timeAgo(ago(60), now)).toBe('1 minute ago')
+    expect(timeAgo(ago(5 * 60), now)).toBe('5 minutes ago')
+    expect(timeAgo(ago(3 * 3600), now)).toBe('3 hours ago')
+    expect(timeAgo(ago(3 * 86_400), now)).toBe('3 days ago')
+    expect(timeAgo(ago(65 * 86_400), now)).toBe('2 months ago')
+    expect(timeAgo(ago(400 * 86_400), now)).toBe('1 year ago')
+  })
+
+  it("doesn't show future times from a fast clock", () => {
+    expect(timeAgo(ago(-30), now)).toBe('Just now')
   })
 })

@@ -2,7 +2,7 @@ import { Head, Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
-import { formatAmount, formatDay, formatMinutes, groupBySection, isToday } from '@/lib/format'
+import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
@@ -23,7 +23,7 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         </Link>
         <Link
           href={`/recipes/${recipe.id}/edit`}
-          className="inline-flex items-center gap-1.5 text-graphite hover:text-ink"
+          className="inline-flex items-center gap-1.5 rounded-full bg-paper px-4 py-2 ring-1 ring-hairline transition-colors hover:ring-ink/30"
         >
           <Icon name="edit" className="size-4" />
           Edit recipe
@@ -286,12 +286,12 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
 function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
   const source = recipe.source_name || recipe.source_host
   const count = recipe.cooks_count
-  const stats = [
+  const stats: [string, string | null, (string | null)?][] = [
     ['Made', count === 0 ? 'Not yet' : count === 1 ? 'Once' : `${count} times`],
     ['Last made', recipe.last_cook && formatDay(recipe.last_cook.cooked_at)],
-    ['Added', formatDay(recipe.created_at)],
-    ['Updated', recipe.edited_at && formatDay(recipe.edited_at)],
-  ].filter((stat): stat is [string, string] => Boolean(stat[1]))
+    ['Added', timeAgo(recipe.created_at), formatTimestamp(recipe.created_at)],
+    ['Updated', recipe.edited_at && timeAgo(recipe.edited_at), recipe.edited_at && formatTimestamp(recipe.edited_at)],
+  ]
 
   return (
     <aside aria-label="Recipe details" className={className}>
@@ -315,12 +315,17 @@ function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: st
         </p>
       )}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline sm:grid-cols-4 lg:grid-cols-2">
-        {stats.map(([label, value]) => (
-          <div key={label}>
-            <dt className="text-graphite">{label}</dt>
-            <dd className="mt-0.5 font-medium tabular-nums">{value}</dd>
-          </div>
-        ))}
+        {stats.map(
+          ([label, value, exact]) =>
+            value && (
+              <div key={label}>
+                <dt className="text-graphite">{label}</dt>
+                <dd title={exact ?? undefined} className="mt-0.5 font-medium tabular-nums">
+                  {value}
+                </dd>
+              </div>
+            ),
+        )}
       </dl>
     </aside>
   )
