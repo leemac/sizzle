@@ -2,31 +2,75 @@
 
 ## Requirements
 
-- A machine that runs Docker: a home server, NAS, Raspberry Pi 4/5, or VPS. Sizzle idles at
-  around 150 MB of RAM.
-- An [Anthropic API key](https://console.anthropic.com/settings/keys) for importing recipes.
+- A machine that runs Docker with Compose: a home server, NAS, Raspberry Pi 4/5 (64-bit OS),
+  or VPS. Images are published for `amd64` and `arm64`. Sizzle idles at around 150 MB of RAM.
+- Optional: an [Anthropic API key](https://console.anthropic.com/settings/keys) for pages without
+  usable recipe data and for unstructured pasted text.
 
 ## Install
 
+No clone or build needed. Download the compose file and settings from the latest release:
+
 ```sh
-git clone https://github.com/leemac/sizzle.git && cd sizzle
-cp .env.example .env
-# edit .env: set ANTHROPIC_API_KEY and SIZZLE_API_TOKEN (openssl rand -hex 32)
+mkdir sizzle && cd sizzle
+curl -fsSLO https://github.com/leemac/sizzle/releases/latest/download/docker-compose.yml
+curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
+# edit .env: set SIZZLE_API_TOKEN (openssl rand -hex 32), and ANTHROPIC_API_KEY if you want AI
 docker compose up -d
 ```
 
 Sizzle listens on port 3000 (change it with `SIZZLE_PORT`). Everything it stores lives in the
 `sizzle-storage` Docker volume: SQLite databases, recipe photos, and a generated secret key.
+**Setup** in Sizzle shows which version you're running.
+
+## Versions
+
+Each release is published to `ghcr.io/leemac/sizzle` with these tags:
+
+| Tag | Follows |
+|-----|---------|
+| `latest` | every release (the default) |
+| `0.0` | patch releases of 0.0 only |
+| `0.0.1` | exactly that release; never changes |
+
+Set `SIZZLE_VERSION` in `.env` to pin one of them. Until 1.0, a minor release (0.1 → 0.2) may
+include breaking changes; the [release notes](https://github.com/leemac/sizzle/releases) say
+what to do.
+
+To check an image was built by this repository's release workflow:
+
+```sh
+gh attestation verify oci://ghcr.io/leemac/sizzle:latest -R leemac/sizzle
+```
 
 ## Upgrade
 
+Back up first (see below), then:
+
 ```sh
-git pull && docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
-Database migrations run automatically on start. Back up before upgrading. If an older install
-already contains duplicate recipe source URLs, the new unique index will refuse the migration
-rather than delete recipes. Resolve those duplicate entries in the old version before upgrading.
+Database migrations run automatically on start. A migrated database can't be opened by an
+older version, so to roll back, restore the backup you made before upgrading and set
+`SIZZLE_VERSION` to the version you came from. If an older install already contains duplicate
+recipe source URLs, the new unique index will refuse the migration rather than delete recipes.
+Resolve those duplicate entries in the old version before upgrading.
+
+Read the release notes before upgrading across a minor version. A new release may also ship an
+updated `docker-compose.yml` or new settings in `env.example`; both are attached to every release.
+
+## Build from source
+
+To run your own changes, clone the repository and build the image locally:
+
+```sh
+git clone https://github.com/leemac/sizzle.git && cd sizzle
+cp .env.example .env
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+```
+
+Setup will report the version as `dev`.
 
 ## Back up
 

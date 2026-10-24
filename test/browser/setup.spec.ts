@@ -30,6 +30,7 @@ for (const width of [390, 1280]) {
         const body = await response.json()
         body.props.setup = {
           claude_configured: configured,
+          version: 'dev',
         }
         await route.fulfill({ response, json: body })
       })
