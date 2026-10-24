@@ -38,7 +38,7 @@ class ServerAddressesTest < ActiveSupport::TestCase
       assert ServerAddresses.loopback_host?(host), host
     end
 
-    %w[192.168.1.20 cookbook.lan www.example.com localhost.example.com].each do |host|
+    [ "192.168.1.20", "cookbook.lan", "www.example.com", "localhost.example.com", "", nil, "127.0.0.1/99" ].each do |host|
       assert_not ServerAddresses.loopback_host?(host), host
     end
   end

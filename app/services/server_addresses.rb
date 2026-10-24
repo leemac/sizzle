@@ -9,7 +9,7 @@ class ServerAddresses
   def self.loopback_host?(host)
     host = host.to_s.delete_prefix("[").delete_suffix("]")
     host == "localhost" || IPAddr.new(host).loopback?
-  rescue IPAddr::InvalidAddressError
+  rescue IPAddr::Error
     false
   end
 
