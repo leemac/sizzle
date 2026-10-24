@@ -16,8 +16,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Docs-only changes (Markdown anywhere, or anything under docs/) skip the slow jobs below.
+  # Skipped jobs still satisfy the required checks; the secret scan always runs.
+  changes:
+    name: Detect code changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # Only pull requests and pushes to main may skip. Releases (a tag push calling this
+          # workflow) and anything that can't be diffed run every job.
+          case "$EVENT:$REF" in
+            pull_request:*) base=HEAD^1 ;; # the checkout is the PR merged into its base
+            push:refs/heads/main) base=$BEFORE ;;
+            *) base= ;;
+          esac
+          code=true
+          # --no-renames lists both sides of a rename, so moving code into docs/ still counts.
+          if [[ -n "$base" ]] && files=$(git diff --no-renames --name-only "$base" HEAD) && [[ -n "$files" ]]; then
+            echo "$files"
+            grep -qvE '\.md$|^docs/' <<< "$files" || code=false
+          fi
+          echo "code=$code" | tee -a "$GITHUB_OUTPUT"
+
   test:
     name: Rails tests
+    needs: changes
+    # Runs unless the change is docs-only; if detection fails, it runs anyway.
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     # Ruby 3.3.6 has a prebuilt binary for 24.04, but not newer Ubuntu images.
     runs-on: ubuntu-24.04
     steps:
@@ -39,6 +75,8 @@ jobs:
 
   frontend:
     name: Frontend checks
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,6 +94,8 @@ jobs:
 
   security:
     name: Lint and security scans
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -101,6 +141,8 @@ jobs:
 
   docker:
     name: Docker image boots
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

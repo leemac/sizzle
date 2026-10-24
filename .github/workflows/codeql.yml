@@ -1,9 +1,12 @@
 name: CodeQL
 
+# Not a required check, so docs-only changes can skip it at the workflow level.
 on:
   pull_request:
+    paths-ignore: ["**.md", "docs/**"]
   push:
     branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
   schedule:
     - cron: "17 6 * * 1"
 
