@@ -41,43 +41,26 @@ class ImportPipeline
       end
 
       @import.advance!("extracting")
-      data = @extractor.from_page(page)
-      raise NotARecipe unless data["is_recipe"]
+      draft = RecipeDraft.new(@extractor.from_page(page), images: page.images)
+      raise NotARecipe unless draft.recipe?
 
       @import.advance!("saving")
-      images_by_id = page.images.index_by(&:id)
-      cover_urls = [ images_by_id[data["hero_image_id"]]&.url, *page.images.map(&:url) ].compact
-      photo_urls = Array(data["step_image_ids"]).filter_map { |id| images_by_id[id]&.url }
-
-      save_recipe(data, source_url: page.canonical_url, source_name: page.site_name,
-                        cover_urls:, photo_urls: photo_urls - cover_urls.first(1))
+      save_recipe(draft, source_url: page.canonical_url, source_name: page.site_name)
     end
   end
 
   def import_text
     @import.advance!("extracting")
-    data = @extractor.from_text(@import.text)
-    raise NotARecipe unless data["is_recipe"]
+    draft = RecipeDraft.new(@extractor.from_text(@import.text))
+    raise NotARecipe unless draft.recipe?
 
     @import.advance!("saving")
-    save_recipe(data)
+    save_recipe(draft)
   end
 
-  def save_recipe(data, source_url: nil, source_name: nil, cover_urls: [], photo_urls: [])
-    recipe = Recipe.create!(
-      **data.slice(*%w[title description author servings yield_text prep_minutes cook_minutes total_minutes
-                       cuisine]).symbolize_keys,
-      course: data["course"].presence_in(Recipe::COURSES),
-      diets: Array(data["diets"]) & Recipe::DIETS,
-      tags: Array(data["tags"]).map { |tag| tag.to_s.downcase.strip }.reject(&:blank?).uniq.first(6),
-      ingredients: Array(data["ingredients"]),
-      steps: Array(data["steps"]),
-      tips: Array(data["tips"]).first(5),
-      main_ingredient: data["main_ingredient"]&.downcase,
-      source_url:,
-      source_name:
-    )
-    @images.attach(recipe, cover_urls:, photo_urls:)
+  def save_recipe(draft, source_url: nil, source_name: nil)
+    recipe = Recipe.create!(**draft.attributes, source_url:, source_name:)
+    @images.attach(recipe, cover_urls: draft.cover_urls, photo_urls: draft.photo_urls)
     recipe
   end
 end
