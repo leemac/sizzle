@@ -15,22 +15,39 @@ and adds it to a fast, photo-first collection you can search and filter.
 - **Yours.** Runs on your own server with SQLite, in one small container. No accounts, no tracking.
 - **Browse.** Full-text search plus filters for course, cuisine, diet, main ingredient and time.
 
-## Run it
+## Install
 
-You need Docker. No AI account or API key is required for manual entry or imports from a page
-with usable recipe data. You can add an [Anthropic API key](https://console.anthropic.com/settings/keys)
-later for other pages and unstructured pasted text; each AI extraction is a paid Claude request.
+You need a machine with Docker and Docker Compose: a home server, NAS, Raspberry Pi 4/5 or VPS.
+Images are published to `ghcr.io/leemac/sizzle` for `amd64` and `arm64`. No AI account or API key
+is required for manual entry or imports from a page with usable recipe data. You can add an
+[Anthropic API key](https://console.anthropic.com/settings/keys) later for other pages and
+unstructured pasted text; each AI extraction is a paid Claude request.
 
-```sh
-mkdir sizzle && cd sizzle
-curl -fsSLO https://github.com/leemac/sizzle/releases/latest/download/docker-compose.yml
-curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
-# edit .env: set SIZZLE_API_TOKEN — see below
-docker compose up -d
-```
+1. Download the compose file and settings from the latest release:
+
+   ```sh
+   mkdir sizzle && cd sizzle
+   curl -fsSLO https://github.com/leemac/sizzle/releases/latest/download/docker-compose.yml
+   curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
+   ```
+
+2. Edit `.env`:
+
+   - `SIZZLE_API_TOKEN`: protects the share API. Generate one with `openssl rand -hex 32`.
+   - `SIZZLE_HOSTS`: only if you'll open Sizzle at a domain name like `recipes.example.com`.
+     IP addresses, bare hostnames and `.local`, `.lan`, `.home.arpa` and `.ts.net` names work
+     without it.
+   - `ANTHROPIC_API_KEY`: optional, for AI extraction.
+
+3. Start it:
+
+   ```sh
+   docker compose up -d
+   ```
 
 Open `http://<your-server>:3000`. Your recipes, photos and databases live in the
 `sizzle-storage` volume, so back that up. To upgrade, run `docker compose pull && docker compose up -d`.
+`latest` follows every release; set `SIZZLE_VERSION=0.0.1` in `.env` to stay on one.
 [Self-hosting](docs/self-hosting.md) covers versions, upgrades, backups and building from source.
 
 Choose **Setup** in Sizzle for a walkthrough of your cookbook and your first recipe. AI
