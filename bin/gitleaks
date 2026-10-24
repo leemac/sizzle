@@ -1,0 +1,85 @@
+#!/usr/bin/env sh
+# Runs the pinned gitleaks release, downloading and checksum-verifying it into tmp/bin on first use.
+# Local hooks, bin/ci and GitHub Actions all use this, so everyone scans with the same rules.
+#
+# To upgrade: change VERSION and copy the four sums from gitleaks_<version>_checksums.txt on the
+# release page (https://github.com/gitleaks/gitleaks/releases).
+
+set -eu
+
+VERSION=8.30.1
+
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64)              platform=darwin_arm64 sha256=b40ab0ae55c505963e365f271a8d3846efbc170aa17f2607f13df610a9aeb6a5 ;;
+  Darwin-x86_64)             platform=darwin_x64   sha256=dfe101a4db2255fc85120ac7f3d25e4342c3c20cf749f2c20a18081af1952709 ;;
+  Linux-aarch64|Linux-arm64) platform=linux_arm64  sha256=e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080 ;;
+  Linux-x86_64)              platform=linux_x64    sha256=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb ;;
+  *)                         platform="" sha256="" ;;
+esac
+
+dir="$(cd "$(dirname "$0")/.." && pwd)/tmp/bin"
+binary="$dir/gitleaks-$VERSION"
+
+install_pinned() {
+  [ -n "$platform" ] || { echo "No pinned gitleaks build for $(uname -s) $(uname -m)." >&2; return 1; }
+
+  mkdir -p "$dir"
+  download=$(mktemp -d "$dir/download.XXXXXX")
+  archive="$download/gitleaks.tar.gz"
+  echo "Downloading gitleaks $VERSION ($platform)…" >&2
+  if ! curl -fsSL --retry 2 -o "$archive" "https://github.com/gitleaks/gitleaks/releases/download/v$VERSION/gitleaks_${VERSION}_$platform.tar.gz"
+  then
+    rm -rf "$download"
+    return 1
+  fi
+
+  if command -v sha256sum 1> /dev/null 2>&1
+  then
+    actual=$(sha256sum "$archive" | cut -d' ' -f1)
+  else
+    actual=$(shasum -a 256 "$archive" | cut -d' ' -f1)
+  fi
+  if [ "$actual" != "$sha256" ]
+  then
+    rm -rf "$download"
+    echo "The gitleaks download doesn't match its pinned checksum, so it wasn't installed." >&2
+    return 1
+  fi
+
+  tar xzf "$archive" -C "$download" gitleaks
+  mv "$download/gitleaks" "$binary"
+  rm -rf "$download"
+}
+
+# A gitleaks elsewhere on PATH, skipping this script: with the repo's bin/ on PATH, `command -v`
+# would find this wrapper and it would call itself forever.
+installed_elsewhere() {
+  self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+  old_ifs=$IFS
+  IFS=:
+  for path_dir in $PATH
+  do
+    if [ -n "$path_dir" ] && [ -f "$path_dir/gitleaks" ] && [ -x "$path_dir/gitleaks" ] && [ ! "$path_dir/gitleaks" -ef "$self" ]
+    then
+      IFS=$old_ifs
+      echo "$path_dir/gitleaks"
+      return 0
+    fi
+  done
+  IFS=$old_ifs
+  return 1
+}
+
+if [ ! -x "$binary" ] && ! install_pinned
+then
+  if fallback=$(installed_elsewhere)
+  then
+    echo "Using the gitleaks on your PATH instead ($fallback)." >&2
+    exec "$fallback" "$@"
+  fi
+  echo "Sizzle couldn't install gitleaks, so it can't check for secrets." >&2
+  echo "Check your connection and try again, or install it yourself: https://github.com/gitleaks/gitleaks#installing" >&2
+  exit 1
+fi
+
+exec "$binary" "$@"
