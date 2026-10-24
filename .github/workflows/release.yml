@@ -17,6 +17,7 @@ permissions:
 # Never cancel a half-published release.
 concurrency:
   group: release-${{ github.repository }}
+  queue: max
   cancel-in-progress: false
 
 env:

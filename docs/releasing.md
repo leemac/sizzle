@@ -17,7 +17,8 @@ Sizzle uses [semantic versioning](https://semver.org) with a `v` prefix on tags:
 
 Pre-releases (`v0.1.0-rc.1`) get only their exact image tag, never `latest`.
 
-Release runs are serialized across versions. Floating image tags (`latest`, minor and major)
+Release runs are serialized across versions, with up to 100 pending runs queued instead of
+replaced by newer tags. Floating image tags (`latest`, minor and major)
 advance only to an equal or newer stable version, so a delayed release or a backport cannot
 downgrade them. An older release also leaves GitHub's latest release unchanged.
 

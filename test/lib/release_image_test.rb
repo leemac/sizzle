@@ -153,6 +153,7 @@ class ReleaseImageTest < ActiveSupport::TestCase
     workflow = YAML.load_file(Rails.root.join(".github/workflows/release.yml"))
 
     assert_equal "release-${{ github.repository }}", workflow.fetch("concurrency").fetch("group")
+    assert_equal "max", workflow.fetch("concurrency").fetch("queue")
     assert_equal false, workflow.fetch("concurrency").fetch("cancel-in-progress")
     steps = workflow.fetch("jobs").fetch("publish").fetch("steps")
     prepare = steps.index { |step| step["run"] == "ruby .github/scripts/release_image.rb prepare" }
