@@ -5,7 +5,6 @@ import ImportStatusLabel from '@/components/ImportStatusLabel'
 import LayoutToggle from '@/components/LayoutToggle'
 import RecipeRow from '@/components/RecipeRow'
 import RecipeTile from '@/components/RecipeTile'
-import UrlImportForm from '@/components/UrlImportForm'
 import AppLayout from '@/layouts/AppLayout'
 import { useGalleryLayout, type GalleryLayout } from '@/lib/galleryLayout'
 import type { Facets, Import, RecipeCard, RecipeFilters } from '@/types'
@@ -64,8 +63,6 @@ export default function RecipesIndex({
           {total_count > 0 && <LayoutToggle value={layout} onChange={setLayout} />}
         </div>
       </div>
-
-      <UrlImportForm />
 
       {failed_imports.length > 0 && (
         <section aria-label="Failed imports" className="mb-8 rounded-photo bg-paper p-4 ring-1 ring-hairline">

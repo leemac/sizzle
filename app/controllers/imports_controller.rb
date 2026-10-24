@@ -12,19 +12,13 @@ class ImportsController < InertiaController
   def create
     return create_manual_recipe if params.key?(:manual_recipe)
 
-    url_input = params.key?(:url)
-    import = if url_input
-      Import.new(kind: "url", url: params[:url].to_s.strip, origin: "web")
+    batch = ImportBatch.new(params[:input], origin: "web")
+    if batch.save
+      count = batch.imports.size
+      notice = count == 1 ? "Importing… this usually takes under a minute." : "Importing #{count} recipes… this usually takes a minute or two."
+      redirect_to imports_path, notice:
     else
-      Import.from_input(params[:input], origin: "web")
-    end
-    destination = url_input ? root_path : imports_path
-
-    if import.save
-      redirect_to destination, notice: "Importing… this usually takes under a minute."
-    else
-      field = url_input ? :url : :input
-      redirect_to destination, inertia: { errors: { field => import.errors.full_messages.to_sentence } }
+      redirect_to imports_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
     end
   end
 
