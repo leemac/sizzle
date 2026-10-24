@@ -56,9 +56,9 @@ class Import < ApplicationRecord
   end
 
   # Solid Queue records a killed worker's execution as failed outside perform,
-  # so ImportJob's rescue cannot update our status. Polling reconciles those
-  # failures before returning props. Match job IDs so an old failure cannot
-  # overwrite a new retry, and leave running/scheduled jobs alone.
+  # so ImportJob's rescue cannot update our status. ReconcileImportsJob runs
+  # this every minute to catch those failures. Match job IDs so an old failure
+  # cannot overwrite a new retry, and leave running/scheduled jobs alone.
   def self.reconcile_failed_jobs!
     return unless ImportJob.queue_adapter.is_a?(ActiveJob::QueueAdapters::SolidQueueAdapter)
 
