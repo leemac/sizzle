@@ -22,6 +22,7 @@ export type ManualRecipeInput = {
   servings: string
   prep_minutes: string
   cook_minutes: string
+  source_url: string
 }
 
 export type RecipeCard = {

@@ -61,7 +61,7 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     post imports_url, params: { manual_recipe: fields.merge(
       title: "<b>Rice &amp; beans</b>", ingredients: '<img src="http://169.254.169.254/">1 cup rice',
       steps: "<script>bad()</script><p>Simmer.</p>",
-      source_url: "http://169.254.169.254/", rating: 5, notes: "not a permitted field"
+      source_name: "Not permitted", rating: 5, notes: "not a permitted field"
     ) }
 
     recipe = Recipe.last
@@ -69,9 +69,51 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert_equal "1 cup rice", recipe.ingredients.sole["item"]
     assert_equal "Simmer.", recipe.steps.sole["text"]
     assert_nil recipe.source_url
+    assert_nil recipe.source_name
     assert_nil recipe.rating
     assert_nil recipe.notes
     assert_not recipe.cover.attached?
+  end
+
+  test "keeps an optional source link without fetching it" do
+    assert_no_enqueued_jobs do
+      post imports_url, params: { manual_recipe: fields.merge(source_url: " https://www.Example.com/rice?utm_source=ig#notes ") }
+    end
+
+    recipe = Recipe.last
+    assert_equal "https://www.example.com/rice", recipe.source_url
+    assert_equal "example.com", recipe.source_host
+    follow_redirect!(headers: inertia_headers)
+    assert_equal "https://www.example.com/rice", inertia.props[:recipe]["source_url"]
+    assert_equal "example.com", inertia.props[:recipe]["source_host"]
+  end
+
+  test "rejects source links that aren't new web links" do
+    Recipe.create!(title: "Saved rice", source_url: "https://example.com/rice")
+
+    [ "javascript:alert(1)", "data:text/html,hi", "ftp://example.com/rice", "https://", "http://exa mple.com",
+      "https://example.com/#{'x' * 2048}", "https://example.com/rice?utm_source=ig" ].each do |invalid|
+      assert_no_difference "Recipe.count", invalid do
+        post imports_url, params: { manual_recipe: fields.merge(source_url: invalid) }
+      end
+      assert_redirected_to imports_url(mode: "manual")
+      follow_redirect!(headers: inertia_headers)
+      assert inertia.props[:errors]["source_url"], invalid
+    end
+  end
+
+  test "writing a failed link import manually starts with its link" do
+    failed = Import.create!(kind: "url", url: "https://example.com/rice", origin: "web", status: "failed")
+    pasted = Import.create!(kind: "text", text: "1 cup rice", origin: "web", status: "failed")
+
+    get imports_url(mode: "manual", from: failed.id), headers: inertia_headers
+    assert_equal "https://example.com/rice", inertia.props[:source_url]
+
+    get imports_url(mode: "manual", from: pasted.id), headers: inertia_headers
+    assert_nil inertia.props[:source_url]
+
+    get imports_url(mode: "manual"), headers: inertia_headers
+    assert_nil inertia.props[:source_url]
   end
 
   test "manual submissions retain Rails CSRF protection" do

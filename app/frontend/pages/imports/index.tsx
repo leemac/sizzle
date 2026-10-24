@@ -5,7 +5,15 @@ import ManualRecipeForm from '@/components/ManualRecipeForm'
 import AppLayout from '@/layouts/AppLayout'
 import type { Import } from '@/types'
 
-export default function ImportsIndex({ imports, mode }: { imports: Import[]; mode: 'import' | 'manual' }) {
+export default function ImportsIndex({
+  imports,
+  mode,
+  source_url,
+}: {
+  imports: Import[]
+  mode: 'import' | 'manual'
+  source_url: string | null
+}) {
   const { app } = usePage().props
   const form = useForm({ input: '' })
   const { start, stop } = usePoll(2000, { only: ['imports'] }, { autoStart: false })
@@ -49,7 +57,7 @@ export default function ImportsIndex({ imports, mode }: { imports: Import[]; mod
       </nav>
 
       {mode === 'manual' ? (
-        <ManualRecipeForm />
+        <ManualRecipeForm sourceUrl={source_url} />
       ) : (
         <form onSubmit={submit} className="mt-8">
           <p className="mb-4 text-sm text-graphite">
@@ -137,7 +145,10 @@ function ImportRow({ item }: { item: Import }) {
       </div>
       {item.status === 'failed' && (
         <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
-          <Link href="/imports?mode=manual" className="text-sm text-graphite underline underline-offset-4">
+          <Link
+            href={item.kind === 'url' ? `/imports?mode=manual&from=${item.id}` : '/imports?mode=manual'}
+            className="text-sm text-graphite underline underline-offset-4"
+          >
             Write manually
           </Link>
           <button

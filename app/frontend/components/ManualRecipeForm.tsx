@@ -3,7 +3,7 @@ import type { ManualRecipeInput } from '@/types'
 
 const inputClass = 'mt-2 w-full rounded-xl border-hairline bg-paper px-4 py-3 text-base focus:border-ink focus:ring-0'
 
-export default function ManualRecipeForm() {
+export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | null }) {
   const form = useForm<ManualRecipeInput>({
     title: '',
     description: '',
@@ -12,6 +12,7 @@ export default function ManualRecipeForm() {
     servings: '',
     prep_minutes: '',
     cook_minutes: '',
+    source_url: sourceUrl ?? '',
   })
 
   const submit = (event: React.FormEvent) => {
@@ -56,6 +57,24 @@ export default function ManualRecipeForm() {
           aria-describedby={form.errors.description ? 'description-error' : undefined}
         />
         <FieldError name="description" error={form.errors.description} />
+      </div>
+      <div>
+        <label htmlFor="recipe-source_url" className="text-sm font-medium">
+          Source link <span className="font-normal text-graphite">(optional)</span>
+        </label>
+        <input
+          id="recipe-source_url"
+          type="url"
+          inputMode="url"
+          maxLength={2048}
+          placeholder="https://…"
+          value={form.data.source_url}
+          onChange={(event) => form.setData('source_url', event.target.value)}
+          className={`${inputClass} placeholder:text-graphite`}
+          aria-invalid={!!form.errors.source_url}
+          aria-describedby={form.errors.source_url ? 'source_url-error' : undefined}
+        />
+        <FieldError name="source_url" error={form.errors.source_url} />
       </div>
       <div className="grid grid-cols-3 gap-3">
         {(

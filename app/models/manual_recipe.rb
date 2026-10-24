@@ -10,6 +10,7 @@ class ManualRecipe
   attribute :servings, :string
   attribute :prep_minutes, :string
   attribute :cook_minutes, :string
+  attribute :source_url, :string
   attr_reader :recipe
 
   validates :title, presence: true, length: { maximum: 300 }
@@ -19,7 +20,9 @@ class ManualRecipe
   validates :prep_minutes, :cook_minutes,
             numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: StructuredRecipeExtractor::MAX_MINUTES },
             allow_blank: true
+  validates :source_url, length: { maximum: 2048 }
   validate :usable_content
+  validate :source_url_is_new_web_link, if: -> { source_url.present? }
 
   def save
     return false unless valid?
@@ -31,7 +34,7 @@ class ManualRecipe
       ingredients: RecipeText.lines(ingredients).map { |line| RecipeText.ingredient(line) },
       steps: RecipeText.lines(steps).map { |line| { "section" => nil, "text" => line } },
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
-      total_minutes: (prep + cook if prep && cook)
+      total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence
     )
     true
   end
@@ -48,5 +51,18 @@ class ManualRecipe
       errors.add(field, "must have at most #{RecipeText::MAX_ITEMS} lines") if lines.length > RecipeText::MAX_ITEMS
       errors.add(field, "has a line longer than #{maximum} characters") if lines.any? { |line| line.length > maximum }
     end
+  end
+
+  # The source is only shown as a link, never fetched, but it must be a web link
+  # (no javascript: or data:) and can't duplicate a recipe already saved from it.
+  def source_url_is_new_web_link
+    return if errors.include?(:source_url)
+
+    uri = URI.parse(source_url.strip)
+    return errors.add(:source_url, "must be a link starting with http:// or https://") unless uri.is_a?(URI::HTTP) && uri.host.present?
+
+    errors.add(:source_url, "is already in your cookbook") if Recipe.exists?(source_url: Recipe.normalize_url(source_url))
+  rescue URI::InvalidURIError
+    errors.add(:source_url, "isn't a valid link")
   end
 end
