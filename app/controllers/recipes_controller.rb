@@ -20,11 +20,13 @@ class RecipesController < InertiaController
 
   def show
     recipe = Recipe.with_attached_cover.with_attached_photos.find(params[:id])
+    inertia_meta.add(title: recipe.title)
     render inertia: "recipes/show", props: { recipe: RecipeSerializer.detail(recipe) }
   end
 
   def edit
     recipe = Recipe.find(params[:id])
+    inertia_meta.add(title: "Edit #{recipe.title}")
     render inertia: "recipes/edit", props: { recipe: RecipeSerializer.edit(recipe, RecipeEdit.for(recipe)) }
   end
 

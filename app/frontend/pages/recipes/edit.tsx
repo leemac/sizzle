@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Link, useForm } from '@inertiajs/react'
 import FieldError, { inputClass } from '@/components/FieldError'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
@@ -28,7 +28,6 @@ export default function RecipeEdit({ recipe }: { recipe: RecipeEditForm }) {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Head title={`Edit ${recipe.title}`} />
       <Link
         href={`/recipes/${recipe.id}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-graphite hover:text-ink"

@@ -2,6 +2,7 @@ class ImportsController < InertiaController
   rate_limit to: 30, within: 1.minute, only: %i[create retry]
 
   def index
+    inertia_meta.add(title: "Add a recipe")
     render inertia: "imports/index", props: {
       imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) },
       mode: params[:mode] == "manual" ? "manual" : "import",
