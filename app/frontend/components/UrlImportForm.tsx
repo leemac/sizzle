@@ -1,9 +1,12 @@
 import { useForm } from '@inertiajs/react'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { RECIPE_LINK_EXAMPLES, useRotatingPlaceholder } from '@/lib/useRotatingPlaceholder'
 
 export default function UrlImportForm() {
   const form = useForm({ url: '' })
   const submitting = useRef(false)
+  const [focused, setFocused] = useState(false)
+  const example = useRotatingPlaceholder(RECIPE_LINK_EXAMPLES, { paused: focused })
 
   const submit = (value: string) => {
     if (submitting.current) return
@@ -53,7 +56,9 @@ export default function UrlImportForm() {
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
-          placeholder="https://…"
+          placeholder={example.placeholder}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           value={form.data.url}
           readOnly={form.processing}
           aria-invalid={!!form.errors.url}
@@ -62,7 +67,7 @@ export default function UrlImportForm() {
             form.setData('url', event.target.value)
             form.clearErrors('url')
           }}
-          className="min-w-0 flex-1 rounded-full border-hairline bg-porcelain px-4 py-3 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
+          className={`min-w-0 flex-1 rounded-full border-hairline bg-porcelain px-4 py-3 text-base text-ellipsis placeholder:text-graphite focus:border-ink focus:ring-0 ${example.className}`}
         />
         <button
           type="submit"

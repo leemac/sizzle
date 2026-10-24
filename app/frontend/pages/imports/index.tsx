@@ -1,9 +1,13 @@
 import { Head, Link, router, useForm, usePage, usePoll } from '@inertiajs/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import ManualRecipeForm from '@/components/ManualRecipeForm'
 import AppLayout from '@/layouts/AppLayout'
+import { RECIPE_LINK_EXAMPLES, useRotatingPlaceholder } from '@/lib/useRotatingPlaceholder'
 import type { Import } from '@/types'
+
+// With AI set up, the box also takes a pasted recipe, so the last example says so.
+const LINK_OR_TEXT_EXAMPLES = [...RECIPE_LINK_EXAMPLES, 'Or paste the whole recipe…']
 
 export default function ImportsIndex({
   imports,
@@ -16,6 +20,10 @@ export default function ImportsIndex({
 }) {
   const { app } = usePage().props
   const form = useForm({ input: '' })
+  const [focused, setFocused] = useState(false)
+  const example = useRotatingPlaceholder(app.claude_configured ? LINK_OR_TEXT_EXAMPLES : RECIPE_LINK_EXAMPLES, {
+    paused: focused,
+  })
   const { start, stop } = usePoll(2000, { only: ['imports'] }, { autoStart: false })
   const pending = imports.some((item) => item.status !== 'done' && item.status !== 'failed')
 
@@ -88,8 +96,10 @@ export default function ImportsIndex({
             rows={3}
             value={form.data.input}
             onChange={(event) => form.setData('input', event.target.value)}
-            placeholder="https://…"
-            className="mt-2 w-full resize-y rounded-photo border-hairline bg-paper px-5 py-4 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
+            placeholder={example.placeholder}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            className={`mt-2 w-full resize-y rounded-photo border-hairline bg-paper px-5 py-4 text-base placeholder:text-graphite focus:border-ink focus:ring-0 ${example.className}`}
           />
           {form.errors.input && (
             <p id="input-error" role="alert" className="mt-2 text-sm text-danger">
