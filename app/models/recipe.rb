@@ -16,6 +16,8 @@ class Recipe < ApplicationRecord
 
   has_many :imports, dependent: :nullify
 
+  scope :favorites, -> { where.not(favorited_at: nil) }
+
   validates :title, presence: true, length: { maximum: 300 }
   validates :course, inclusion: { in: COURSES }, allow_nil: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
@@ -37,6 +39,18 @@ class Recipe < ApplicationRecord
     uri.to_s
   rescue URI::InvalidURIError
     url
+  end
+
+  def favorite?
+    favorited_at.present?
+  end
+
+  def favorite!
+    update!(favorited_at: Time.current) unless favorite?
+  end
+
+  def unfavorite!
+    update!(favorited_at: nil)
   end
 
   def source_url=(url)

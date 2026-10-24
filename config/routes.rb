@@ -7,7 +7,9 @@ Rails.application.routes.draw do
   end
 
   root "recipes#index"
-  resources :recipes, only: %i[show destroy]
+  resources :recipes, only: %i[show destroy] do
+    resource :favorite, only: %i[create destroy]
+  end
   resources :imports, only: %i[index create] do
     post :retry, on: :member
   end

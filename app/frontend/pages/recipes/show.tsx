@@ -35,6 +35,7 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
           <h1 className="font-display text-4xl leading-[0.95] font-semibold text-balance sm:text-6xl">
             {recipe.title}
           </h1>
+          <FavoriteButton recipe={recipe} />
           {recipe.description && <p className="mt-5 max-w-prose text-lg text-graphite">{recipe.description}</p>}
 
           {stats.length > 0 && (
@@ -195,6 +196,31 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
         </div>
       )}
     </section>
+  )
+}
+
+function FavoriteButton({ recipe }: { recipe: RecipeDetail }) {
+  const [processing, setProcessing] = useState(false)
+  const url = `/recipes/${recipe.id}/favorite`
+  const options = {
+    preserveScroll: true,
+    onStart: () => setProcessing(true),
+    onFinish: () => setProcessing(false),
+  }
+
+  return (
+    <button
+      type="button"
+      aria-pressed={recipe.favorite}
+      disabled={processing}
+      onClick={() => (recipe.favorite ? router.delete(url, options) : router.post(url, {}, options))}
+      className={`mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors disabled:opacity-60 ${
+        recipe.favorite ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'
+      }`}
+    >
+      <Icon name="heart" filled={recipe.favorite} className="size-4" />
+      {recipe.favorite ? 'Favorited' : 'Add to favorites'}
+    </button>
   )
 }
 
