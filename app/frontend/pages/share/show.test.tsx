@@ -79,12 +79,51 @@ it('notices when the page was opened through Tailscale', () => {
   expect(container.textContent).toContain('You’re using Sizzle through Tailscale')
 })
 
-it('asks for the token header when the API needs one', () => {
+const showTab = (name: string) =>
+  act(() =>
+    [...container.querySelectorAll<HTMLElement>('[role="tab"]')].find((tab) => tab.textContent === name)!.click(),
+  )
+const panel = () => container.querySelector('[role="tabpanel"]')!
+
+it('asks for the token header in every method when the API needs one', () => {
   render({ token_required: true })
 
   expect(container.textContent).toContain('Shares need your API token')
-  expect(container.textContent).toContain('Authorization')
-  expect(container.querySelector('pre')?.textContent).toContain('Authorization: Bearer $SIZZLE_API_TOKEN')
+  expect(panel().textContent).toContain('Authorization')
+  showTab('Android')
+  expect(panel().textContent).toContain('Request Headers')
+  expect(panel().textContent).toContain('401')
+  showTab('Computer')
+  expect(panel().querySelector('pre')?.textContent).toContain('Authorization: Bearer $SIZZLE_API_TOKEN')
+})
+
+it('leaves the token out when the API doesn’t need one', () => {
+  render()
+
+  expect(panel().textContent).not.toContain('Authorization')
+  showTab('Android')
+  expect(panel().textContent).not.toContain('Request Headers')
+  showTab('Computer')
+  expect(panel().querySelector('pre')?.textContent).not.toContain('Authorization')
+})
+
+it('starts on the iPhone steps and offers Android through HTTP Shortcuts', () => {
+  render()
+  expect(panel().textContent).toContain('Build the Shortcut')
+
+  showTab('Android')
+  expect(panel().textContent).toContain('Allow Receiving Value from Share Dialog')
+  expect(panel().textContent).toContain('JSON encode')
+  expect(panel().textContent).toContain('{"text": "{shared}"}')
+  const play = [...panel().querySelectorAll('a')].find((link) => link.textContent === 'Google Play')
+  expect(play?.getAttribute('href')).toBe('https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts')
+})
+
+it('starts on the Android steps on an Android phone', () => {
+  vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) Chrome/131.0 Mobile' })
+  render()
+
+  expect(panel().textContent).toContain('Set up HTTP Shortcuts')
 })
 
 it('links to Tailscale in a new tab', () => {
