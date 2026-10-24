@@ -27,22 +27,29 @@ class ImportPipeline
   rescue SafeHttp::Error => e
     @import.fail!("Couldn't load that page (#{e.message}).")
   rescue NotARecipe
-    @import.fail!("That doesn't look like a recipe.")
+    if video_id
+      @import.fail!("This video's description doesn't include the recipe, and Sizzle can't read recipes that " \
+                    "are only spoken. Write the recipe manually instead.")
+    else
+      @import.fail!("That doesn't look like a recipe.")
+    end
   rescue RecipeExtractor::Retryable
     raise # let ImportJob retry with backoff
-  rescue NeedsManualEntry, RecipeExtractor::Error => e
+  rescue NeedsManualEntry, YoutubeVideo::Unavailable, RecipeExtractor::Error => e
     @import.fail!(e.message)
   end
 
   private
 
   def import_url
-    if (existing = Recipe.find_by(source_url: Recipe.normalize_url(@import.url)))
+    # Every form of a YouTube link (youtu.be, shorts, &t=) is stored as one watch URL.
+    shared_url = video_id ? YoutubeVideo.watch_url(video_id) : @import.url
+    if (existing = Recipe.find_by(source_url: Recipe.normalize_url(shared_url)))
       return restore(existing)
     end
 
     @import.advance!("fetching")
-    page = PageScraper.fetch(@import.url, http: @http)
+    page = video_id ? YoutubeVideo.fetch(video_id, http: @http) : PageScraper.fetch(@import.url, http: @http)
     ImportSourceLock.synchronize(page.canonical_url) do
       if (existing = Recipe.find_by(source_url: Recipe.normalize_url(page.canonical_url)))
         return restore(existing)
@@ -51,7 +58,7 @@ class ImportPipeline
       @import.advance!("extracting")
       data = StructuredRecipeExtractor.new.from_page(page)
       unless data
-        raise NeedsManualEntry, "This page has no usable recipe data. Write the recipe manually, or enable optional AI in Setup." unless ai_extractor
+        raise NeedsManualEntry, no_recipe_data_message unless ai_extractor
 
         data = ai_extractor.from_page(page)
       end
@@ -72,6 +79,21 @@ class ImportPipeline
 
     @import.advance!("saving")
     save_recipe(draft)
+  end
+
+  def video_id
+    return @video_id if defined?(@video_id)
+
+    @video_id = (YoutubeVideo.id_from_url(@import.url) if @import.kind == "url")
+  end
+
+  def no_recipe_data_message
+    if video_id
+      "This video's description has no recipe data Sizzle can read without AI. Write the recipe manually, " \
+        "or enable optional AI in Setup."
+    else
+      "This page has no usable recipe data. Write the recipe manually, or enable optional AI in Setup."
+    end
   end
 
   # Sharing an archived recipe again brings it back to the gallery.
