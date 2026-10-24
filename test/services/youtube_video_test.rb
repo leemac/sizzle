@@ -130,6 +130,17 @@ class YoutubeVideoTest < ActiveSupport::TestCase
     assert_not_requested :get, "https://shop.example.com/book"
   end
 
+  test "thumbnails keep their slots when the linked page fills the candidate list" do
+    photos = (1..30).map { |n| %(<img src="https://cdn.example.com/photo-#{n}.jpg" width="800" height="600">) }.join
+    stub_watch_page(description: "Recipe: #{RECIPE_URL}")
+    stub_request(:get, RECIPE_URL).to_return(body: "<main>#{photos}</main>", headers: { "Content-Type" => "text/html" })
+    urls = fetch.images.map(&:url)
+
+    assert_equal PageScraper::MAX_IMAGES, urls.size
+    assert_equal [ "https://i.ytimg.com/vi/#{ID}/maxresdefault.jpg", "https://i.ytimg.com/vi/#{ID}/sddefault.jpg" ], urls.last(2)
+    assert_equal urls.uniq, urls
+  end
+
   test "follows a link right under a recipe label" do
     stub_watch_page(description: "RECIPE 👇\n#{RECIPE_URL}")
     stub_request(:get, RECIPE_URL).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })

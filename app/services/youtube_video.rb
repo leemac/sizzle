@@ -173,14 +173,17 @@ class YoutubeVideo
     false
   end
 
-  # The linked page's photos come first; thumbnails are always a fallback.
+  # The linked page's photos come first; thumbnails are always a fallback, so
+  # they keep their slots even when the page fills the candidate list.
   # hqdefault (480x360) is too small for RecipeImages, so it's left out.
   def images(linked)
-    thumbnails = %w[maxresdefault sddefault].map { |name| "https://i.ytimg.com/vi/#{@id}/#{name}.jpg" }
-    candidates = (linked&.images || []).map { |image| [ image.url, image.alt, image.source ] }
-    candidates += thumbnails.map { |url| [ url, nil, "video thumbnail" ] }
+    thumbnails = %w[maxresdefault sddefault].map { |name| [ "https://i.ytimg.com/vi/#{@id}/#{name}.jpg", nil, "video thumbnail" ] }
+    linked_images = (linked&.images || []).map { |image| [ image.url, image.alt, image.source ] }
+    thumbnail_urls = thumbnails.map(&:first)
+    linked_images = linked_images.reject { |url, _| thumbnail_urls.include?(url) }.uniq(&:first)
+    candidates = linked_images.first(PageScraper::MAX_IMAGES - thumbnails.size) + thumbnails
 
-    candidates.uniq(&:first).first(PageScraper::MAX_IMAGES).each_with_index.map do |(url, alt, source), index|
+    candidates.each_with_index.map do |(url, alt, source), index|
       PageScraper::Image.new(id: "img#{index + 1}", url:, alt:, source:)
     end
   end
