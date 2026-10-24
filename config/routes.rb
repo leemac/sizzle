@@ -7,7 +7,8 @@ Rails.application.routes.draw do
   end
 
   root "recipes#index"
-  resources :recipes, only: %i[show destroy] do
+  resources :recipes, only: %i[show edit update destroy] do
+    resource :archive, only: :create, module: :recipes
     resource :favorite, only: %i[create destroy]
   end
   resources :imports, only: %i[index create] do

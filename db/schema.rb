@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_24_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_24_213604) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -80,7 +80,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_160000) do
     t.integer "rating"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "archived_at"
     t.datetime "favorited_at"
+    t.index ["archived_at"], name: "index_recipes_on_archived_at"
     t.index ["course"], name: "index_recipes_on_course"
     t.index ["created_at"], name: "index_recipes_on_created_at"
     t.index ["cuisine"], name: "index_recipes_on_cuisine"

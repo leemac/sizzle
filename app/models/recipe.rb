@@ -1,6 +1,7 @@
 class Recipe < ApplicationRecord
   include Searchable
   include Filterable
+  include Archivable
 
   COURSES = %w[breakfast main side appetizer soup salad dessert baking snack drink sauce bread].freeze
   DIETS = %w[vegetarian vegan pescatarian gluten-free dairy-free nut-free low-carb].freeze
@@ -55,7 +56,7 @@ class Recipe < ApplicationRecord
 
   def source_url=(url)
     super(url.presence && self.class.normalize_url(url))
-    self.source_host = URI.parse(source_url).host&.delete_prefix("www.") if source_url
+    self.source_host = source_url && URI.parse(source_url).host&.delete_prefix("www.")
   rescue URI::InvalidURIError
     self.source_host = nil
   end

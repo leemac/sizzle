@@ -56,6 +56,16 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal 1, @extractor.pages.size, "Claude is only called once"
   end
 
+  test "sharing an archived recipe again brings it back without importing it twice" do
+    first = run_import(url_import)
+    first.archive!
+    second = run_import(url_import)
+
+    assert_equal first, second
+    assert_not first.reload.archived?
+    assert_equal 1, @extractor.pages.size
+  end
+
   test "a concurrent import of the same canonical source waits before calling Claude" do
     first = url_import
     second = url_import("#{URL}?utm_source=share")

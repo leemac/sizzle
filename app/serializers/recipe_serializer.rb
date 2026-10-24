@@ -36,8 +36,19 @@ module RecipeSerializer
       rating: recipe.rating,
       hero_url: image_path(recipe.cover, :hero),
       photo_urls: recipe.photos.map { |photo| routes.rails_storage_proxy_path(photo.variant(:medium), only_path: true) },
-      created_at: recipe.created_at.iso8601
+      created_at: recipe.created_at.iso8601,
+      archived: recipe.archived?
     )
+  end
+
+  # The edit form's starting values, as the strings the form fields hold.
+  def edit(recipe, form)
+    {
+      id: recipe.id,
+      title: recipe.title,
+      fields: RecipeEdit::FIELDS.index_with { |field| form.public_send(field).to_s },
+      courses: Recipe::COURSES
+    }
   end
 
   private

@@ -72,6 +72,23 @@ export type RecipeDetail = RecipeCard & {
   hero_url: string | null
   photo_urls: string[]
   created_at: string
+  archived: boolean
+}
+
+export type RecipeEditInput = ManualRecipeInput & {
+  total_minutes: string
+  cuisine: string
+  course: string
+  main_ingredient: string
+  tips: string
+  notes: string
+}
+
+export type RecipeEditForm = {
+  id: number
+  title: string
+  fields: RecipeEditInput
+  courses: string[]
 }
 
 export type ImportStatus = 'queued' | 'fetching' | 'extracting' | 'saving' | 'done' | 'failed'

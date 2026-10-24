@@ -61,8 +61,12 @@ class ManualRecipe
     uri = URI.parse(source_url.strip)
     return errors.add(:source_url, "must be a link starting with http:// or https://") unless uri.is_a?(URI::HTTP) && uri.host.present?
 
-    errors.add(:source_url, "is already in your cookbook") if Recipe.exists?(source_url: Recipe.normalize_url(source_url))
+    errors.add(:source_url, "is already in your cookbook") if other_recipes.exists?(source_url: Recipe.normalize_url(source_url))
   rescue URI::InvalidURIError
     errors.add(:source_url, "isn't a valid link")
+  end
+
+  def other_recipes
+    Recipe.all
   end
 end
