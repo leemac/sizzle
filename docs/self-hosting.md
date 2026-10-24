@@ -29,7 +29,7 @@ Each release is published to `ghcr.io/leemac/sizzle` with these tags:
 
 | Tag | Follows |
 |-----|---------|
-| `latest` | every release (the default) |
+| `latest` | newest stable release (the default) |
 | `0.0` | patch releases of 0.0 only |
 | `0.0.1` | exactly that release; never changes |
 

@@ -13,9 +13,10 @@ on:
 permissions:
   contents: read
 
+# Registry checks and tag writes must be serialized across all versions.
 # Never cancel a half-published release.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.repository }}
   cancel-in-progress: false
 
 env:
@@ -109,13 +110,21 @@ jobs:
   publish:
     name: Publish image
     needs: [verify, build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    outputs:
+      latest: ${{ steps.promote.outputs.latest }}
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+        with:
+          ruby-version: .ruby-version
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: ${{ runner.temp }}/digests
@@ -127,8 +136,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # v0.0.1 → 0.0.1, 0.0 and latest. A major tag (1) is added from 1.0 on.
-      # Pre-releases (v0.1.0-rc.1) get only their exact tag, never latest.
+      # Metadata only: release_image.rb decides which tags may advance.
       - id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
@@ -139,26 +147,24 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
-      - name: Combine the platform images and push the tags
+      - name: Publish the exact version, or reuse its original digest on retries
         id: manifest
-        working-directory: ${{ runner.temp }}/digests
         env:
           VERSION: ${{ needs.verify.outputs.version }}
-        run: |
-          args=()
-          while read -r tag; do args+=(--tag "$tag"); done < <(jq -r '.tags[]' <<<"$DOCKER_METADATA_OUTPUT_JSON")
-          while read -r note; do args+=(--annotation "$note"); done < <(jq -r '.annotations[]' <<<"$DOCKER_METADATA_OUTPUT_JSON")
-          sources=()
-          for digest in *; do sources+=("$IMAGE@sha256:$digest"); done
-          docker buildx imagetools create "${args[@]}" "${sources[@]}"
-          docker buildx imagetools inspect "$IMAGE:$VERSION"
-          echo "digest=$(docker buildx imagetools inspect "$IMAGE:$VERSION" --format '{{json .Manifest}}' | jq -r .digest)" >> "$GITHUB_OUTPUT"
+          DIGESTS_PATH: ${{ runner.temp }}/digests
+        run: ruby .github/scripts/release_image.rb prepare
       # Lets anyone check the image was built here: gh attestation verify oci://ghcr.io/leemac/sizzle:<version> -R leemac/sizzle
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ steps.manifest.outputs.digest }}
           push-to-registry: true
+      - name: Advance floating tags without downgrading them
+        id: promote
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+          DIGEST: ${{ steps.manifest.outputs.digest }}
+        run: ruby .github/scripts/release_image.rb promote
 
   release-files:
     name: Attach install files to the GitHub release
@@ -176,11 +182,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.verify.outputs.version }}
+          LATEST: ${{ needs.publish.outputs.latest }}
         run: |
           if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             prerelease=()
             [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
-            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes "${prerelease[@]}"
+            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --latest="$LATEST" "${prerelease[@]}"
           fi
           cp .env.example "$RUNNER_TEMP/env.example"
           gh release upload "$GITHUB_REF_NAME" docker-compose.yml "$RUNNER_TEMP/env.example" --clobber
