@@ -62,6 +62,7 @@ async function galleryFixture(page: Page) {
     if (url.pathname === '/imports' && request.method() === 'POST') {
       requests.push(request.postDataJSON())
       data.props.pending_imports = [item]
+      data.props.filters = {}
       return route.fulfill({ json: data, headers: { 'X-Inertia': 'true' } })
     }
     if (url.pathname === '/' && request.headers()['x-inertia']) {
@@ -163,3 +164,34 @@ test('server validation errors stay on the gallery and preserve the URL', async 
   await expect(input).toHaveValue('https://example.com:6379/pie')
   await expect(page).toHaveURL('/')
 })
+
+for (const rejected of [false, true]) {
+  test(`gallery search resets after an import is ${rejected ? 'rejected' : 'accepted'}`, async ({ page }) => {
+    const { data } = await galleryFixture(page)
+    data.props.total_count = 1
+    data.props.filters = { q: 'curry' }
+    await page.getByRole('link', { name: 'Sizzle', exact: true }).click()
+    const search = page.getByRole('searchbox', { name: 'Search recipes' })
+    await expect(search).toHaveValue('curry')
+
+    if (rejected) {
+      await page.route('**/imports', (route) => {
+        data.props.filters = {}
+        data.props.errors = { url: 'Url port 6379 is not allowed' }
+        return route.fulfill({ json: data, headers: { 'X-Inertia': 'true' } })
+      })
+    }
+    await page
+      .getByRole('textbox', { name: 'Add a recipe', exact: true })
+      .fill(rejected ? 'https://example.com:6379/pie' : 'https://example.com/curry')
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
+    if (rejected) await expect(page.locator('#recipe-url-error')).toContainText('port 6379 is not allowed')
+    else await expect(page.getByText('Reading the page', { exact: true })).toBeVisible()
+    await expect(search).toHaveValue('')
+
+    const filtering = page.waitForRequest((request) => new URL(request.url()).searchParams.get('course') === 'main')
+    await page.getByRole('button', { name: 'main', exact: true }).click()
+    const request = await filtering
+    expect(new URL(request.url()).searchParams.has('q')).toBe(false)
+  })
+}

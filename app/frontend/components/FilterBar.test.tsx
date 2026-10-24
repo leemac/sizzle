@@ -74,3 +74,25 @@ it('debounces typing and cancels the pending search when another filter applies'
   expect(router.get).toHaveBeenCalledTimes(2)
   expect(router.get).toHaveBeenLastCalledWith('/', { q: 'curry', course: 'main' }, expect.any(Object))
 })
+
+it('resets the search and cancels its debounce when returned filters clear the query', () => {
+  render({ q: 'curry' })
+  typeQuery('pie')
+  render({})
+  act(() => vi.advanceTimersByTime(300))
+
+  expect(container.querySelector('input')!.value).toBe('')
+  expect(router.get).not.toHaveBeenCalled()
+  click('main')
+  expect(router.get).toHaveBeenCalledExactlyOnceWith('/', { course: 'main' }, expect.any(Object))
+})
+
+it('preserves typing when polling returns the same search filter', () => {
+  render({ q: 'curry' })
+  typeQuery('pie')
+  render({ q: 'curry' })
+  act(() => vi.advanceTimersByTime(250))
+
+  expect(container.querySelector('input')!.value).toBe('pie')
+  expect(router.get).toHaveBeenCalledExactlyOnceWith('/', { q: 'pie' }, expect.any(Object))
+})
