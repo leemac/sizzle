@@ -8,9 +8,9 @@ test.beforeEach(async ({ context }) => {
 })
 
 async function paste(input: Locator, text: string) {
-  const allowed = await input.evaluate((element, text) => {
+  const allowed = await input.evaluate((element, pastedText) => {
     const clipboardData = new DataTransfer()
-    clipboardData.setData('text/plain', text)
+    clipboardData.setData('text/plain', pastedText)
     return element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
   }, text)
   // Synthetic paste events do not insert text. Emulate the default edit if allowed.

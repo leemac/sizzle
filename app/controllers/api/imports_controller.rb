@@ -30,7 +30,6 @@ class Api::ImportsController < ActionController::API
   end
 
   def show
-    Import.reconcile_failed_jobs!
     render json: payload(Import.find(params[:id]))
   end
 

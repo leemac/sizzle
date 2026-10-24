@@ -49,6 +49,7 @@ h3 {
 
 /* Layout ------------------------------------------------------------------ */
 
+.notice,
 .bar,
 main > section,
 .foot {
@@ -61,6 +62,42 @@ main > section,
   justify-content: space-between;
   align-items: center;
   height: 72px;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 12px 18px 12px 12px;
+  border-radius: 16px;
+  background: var(--yolk-soft);
+  box-shadow:
+    inset 0 0 0 1.5px var(--yolk),
+    0 1px 0 rgb(24 24 27 / 0.04);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.notice p {
+  margin: 0;
+}
+
+.notice a {
+  font-weight: 600;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.notice-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--yolk);
 }
 
 .wordmark {
@@ -89,13 +126,29 @@ main > section,
   pointer-events: none;
 }
 
+.icon {
+  width: 1.125em;
+  height: 1.125em;
+  flex: none;
+  fill: currentColor;
+}
+
 .bar-link {
-  color: var(--graphite);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
   text-decoration: none;
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 
 .bar-link:hover {
-  color: var(--ink);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--graphite);
 }
 
 /* Hero -------------------------------------------------------------------- */
@@ -130,7 +183,9 @@ main > section,
 }
 
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 13px 22px;
   border-radius: 999px;
   text-decoration: none;

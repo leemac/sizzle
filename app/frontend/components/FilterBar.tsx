@@ -11,14 +11,19 @@ function visit(filters: RecipeFilters) {
 
 export default function FilterBar({ filters, facets }: { filters: RecipeFilters; facets: Facets }) {
   const [query, setQuery] = useState(filters.q ?? '')
+  const [previousQuery, setPreviousQuery] = useState(filters.q)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  const cancelSearch = () => clearTimeout(timer.current)
-  useEffect(() => cancelSearch, [])
-  useEffect(() => {
-    cancelSearch()
+  if (filters.q !== previousQuery) {
+    setPreviousQuery(filters.q)
     setQuery(filters.q ?? '')
-  }, [filters.q])
+  }
+
+  const cancelSearch = () => clearTimeout(timer.current)
+  useEffect(() => () => clearTimeout(timer.current), [timer])
+  useEffect(() => {
+    if (query === (filters.q ?? '')) clearTimeout(timer.current)
+  }, [filters.q, query, timer])
 
   const search = (value: string) => {
     setQuery(value)

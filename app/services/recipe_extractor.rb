@@ -136,13 +136,7 @@ class RecipeExtractor
     when :max_tokens then raise Error, "The recipe was too long to process."
     end
 
-    data = JSON.parse(response.content.select { |block| block.type == :text }.map(&:text).join)
-    # Optional headings keep the wire schema within Claude's 16-union limit.
-    # Preserve the nullable section keys expected by stored recipes and the UI.
-    %w[ingredients steps].each do |key|
-      Array(data[key]).each { |entry| entry["section"] = entry["section"].presence }
-    end
-    data
+    JSON.parse(response.content.select { |block| block.type == :text }.map(&:text).join)
   rescue JSON::ParserError
     raise Error, "Claude returned an unreadable response."
   rescue Anthropic::Errors::AuthenticationError, Anthropic::Errors::PermissionDeniedError

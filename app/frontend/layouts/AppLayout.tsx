@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
@@ -6,9 +6,10 @@ import SizzleLogo from '@/components/SizzleLogo'
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { flash, url } = usePage()
   const message = flash.notice ?? flash.alert
-  const [dismissed, setDismissed] = useState<string | undefined>()
+  const [dismissed, setDismissed] = useState(false)
 
-  useEffect(() => setDismissed(undefined), [message])
+  // Every new flash shows again, even one with the same text as the last.
+  useEffect(() => router.on('flash', () => setDismissed(false)), [])
 
   return (
     <div className="min-h-dvh pb-[env(safe-area-inset-bottom)]">
@@ -42,13 +43,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {message && dismissed !== message && (
+      {message && !dismissed && (
         <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6" role="status">
           <div
             className={`flex items-start justify-between gap-3 rounded-2xl px-4 py-3 text-sm ${flash.alert ? 'bg-danger/10 text-danger' : 'bg-paper text-ink ring-1 ring-hairline'}`}
           >
             <p>{message}</p>
-            <button type="button" onClick={() => setDismissed(message)} aria-label="Dismiss" className="text-graphite">
+            <button type="button" onClick={() => setDismissed(true)} aria-label="Dismiss" className="text-graphite">
               <Icon name="close" className="size-4" />
             </button>
           </div>

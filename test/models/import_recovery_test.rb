@@ -35,6 +35,16 @@ class ImportRecoveryTest < ActiveSupport::TestCase
     assert_equal "queued", Import.first.status
   end
 
+  test "ReconcileImportsJob runs the reconciliation" do
+    import = Import.create!(kind: "text", text: "Pie", origin: "web")
+    failed_execution(import.active_job_id)
+    ImportJob.queue_adapter = :solid_queue
+
+    ReconcileImportsJob.perform_now
+
+    assert_equal "failed", import.reload.status
+  end
+
   test "a previous attempt's failure cannot overwrite a retry or a completed import" do
     import = Import.create!(kind: "text", text: "Pie", origin: "web")
     old_id = import.active_job_id
