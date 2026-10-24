@@ -31,6 +31,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: bin/rails db:test:prepare test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
 
   frontend:
     name: Frontend checks
@@ -83,9 +85,10 @@ jobs:
       - name: Boot with the same hardening as docker-compose.yml and hit /up
         run: |
           docker run -d --name sizzle -p 3000:80 --read-only --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 --tmpfs /tmp:mode=1777 \
-            --security-opt no-new-privileges:true sizzle:ci
+            -v sizzle-storage:/rails/storage --security-opt no-new-privileges:true sizzle:ci
           for i in $(seq 1 30); do
-            curl -fsS http://localhost:3000/up && exit 0
+            # /up proves Rails booted; / proves the database was prepared and the gallery renders.
+            curl -fsS http://localhost:3000/up && curl -fsS -o /dev/null http://localhost:3000/ && exit 0
             sleep 2
           done
           docker logs sizzle

@@ -55,10 +55,38 @@ class Import < ApplicationRecord
     enqueue
   end
 
+  # Solid Queue records a killed worker's execution as failed outside perform,
+  # so ImportJob's rescue cannot update our status. Polling reconciles those
+  # failures before returning props. Match job IDs so an old failure cannot
+  # overwrite a new retry, and leave running/scheduled jobs alone.
+  def self.reconcile_failed_jobs!
+    return unless ImportJob.queue_adapter.is_a?(ActiveJob::QueueAdapters::SolidQueueAdapter)
+
+    # Imports queued before job tracking was introduced can still be matched to
+    # their latest Solid Queue job by Active Job's serialized GlobalID.
+    pending.where(active_job_id: nil).find_each do |import|
+      job_id = SolidQueue::Job.where(class_name: "ImportJob")
+        .where("json_extract(arguments, '$.arguments[0]._aj_globalid') = ?", import.to_global_id.to_s)
+        .order(id: :desc).pick(:active_job_id)
+      import.update_column(:active_job_id, job_id) if job_id
+    end
+
+    ids = pending.where.not(active_job_id: nil).pluck(:active_job_id)
+    return if ids.empty?
+
+    failed_ids = SolidQueue::Job.joins(:failed_execution).where(active_job_id: ids).pluck(:active_job_id)
+    pending.where(active_job_id: failed_ids).update_all(
+      status: "failed", error: "Importing was interrupted. Please retry.",
+      finished_at: Time.current, updated_at: Time.current
+    )
+  end
+
   private
 
   def enqueue
-    ImportJob.perform_later(self)
+    job = ImportJob.new(self)
+    update_column(:active_job_id, job.job_id)
+    job.enqueue
   end
 
   def url_is_fetchable

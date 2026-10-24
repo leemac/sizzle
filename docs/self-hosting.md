@@ -24,16 +24,62 @@ Sizzle listens on port 3000 (change it with `SIZZLE_PORT`). Everything it stores
 git pull && docker compose up -d --build
 ```
 
-Database migrations run automatically on start.
+Database migrations run automatically on start. Back up before upgrading. If an older install
+already contains duplicate recipe source URLs, the new unique index will refuse the migration
+rather than delete recipes. Resolve those duplicate entries in the old version before upgrading.
 
 ## Back up
 
-Back up the `sizzle-storage` volume. To copy it to a tarball:
+Stop Sizzle first so Rails, import workers, the cache and the queue cannot change SQLite
+or its WAL files while they are copied. Confirm the volume name with `docker volume ls`
+(the default Compose project uses `sizzle_sizzle-storage`). Keep backups private: they
+contain your recipes, queued import text and the generated secret key.
+
+From your Sizzle directory:
 
 ```sh
-docker run --rm -v sizzle_sizzle-storage:/data -v "$PWD":/backup alpine \
+docker compose stop
+docker run --rm -v sizzle_sizzle-storage:/data:ro -v "$PWD":/backup alpine \
   tar czf /backup/sizzle-backup.tgz -C /data .
+docker compose start
 ```
+
+If archiving fails, keep any previous backup and restart Sizzle with `docker compose start`.
+
+### Verify a restore
+
+Before relying on a backup, restore it into a **new** volume while leaving your live data alone:
+
+```sh
+docker volume create sizzle-restore-check
+docker run --rm -v sizzle-restore-check:/data -v "$PWD":/backup:ro alpine \
+  tar xzf /backup/sizzle-backup.tgz -C /data
+```
+
+Check each restored database using the built application image (each command must print `ok`):
+
+```sh
+docker run --rm --entrypoint sqlite3 -v sizzle-restore-check:/data \
+  "$(docker compose images -q sizzle)" /data/production.sqlite3 'PRAGMA quick_check;'
+docker run --rm --entrypoint sqlite3 -v sizzle-restore-check:/data \
+  "$(docker compose images -q sizzle)" /data/production_cache.sqlite3 'PRAGMA quick_check;'
+docker run --rm --entrypoint sqlite3 -v sizzle-restore-check:/data \
+  "$(docker compose images -q sizzle)" /data/production_queue.sqlite3 'PRAGMA quick_check;'
+```
+
+Then boot the restored copy on a separate local port, without your API credentials:
+
+```sh
+docker run -d --name sizzle-restore-check -p 127.0.0.1:3001:80 --read-only \
+  --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 --tmpfs /tmp:mode=1777 \
+  --security-opt no-new-privileges:true -v sizzle-restore-check:/rails/storage \
+  "$(docker compose images -q sizzle)"
+```
+
+Open `http://localhost:3001`, confirm expected recipes are present and their photos open,
+then stop the test container with `docker stop sizzle-restore-check`. Use a fresh volume
+and container name for each verification. For a real recovery, stop Sizzle and point its
+storage mount at the verified restored volume before starting it again.
 
 ## Reaching Sizzle from your phone
 

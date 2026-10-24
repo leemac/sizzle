@@ -3,6 +3,8 @@ require "test_helper"
 class Api::ImportsControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
+  RECIPE_TEXT = "Apple pie\n2 cups flour, 1 cup butter, 6 apples\nBake at 200C for 45 minutes.".freeze
+
   teardown { ENV.delete("SIZZLE_API_TOKEN") }
 
   test "accepts a JSON URL import and enqueues it" do
@@ -51,5 +53,46 @@ class Api::ImportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal import.id, response.parsed_body["id"]
+  end
+
+  test "accepts shared recipe text in the text field" do
+    assert_enqueued_with(job: ImportJob) do
+      post api_imports_url, params: { text: RECIPE_TEXT }, as: :json
+    end
+
+    assert_response :accepted
+    import = Import.find(response.parsed_body["id"])
+    assert_equal "text", import.kind
+    assert_equal RECIPE_TEXT, import.text
+    assert_equal "share", import.origin
+  end
+
+  test "treats a link sent in the text field as a URL import" do
+    post api_imports_url, params: { text: "https://example.com/pie" }, as: :json
+
+    assert_response :accepted
+    import = Import.find(response.parsed_body["id"])
+    assert_equal "url", import.kind
+    assert_equal "https://example.com/pie", import.url
+  end
+
+  test "validates links sent in the text field like links sent in the url field" do
+    post api_imports_url, params: { text: "https://example.com:6379/" }, as: :json
+
+    assert_response :unprocessable_content
+    assert_equal 0, Import.count
+  end
+
+  test "keeps the url field strict: recipe text there is rejected, not guessed at" do
+    post api_imports_url, params: { url: RECIPE_TEXT }, as: :json
+
+    assert_response :unprocessable_content
+    assert_equal 0, Import.count
+  end
+
+  test "rejects an empty request" do
+    post api_imports_url, params: {}, as: :json
+
+    assert_response :unprocessable_content
   end
 end

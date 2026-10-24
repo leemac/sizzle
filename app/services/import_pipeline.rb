@@ -35,21 +35,23 @@ class ImportPipeline
 
     @import.advance!("fetching")
     page = PageScraper.fetch(@import.url, http: @http)
-    if (existing = Recipe.find_by(source_url: Recipe.normalize_url(page.canonical_url)))
-      return existing
+    ImportSourceLock.synchronize(page.canonical_url) do
+      if (existing = Recipe.find_by(source_url: Recipe.normalize_url(page.canonical_url)))
+        return existing
+      end
+
+      @import.advance!("extracting")
+      data = @extractor.from_page(page)
+      raise NotARecipe unless data["is_recipe"]
+
+      @import.advance!("saving")
+      images_by_id = page.images.index_by(&:id)
+      cover_urls = [ images_by_id[data["hero_image_id"]]&.url, *page.images.map(&:url) ].compact
+      photo_urls = Array(data["step_image_ids"]).filter_map { |id| images_by_id[id]&.url }
+
+      save_recipe(data, source_url: page.canonical_url, source_name: page.site_name,
+                        cover_urls:, photo_urls: photo_urls - cover_urls.first(1))
     end
-
-    @import.advance!("extracting")
-    data = @extractor.from_page(page)
-    raise NotARecipe unless data["is_recipe"]
-
-    @import.advance!("saving")
-    images_by_id = page.images.index_by(&:id)
-    cover_urls = [ images_by_id[data["hero_image_id"]]&.url, *page.images.map(&:url) ].compact
-    photo_urls = Array(data["step_image_ids"]).filter_map { |id| images_by_id[id]&.url }
-
-    save_recipe(data, source_url: page.canonical_url, source_name: page.site_name,
-                      cover_urls:, photo_urls: photo_urls - cover_urls.first(1))
   end
 
   def import_text

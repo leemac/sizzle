@@ -2,6 +2,7 @@ class ImportsController < InertiaController
   rate_limit to: 30, within: 1.minute, only: %i[create retry]
 
   def index
+    Import.reconcile_failed_jobs!
     render inertia: "imports/index", props: {
       imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) }
     }

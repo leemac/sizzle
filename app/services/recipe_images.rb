@@ -5,6 +5,8 @@
 class RecipeImages
   MAX_DOWNLOAD_BYTES = 15.megabytes
   MIN_EDGE = 400
+  MAX_INPUT_EDGE = 16_000
+  MAX_INPUT_PIXELS = 40_000_000
   MAX_EDGE = 2400
   MAX_PHOTOS = 6
 
@@ -49,7 +51,9 @@ class RecipeImages
     return unless MAGIC_BYTES.values.any? { |check| check.call(bytes.b) }
 
     image = Vips::Image.new_from_buffer(bytes, "")
-    return if [ image.width, image.height ].min < MIN_EDGE
+    width, height = image.width, image.height
+    return if [ width, height ].min < MIN_EDGE
+    return if [ width, height ].max > MAX_INPUT_EDGE || width * height > MAX_INPUT_PIXELS
 
     Vips::Image.thumbnail_buffer(bytes, MAX_EDGE, height: MAX_EDGE, size: :down)
       .webpsave_buffer(Q: 82, strip: true)

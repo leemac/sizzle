@@ -1,0 +1,27 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "b5bc76254a9a9127dc78cd42603a603247974e5f3cede8d4457900ad3967d100",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/services/import_source_lock.rb",
+      "line": 18,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.open(Rails.root.join(\"storage\", \"import-locks\").join(Digest::SHA256.hexdigest(\"#{Recipe.connection_db_config.database}\\x00#{Recipe.normalize_url(url)}\")), (File::RDWR | File::CREAT), 384)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ImportSourceLock",
+        "method": "self.synchronize"
+      },
+      "user_input": "Recipe.normalize_url(url)",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "The only variable path component is Digest::SHA256.hexdigest(source): exactly 64 hexadecimal characters. It cannot contain a slash or traverse outside storage/import-locks. Regression coverage: ImportSourceLockTest."
+    }
+  ]
+}
