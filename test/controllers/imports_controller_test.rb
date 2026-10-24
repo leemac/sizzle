@@ -29,14 +29,15 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "gallery import runs through the secure pipeline and appears as a recipe" do
+  test "gallery import uses structured recipe data without AI and appears as a recipe" do
+    original_key = ENV.delete("ANTHROPIC_API_KEY")
     url = "https://samskitchen.example.com/chickpea-curry"
     stub_request(:get, url).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
     stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(body: sample_jpeg, headers: { "Content-Type" => "image/jpeg" })
 
     post imports_url, params: { url: }
     import = Import.last
-    ImportPipeline.new(import, http: safe_http, extractor: FakeExtractor.new).run
+    ImportPipeline.new(import, http: safe_http).run
     follow_redirect!
 
     assert_equal "done", import.reload.status
@@ -44,6 +45,8 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_empty inertia.props[:failed_imports]
     assert_equal "Weeknight Chickpea Curry", inertia.props[:recipes].sole[:title]
     assert inertia.props[:recipes].sole[:image_url]
+  ensure
+    original_key ? ENV["ANTHROPIC_API_KEY"] = original_key : ENV.delete("ANTHROPIC_API_KEY")
   end
 
   test "gallery shows background failures including blocked private network fetches" do

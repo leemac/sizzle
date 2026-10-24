@@ -4,11 +4,14 @@ class ImportsController < InertiaController
   def index
     Import.reconcile_failed_jobs!
     render inertia: "imports/index", props: {
-      imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) }
+      imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) },
+      mode: params[:mode] == "manual" ? "manual" : "import"
     }
   end
 
   def create
+    return create_manual_recipe if params.key?(:manual_recipe)
+
     url_input = params.key?(:url)
     import = if url_input
       Import.new(kind: "url", url: params[:url].to_s.strip, origin: "web")
@@ -28,5 +31,16 @@ class ImportsController < InertiaController
   def retry
     Import.find(params[:id]).retry!
     redirect_to imports_path, notice: "Retrying."
+  end
+
+  private
+
+  def create_manual_recipe
+    form = ManualRecipe.new(params.expect(manual_recipe: %i[title description ingredients steps servings prep_minutes cook_minutes]))
+    if form.save
+      redirect_to recipe_path(form.recipe), notice: "Recipe saved."
+    else
+      redirect_to imports_path(mode: "manual"), inertia: { errors: form.errors.to_hash.transform_values(&:to_sentence) }
+    end
   end
 end

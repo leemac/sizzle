@@ -137,6 +137,23 @@ test('typing waits for Enter, and background failures stay visible on the galler
   expect(requests).toHaveLength(1)
 })
 
+test('gallery URL imports remain available without AI configured', async ({ page }) => {
+  const { data, requests } = await galleryFixture(page)
+  data.props.app.claude_configured = false
+  await page.getByRole('link', { name: 'Sizzle', exact: true }).click()
+  await expect(page.getByText('Links with recipe data work without AI.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Set up optional AI', exact: true })).toHaveAttribute(
+    'href',
+    '/setup?step=claude',
+  )
+  await page.getByRole('textbox', { name: 'Add a recipe', exact: true }).fill('https://example.com/curry')
+  expect(requests).toEqual([])
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.getByText('Reading the page', { exact: true })).toBeVisible()
+  expect(requests).toEqual([{ url: 'https://example.com/curry' }])
+})
+
 test('invalid pasted links validate on Import and stay editable', async ({ page }) => {
   const { requests } = await galleryFixture(page)
   const input = page.getByRole('textbox', { name: 'Add a recipe', exact: true })

@@ -6,7 +6,8 @@ class ImportPipelineTest < ActiveSupport::TestCase
   URL = "https://samskitchen.example.com/chickpea-curry".freeze
 
   setup do
-    stub_request(:get, URL).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
+    @unstructured_page = file_fixture_html("recipe_page.html").sub('"recipeIngredient":', '"unusedIngredients":')
+    stub_request(:get, URL).to_return(body: @unstructured_page, headers: { "Content-Type" => "text/html" })
     stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(body: sample_jpeg, headers: { "Content-Type" => "image/jpeg" })
     @extractor = FakeExtractor.new
   end
@@ -41,6 +42,8 @@ class ImportPipelineTest < ActiveSupport::TestCase
     page = @extractor.pages.sole
 
     assert_equal "Weeknight Chickpea Curry", page.structured_recipe["name"]
+    assert_nil page.structured_recipe["recipeIngredient"]
+    assert_equal "Weeknight Chickpea Curry", page.title
     assert_equal "img1", page.images.first.id
   end
 
@@ -57,7 +60,7 @@ class ImportPipelineTest < ActiveSupport::TestCase
     first = url_import
     second = url_import("#{URL}?utm_source=share")
     stub_request(:get, "#{URL}?utm_source=share").to_return(
-      body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" }
+      body: @unstructured_page, headers: { "Content-Type" => "text/html" }
     )
     inner_extractor = FakeExtractor.new
     outer_extractor = FakeExtractor.new
@@ -103,7 +106,7 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal 0, Recipe.count
   end
 
-  test "a blocked site suggests pasting recipe text without calling Claude" do
+  test "a blocked site suggests manual entry without calling Claude" do
     stub_request(:get, URL).to_return(status: 403, body: "upstream challenge markup")
     import = url_import
 
@@ -111,7 +114,7 @@ class ImportPipelineTest < ActiveSupport::TestCase
 
     assert_equal "failed", import.reload.status
     assert_match "This site blocked Sizzle's request (HTTP 403)", import.error
-    assert_match "copy and paste its text into Add a recipe", import.error
+    assert_match "then add it with Write a recipe", import.error
     assert_not_includes import.error, "upstream challenge markup"
     assert_empty @extractor.pages
     assert_equal 0, Recipe.count
