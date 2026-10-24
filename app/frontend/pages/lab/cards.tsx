@@ -1,12 +1,12 @@
-// Temporary design lab for gallery cards (development only). Each design is a
+// Temporary design lab for gallery cards (development only). Each card is a
 // self-contained component so the winner can move into RecipeTile as-is.
 // Delete this page, CardLabController and its route once a design is picked.
 import { Head, Link } from '@inertiajs/react'
-import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
-import RecipeTile from '@/components/RecipeTile'
 import AppLayout from '@/layouts/AppLayout'
 import { formatMinutes } from '@/lib/format'
+import { useGalleryLayout, type GalleryLayout } from '@/lib/galleryLayout'
 import type { RecipeCard } from '@/types'
 
 type LabCard = RecipeCard & {
@@ -16,71 +16,58 @@ type LabCard = RecipeCard & {
   diets: string[]
 }
 
-type Design = {
+// How the black caption panel sits on the photo.
+type Panel = {
   id: string
   name: string
   note: string
-  grid: string
-  Card: ComponentType<{ recipe: LabCard }>
+  className: string
 }
 
-const STANDARD_GRID = 'grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4'
-
-const DESIGNS: Design[] = [
+const PANELS: Panel[] = [
   {
-    id: 'current',
-    name: 'A. Current',
-    note: 'What ships today. 4:5 photo, title and meta underneath.',
-    grid: STANDARD_GRID,
-    Card: RecipeTile,
+    id: 'band',
+    name: 'B1. Black band',
+    note: 'Full-width black at 85%. Crisp edge, photo barely shows through.',
+    className: 'inset-x-0 bottom-0 bg-black/85',
   },
   {
-    id: 'overlay',
-    name: 'B. Overlay',
-    note: 'Title sits on the photo over a soft scrim. Most photo, least chrome.',
-    grid: 'grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4',
-    Card: OverlayCard,
+    id: 'band-blur',
+    name: 'B2. Lighter band, blurred',
+    note: 'Black at 70% with a backdrop blur, so the photo’s colour bleeds in.',
+    className: 'inset-x-0 bottom-0 bg-black/70 backdrop-blur-md',
   },
   {
-    id: 'paper',
-    name: 'C. Paper card',
-    note: 'A contained card: 4:3 photo, title, then time, cuisine and source.',
-    grid: 'grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4',
-    Card: PaperCard,
+    id: 'floating',
+    name: 'B3. Floating panel',
+    note: 'Inset and rounded, black at 80%. Reads as a label stuck on the photo.',
+    className: 'inset-x-2 bottom-2 rounded-xl bg-black/80 backdrop-blur-sm',
   },
   {
-    id: 'badges',
-    name: 'D. Photo badges',
-    note: 'Like A, but time moves onto the photo so the caption is just the title.',
-    grid: STANDARD_GRID,
-    Card: BadgeCard,
-  },
-  {
-    id: 'editorial',
-    name: 'E. Editorial',
-    note: 'Square photo, course eyebrow, two lines of description. Reads like a cookbook index.',
-    grid: 'grid-cols-1 gap-y-10 min-[480px]:grid-cols-2 min-[480px]:gap-x-5 lg:grid-cols-3 lg:gap-x-8',
-    Card: EditorialCard,
-  },
-  {
-    id: 'dense',
-    name: 'F. Dense rows',
-    note: 'Thumbnail and text side by side. Scans fastest once the collection is big.',
-    grid: 'grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3',
-    Card: DenseCard,
+    id: 'feathered',
+    name: 'B4. Feathered band',
+    note: 'Black at 85% with a short fade above it instead of a hard edge.',
+    className:
+      'inset-x-0 bottom-0 bg-black/85 before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-gradient-to-t before:from-black/85 before:to-transparent',
   },
 ]
+
+const GRIDS: Record<GalleryLayout, string> = {
+  grid: 'grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4',
+  list: 'grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3',
+}
 
 type Props = { recipes: LabCard[] }
 
 export default function CardLab({ recipes }: Props) {
-  const [view, setView] = useState<'compare' | 'gallery'>('compare')
-  const [designId, setDesignId] = useState(DESIGNS[0].id)
+  const [view, setView] = useState<'preview' | 'compare'>('preview')
+  const [panelId, setPanelId] = useState(PANELS[0].id)
   const [phone, setPhone] = useState(false)
   const [edgeCases, setEdgeCases] = useState(true)
+  const [layout, setLayout] = useGalleryLayout()
 
   const sample = useMemo(() => (edgeCases ? [...withEdgeCases(recipes), ...recipes] : recipes), [recipes, edgeCases])
-  const shown = view === 'compare' ? DESIGNS : DESIGNS.filter((design) => design.id === designId)
+  const panel = PANELS.find((option) => option.id === panelId) ?? PANELS[0]
 
   return (
     <>
@@ -98,21 +85,21 @@ export default function CardLab({ recipes }: Props) {
           value={view}
           onChange={setView}
           options={[
-            ['compare', 'Compare all'],
-            ['gallery', 'One design'],
+            ['preview', 'Gallery preview'],
+            ['compare', 'Compare overlays'],
           ]}
         />
-        {view === 'gallery' && (
+        {view === 'preview' && (
           <label className="flex items-center gap-2 text-sm">
-            <span className="sr-only">Design</span>
+            <span className="sr-only">Overlay style</span>
             <select
-              value={designId}
-              onChange={(event) => setDesignId(event.target.value)}
+              value={panelId}
+              onChange={(event) => setPanelId(event.target.value)}
               className="rounded-full border-0 bg-paper py-1.5 pr-8 pl-3 text-sm ring-1 ring-hairline focus:ring-ink"
             >
-              {DESIGNS.map((design) => (
-                <option key={design.id} value={design.id}>
-                  {design.name}
+              {PANELS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
                 </option>
               ))}
             </select>
@@ -138,37 +125,80 @@ export default function CardLab({ recipes }: Props) {
         </label>
       </div>
 
-      <div className="space-y-16">
-        {shown.map((design) => (
-          <section key={design.id} aria-labelledby={`design-${design.id}`}>
-            <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h2 id={`design-${design.id}`} className="font-display text-2xl font-semibold">
-                {design.name}
-              </h2>
-              <p className="text-sm text-graphite">{design.note}</p>
-            </div>
+      {view === 'preview' ? (
+        <Frame phone={phone}>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <p className="text-sm text-graphite">{sample.length} recipes</p>
+            <LayoutToggle value={layout} onChange={setLayout} />
+          </div>
+          <Gallery layout={layout} panel={panel} recipes={sample} phone={phone} />
+        </Frame>
+      ) : (
+        <div className="space-y-16">
+          {PANELS.map((option) => (
+            <Section key={option.id} id={option.id} title={option.name} note={option.note}>
+              <Frame phone={phone}>
+                <Gallery layout="grid" panel={option} recipes={sample.slice(0, 8)} phone={phone} />
+              </Frame>
+            </Section>
+          ))}
+          <Section id="list" title="Dense rows" note="The list layout people can switch to.">
             <Frame phone={phone}>
-              <div className={`grid ${phone ? phoneGrid(design.grid) : design.grid}`}>
-                {(view === 'compare' ? sample.slice(0, edgeCases ? 8 : 4) : sample).map((recipe, index) => (
-                  <design.Card key={`${recipe.id}-${index}`} recipe={recipe} />
-                ))}
-              </div>
+              <Gallery layout="list" panel={panel} recipes={sample.slice(0, 8)} phone={phone} />
             </Frame>
-          </section>
-        ))}
-      </div>
+          </Section>
+        </div>
+      )}
     </>
   )
 }
 
 CardLab.layout = AppLayout
 
+function Gallery({
+  layout,
+  panel,
+  recipes,
+  phone,
+}: {
+  layout: GalleryLayout
+  panel: Panel
+  recipes: LabCard[]
+  phone: boolean
+}) {
+  return (
+    <div className={`grid ${phone ? phoneGrid(GRIDS[layout]) : GRIDS[layout]}`}>
+      {recipes.map((recipe, index) =>
+        layout === 'grid' ? (
+          <OverlayCard key={`${recipe.id}-${index}`} recipe={recipe} panel={panel} />
+        ) : (
+          <DenseCard key={`${recipe.id}-${index}`} recipe={recipe} />
+        ),
+      )}
+    </div>
+  )
+}
+
+function Section({ id, title, note, children }: { id: string; title: string; note: string; children: ReactNode }) {
+  return (
+    <section aria-labelledby={`design-${id}`}>
+      <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h2 id={`design-${id}`} className="font-display text-2xl font-semibold">
+          {title}
+        </h2>
+        <p className="text-sm text-graphite">{note}</p>
+      </div>
+      {children}
+    </section>
+  )
+}
+
 // The phone frame is narrower than the viewport, so responsive breakpoints
 // still see a wide screen. Keep only each grid's mobile classes.
 function phoneGrid(grid: string) {
   return grid
     .split(' ')
-    .filter((name) => !/^(sm|md|lg|xl|min-\[\d+px\]):/.test(name))
+    .filter((name) => !/^(sm|md|lg|xl):/.test(name))
     .join(' ')
 }
 
@@ -207,6 +237,42 @@ function Segmented<T extends string>({
   )
 }
 
+// The control that would ship in the gallery header.
+function LayoutToggle({ value, onChange }: { value: GalleryLayout; onChange: (layout: GalleryLayout) => void }) {
+  const options: [GalleryLayout, string, string][] = [
+    ['grid', 'Show as grid', 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],
+    ['list', 'Show as list', 'M4 5h4v4H4zM4 15h4v4H4zM11 7h9M11 17h9'],
+  ]
+  return (
+    <div role="group" aria-label="Layout" className="flex rounded-full bg-paper p-1 ring-1 ring-hairline">
+      {options.map(([option, label, path]) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={value === option}
+          aria-label={label}
+          title={label}
+          onClick={() => onChange(option)}
+          className={`grid size-8 place-items-center rounded-full ${value === option ? 'bg-ink text-porcelain' : 'text-graphite hover:text-ink'}`}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            className="size-4"
+            aria-hidden="true"
+          >
+            <path d={path} />
+          </svg>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // Real recipes bent into the awkward shapes the gallery has to survive.
 function withEdgeCases(recipes: LabCard[]): LabCard[] {
   if (recipes.length < 3) return []
@@ -227,37 +293,23 @@ function withEdgeCases(recipes: LabCard[]): LabCard[] {
       servings: null,
       source_host: null,
     },
-    { ...fourth, title: 'Dal', total_minutes: 1440, source_host: 'a-really-long-food-blog-domain-name.example.com' },
+    { ...fourth, title: 'Dal', total_minutes: 1440, favorite: true },
   ]
 }
 
-function meta(recipe: LabCard) {
-  return [formatMinutes(recipe.total_minutes), recipe.cuisine].filter(Boolean) as string[]
-}
-
-function Photo({ recipe, className = '' }: { recipe: LabCard; className?: string }) {
+function Photo({ recipe }: { recipe: LabCard }) {
   return recipe.image_url ? (
     <img
       src={recipe.image_url}
       alt=""
       loading="lazy"
       decoding="async"
-      className={`size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${className}`}
+      className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
     />
   ) : (
-    <div className="flex size-full items-end bg-paper p-4">
+    <div className="flex size-full items-start bg-paper p-4">
       <span className="font-display text-6xl leading-none font-bold text-hairline">{recipe.title.charAt(0)}</span>
     </div>
-  )
-}
-
-function Favorite({ recipe, className = '' }: { recipe: LabCard; className?: string }) {
-  if (!recipe.favorite) return null
-  return (
-    <span className={`grid size-8 place-items-center rounded-full bg-paper/90 text-yolk shadow-sm ${className}`}>
-      <Icon name="heart" filled className="size-4" />
-      <span className="sr-only">Favorite</span>
-    </span>
   )
 }
 
@@ -278,108 +330,40 @@ function Clock({ className = 'size-3.5' }: { className?: string }) {
   )
 }
 
-function OverlayCard({ recipe }: { recipe: LabCard }) {
-  const details = meta(recipe)
+const PILL = 'absolute top-2.5 inline-flex h-7 items-center rounded-full bg-black/70 text-white backdrop-blur-sm'
+
+function OverlayCard({ recipe, panel }: { recipe: LabCard; panel: Panel }) {
+  const time = formatMinutes(recipe.total_minutes)
   return (
     <Link
       href={`/recipes/${recipe.id}`}
       className="group relative block aspect-[4/5] overflow-hidden rounded-photo bg-hairline"
     >
       <Photo recipe={recipe} />
-      <Favorite recipe={recipe} className="absolute top-2.5 right-2.5" />
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent p-3 pt-16 sm:p-4 sm:pt-20">
-        <h3 className="line-clamp-3 font-display text-base leading-tight font-semibold text-balance text-white sm:text-lg">
-          {recipe.title}
-        </h3>
-        {details.length > 0 && <p className="mt-1 text-xs text-white/80 sm:text-sm">{details.join(' · ')}</p>}
-      </div>
-    </Link>
-  )
-}
-
-function PaperCard({ recipe }: { recipe: LabCard }) {
-  const time = formatMinutes(recipe.total_minutes)
-  return (
-    <Link
-      href={`/recipes/${recipe.id}`}
-      className="group flex flex-col overflow-hidden rounded-photo bg-paper ring-1 ring-hairline transition-shadow hover:shadow-md"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-hairline">
-        <Photo recipe={recipe} />
-        <Favorite recipe={recipe} className="absolute top-2 right-2" />
-      </div>
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
-        <h3 className="line-clamp-2 font-display text-base leading-snug font-semibold text-balance sm:text-lg">
-          {recipe.title}
-        </h3>
-        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-graphite">
-          {time && (
-            <span className="inline-flex items-center gap-1">
-              <Clock />
-              {time}
-            </span>
-          )}
-          {recipe.cuisine && <span>{recipe.cuisine}</span>}
-        </p>
-        {recipe.source_host && (
-          <div className="mt-auto pt-3">
-            <p className="truncate border-t border-hairline pt-2 text-xs text-graphite">{recipe.source_host}</p>
-          </div>
-        )}
-      </div>
-    </Link>
-  )
-}
-
-function BadgeCard({ recipe }: { recipe: LabCard }) {
-  const time = formatMinutes(recipe.total_minutes)
-  return (
-    <Link href={`/recipes/${recipe.id}`} className="group block">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-photo bg-hairline">
-        <Photo recipe={recipe} />
-        {time && (
-          <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-paper/90 px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
-            <Clock className="size-3" />
-            {time}
-          </span>
-        )}
-        <Favorite recipe={recipe} className="absolute top-2.5 right-2.5" />
-      </div>
-      <h3 className="mt-2.5 line-clamp-2 font-display text-lg leading-snug font-semibold text-balance">
-        {recipe.title}
-      </h3>
-      {recipe.cuisine && <p className="mt-0.5 text-sm text-graphite">{recipe.cuisine}</p>}
-    </Link>
-  )
-}
-
-function EditorialCard({ recipe }: { recipe: LabCard }) {
-  const eyebrow = [recipe.course, recipe.cuisine].filter(Boolean).join(' · ')
-  const footer = [formatMinutes(recipe.total_minutes), recipe.servings && `Serves ${recipe.servings}`].filter(Boolean)
-  return (
-    <Link href={`/recipes/${recipe.id}`} className="group block">
-      <div className="relative aspect-square overflow-hidden rounded-photo bg-hairline">
-        <Photo recipe={recipe} />
-        <Favorite recipe={recipe} className="absolute top-3 right-3" />
-      </div>
-      {eyebrow && <p className="mt-4 text-xs font-medium text-graphite">{capitalize(eyebrow)}</p>}
-      <h3 className={`${eyebrow ? 'mt-1' : 'mt-4'} font-display text-xl leading-snug font-semibold text-balance`}>
-        {recipe.title}
-      </h3>
-      {recipe.description && <p className="mt-2 line-clamp-2 text-sm text-graphite">{recipe.description}</p>}
-      {footer.length > 0 && (
-        <p className="mt-3 flex gap-3 border-t border-hairline pt-3 text-sm">
-          {footer.map((item) => (
-            <span key={item as string}>{item}</span>
-          ))}
-        </p>
+      {recipe.favorite && (
+        <span className={`${PILL} left-2.5 w-7 justify-center text-yolk`}>
+          <Icon name="heart" filled className="size-3.5" />
+          <span className="sr-only">Favorite</span>
+        </span>
       )}
+      {time && (
+        <span className={`${PILL} right-2.5 gap-1 px-2.5 text-xs font-medium`}>
+          <Clock className="size-3" />
+          {time}
+        </span>
+      )}
+      <div className={`absolute px-3 py-2.5 sm:px-4 sm:py-3 ${panel.className}`}>
+        <h3 className="relative line-clamp-2 font-display text-base leading-tight font-semibold text-balance text-white sm:text-lg">
+          {recipe.title}
+        </h3>
+        {recipe.cuisine && <p className="relative mt-0.5 text-xs text-white/70 sm:text-sm">{recipe.cuisine}</p>}
+      </div>
     </Link>
   )
 }
 
 function DenseCard({ recipe }: { recipe: LabCard }) {
-  const details = meta(recipe)
+  const time = formatMinutes(recipe.total_minutes)
   return (
     <Link
       href={`/recipes/${recipe.id}`}
@@ -390,21 +374,25 @@ function DenseCard({ recipe }: { recipe: LabCard }) {
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="line-clamp-2 font-display text-base leading-snug font-semibold">{recipe.title}</h3>
-        {details.length > 0 && <p className="mt-0.5 text-sm text-graphite">{details.join(' · ')}</p>}
+        {recipe.cuisine && <p className="mt-0.5 text-sm text-graphite">{recipe.cuisine}</p>}
         {recipe.description && (
           <p className="mt-1 hidden truncate text-sm text-graphite sm:block">{recipe.description}</p>
         )}
       </div>
-      {recipe.favorite && (
-        <span className="shrink-0 text-yolk">
-          <Icon name="heart" filled className="size-4" />
-          <span className="sr-only">Favorite</span>
-        </span>
-      )}
+      <div className="flex shrink-0 flex-col items-end gap-1.5 self-start pt-1 text-xs text-graphite">
+        {time && (
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            <Clock className="size-3" />
+            {time}
+          </span>
+        )}
+        {recipe.favorite && (
+          <span className="text-yolk">
+            <Icon name="heart" filled className="size-4" />
+            <span className="sr-only">Favorite</span>
+          </span>
+        )}
+      </div>
     </Link>
   )
-}
-
-function capitalize(text: string) {
-  return text.charAt(0).toUpperCase() + text.slice(1)
 }
