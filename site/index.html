@@ -15,11 +15,19 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/styles.css" />
+    <!-- Bump ?v= whenever these files change: GitHub Pages caches them for hours. -->
+    <link rel="stylesheet" href="/styles.css?v=2" />
+    <script type="module" src="/sizzle-logo.js?v=2"></script>
   </head>
   <body>
     <header class="bar">
-      <a href="/" class="wordmark">Sizzle</a>
+      <a href="/" class="wordmark" aria-label="Sizzle"
+        ><span aria-hidden="true"
+          >Si<span class="sizzle-logo__letters"
+            >zz<svg class="sizzle-logo__particles" viewBox="0 0 32 32" aria-hidden="true"></svg></span
+          >le</span
+        ></a
+      >
       <a href="https://github.com/leemac/sizzle" class="bar-link">GitHub</a>
     </header>
 

@@ -64,9 +64,29 @@ main > section,
 }
 
 .wordmark {
+  display: inline-block;
+  padding-bottom: 0.03em;
   font: 750 1.75rem/1 var(--display);
   letter-spacing: -0.045em;
   text-decoration: none;
+}
+
+.sizzle-logo__letters {
+  position: relative;
+  display: inline-block;
+}
+
+.sizzle-logo__particles {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 0.28em);
+  width: 1.25em;
+  height: 1.25em;
+  transform: translateX(-50%);
+  overflow: visible;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+  pointer-events: none;
 }
 
 .bar-link {
