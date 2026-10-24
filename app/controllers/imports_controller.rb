@@ -4,7 +4,8 @@ class ImportsController < InertiaController
   def index
     render inertia: "imports/index", props: {
       imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) },
-      mode: params[:mode] == "manual" ? "manual" : "import"
+      mode: params[:mode] == "manual" ? "manual" : "import",
+      source_url: -> { Import.find_by(id: params[:from], kind: "url")&.url if params[:from].present? }
     }
   end
 
@@ -35,7 +36,7 @@ class ImportsController < InertiaController
   private
 
   def create_manual_recipe
-    form = ManualRecipe.new(params.expect(manual_recipe: %i[title description ingredients steps servings prep_minutes cook_minutes]))
+    form = ManualRecipe.new(params.expect(manual_recipe: %i[title description ingredients steps servings prep_minutes cook_minutes source_url]))
     if form.save
       redirect_to recipe_path(form.recipe), notice: "Recipe saved."
     else

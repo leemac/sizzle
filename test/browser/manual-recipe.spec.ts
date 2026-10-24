@@ -17,6 +17,7 @@ for (const width of [390, 1280]) {
     await page.goto('/imports?mode=manual')
     await page.getByLabel('Recipe title', { exact: true }).fill(title)
     await page.getByLabel('Description (optional)', { exact: true }).fill('A family recipe, saved without AI.')
+    await page.getByLabel('Source link (optional)', { exact: true }).fill(`https://example.com/coconut-rice-${width}`)
     await page.getByLabel('Servings', { exact: true }).fill('4')
     await page.getByLabel('Prep (min)', { exact: true }).fill('5')
     await page.getByLabel('Cook (min)', { exact: true }).fill('20')
@@ -31,6 +32,10 @@ for (const width of [390, 1280]) {
     await expect(page.getByRole('button', { name: '1 cup rice', exact: true })).toBeVisible()
     await expect(page.getByText('Simmer for 20 minutes.', { exact: true })).toBeVisible()
     await expect(page.getByText('25 min', { exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'example.com' })).toHaveAttribute(
+      'href',
+      `https://example.com/coconut-rice-${width}`,
+    )
     await page.screenshot({ path: testInfo.outputPath(`manual-recipe-${width}.png`), fullPage: true })
     await page.getByRole('link', { name: 'All recipes', exact: true }).click()
     await expect(page.getByRole('link', { name: title })).toBeVisible()
