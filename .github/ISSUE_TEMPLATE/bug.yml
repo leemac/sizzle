@@ -1,0 +1,34 @@
+name: Bug
+description: Something isn't working. (Security issues go through private reporting — see SECURITY.md.)
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the recipe URL if an import went wrong (only if it's public).
+      placeholder: "1. …"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Sizzle version or commit
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output from `docker compose logs sizzle`. Remove API keys and tokens first.
+      render: text

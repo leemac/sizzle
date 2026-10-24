@@ -1,0 +1,93 @@
+require "test_helper"
+
+class ImportPipelineTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
+  URL = "https://samskitchen.example.com/chickpea-curry".freeze
+
+  setup do
+    stub_request(:get, URL).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
+    stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(body: sample_jpeg, headers: { "Content-Type" => "image/jpeg" })
+    @extractor = FakeExtractor.new
+  end
+
+  def run_import(import, extractor: @extractor)
+    ImportPipeline.new(import, http: safe_http, extractor:).run
+  end
+
+  def url_import(url = URL)
+    perform_enqueued_jobs(only: []) { Import.create!(kind: "url", url:, origin: "share") }
+  end
+
+  test "imports a URL into a clean recipe with a WebP cover" do
+    import = url_import
+    recipe = run_import(import)
+
+    assert_equal "done", import.reload.status
+    assert_equal recipe, import.recipe
+    assert_equal "Weeknight Chickpea Curry", recipe.title
+    assert_equal URL, recipe.source_url
+    assert_equal "samskitchen.example.com", recipe.source_host
+    assert_equal "Sam's Kitchen", recipe.source_name
+    assert_equal [ "vegan" ], recipe.diets, "unknown diets are dropped"
+    assert_equal "chickpeas", recipe.main_ingredient
+    assert_equal %w[weeknight one-pot], recipe.tags
+    assert recipe.cover.attached?
+    assert_equal "image/webp", recipe.cover.content_type
+  end
+
+  test "passes the scraped page to the extractor" do
+    run_import(url_import)
+    page = @extractor.pages.sole
+
+    assert_equal "Weeknight Chickpea Curry", page.structured_recipe["name"]
+    assert_equal "img1", page.images.first.id
+  end
+
+  test "reuses an existing recipe instead of importing the same page twice" do
+    first = run_import(url_import)
+    second = run_import(url_import("#{URL}?utm_source=instagram"))
+
+    assert_equal first, second
+    assert_equal 1, Recipe.count
+    assert_equal 1, @extractor.pages.size, "Claude is only called once"
+  end
+
+  test "fails cleanly when the page isn't a recipe" do
+    import = url_import
+    run_import(import, extractor: FakeExtractor.new(FakeExtractor.recipe("is_recipe" => false)))
+
+    assert_equal "failed", import.reload.status
+    assert_match "doesn't look like a recipe", import.error
+    assert_equal 0, Recipe.count
+  end
+
+  test "fails cleanly when the URL points into a private network" do
+    import = perform_enqueued_jobs(only: []) { Import.create!(kind: "url", url: "http://router.example/", origin: "web") }
+    ImportPipeline.new(import, http: safe_http("router.example" => "192.168.1.1"), extractor: @extractor).run
+
+    assert_equal "failed", import.reload.status
+    assert_match "can't be fetched", import.error
+    assert_empty @extractor.pages
+  end
+
+  test "imports pasted text" do
+    import = perform_enqueued_jobs(only: []) { Import.create!(kind: "text", text: "Curry: chickpeas, simmer.", origin: "web") }
+    recipe = run_import(import)
+
+    assert_equal "Weeknight Chickpea Curry", recipe.title
+    assert_equal [ "Curry: chickpeas, simmer." ], @extractor.texts
+    assert_not recipe.cover.attached?
+  end
+
+  test "a missing or broken image doesn't fail the import" do
+    stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(status: 404)
+    stub_request(:get, "https://cdn.example.com/curry-hero.jpg").to_return(body: "not an image", headers: { "Content-Type" => "image/jpeg" })
+    stub_request(:get, "https://cdn.example.com/step-onions-800x600.jpg").to_return(body: sample_jpeg(width: 200, height: 150), headers: { "Content-Type" => "image/jpeg" })
+
+    recipe = run_import(url_import)
+
+    assert_equal "Weeknight Chickpea Curry", recipe.title
+    assert_not recipe.cover.attached?
+  end
+end

@@ -1,0 +1,28 @@
+# Sizzle — self-hosted cookbook.
+#   cp .env.example .env   # add your ANTHROPIC_API_KEY
+#   docker compose up -d   # then open http://<your-server>:3000
+services:
+  sizzle:
+    image: ghcr.io/leemac/sizzle:latest
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${SIZZLE_PORT:-3000}:80"
+    env_file: .env
+    volumes:
+      # Databases, imported photos and the generated secret key live here. Back it up.
+      - sizzle-storage:/rails/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /rails/tmp:uid=1000,gid=1000,mode=0755
+      - /tmp:mode=1777
+
+volumes:
+  sizzle-storage:

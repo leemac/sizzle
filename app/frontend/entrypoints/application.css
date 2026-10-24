@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+
+@plugin '@tailwindcss/forms';
+
+/*
+ * Sizzle design tokens. Minimal and photo-first: a cool porcelain base, ink
+ * type, and one bold accent — yolk — used like a highlighter for "this is
+ * active / this is done". Keep new UI inside this palette.
+ */
+@theme {
+  --color-porcelain: #f6f6f3;
+  --color-paper: #ffffff;
+  --color-ink: #18181b;
+  --color-graphite: #6e6e73;
+  --color-hairline: #e3e3de;
+  --color-yolk: #ffc21a;
+  --color-yolk-soft: #fff1c2;
+  --color-danger: #c0362c;
+
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  --radius-photo: 1.25rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  html {
+    background: var(--color-porcelain);
+    color: var(--color-ink);
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-sans);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-porcelain: #141416;
+      --color-paper: #1d1d20;
+      --color-ink: #f2f2ee;
+      --color-graphite: #9d9da3;
+      --color-hairline: #2e2e33;
+      --color-yolk-soft: #4a3a0c;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
+
+/* Highlighter mark used for checked ingredients and the active step. */
+@utility highlight {
+  background-image: linear-gradient(transparent 55%, var(--color-yolk-soft) 55%);
+}

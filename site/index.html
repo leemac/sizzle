@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sizzle — every recipe you love, minus the life story</title>
+    <meta
+      name="description"
+      content="Sizzle is a free, open-source, self-hosted cookbook. Share any recipe page from your phone and keep a clean copy: ingredients, steps and the best photo, without the ads."
+    />
+    <meta property="og:title" content="Sizzle" />
+    <meta property="og:description" content="Every recipe you love, minus the life story. A self-hosted cookbook." />
+    <meta property="og:url" content="https://sizzle.mckinnon.dev/" />
+    <meta name="theme-color" content="#f6f6f3" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <a href="/" class="wordmark">Sizzle</a>
+      <a href="https://github.com/leemac/sizzle" class="bar-link">GitHub</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Every recipe you love, minus the life story.</h1>
+          <p class="lede">
+            Sizzle is a cookbook you run yourself. Share a recipe page from your phone and it keeps the ingredients,
+            the steps and the best photo. The ads, pop-ups and 2,000 words about somebody’s grandmother stay behind.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/leemac/sizzle#run-it">Install Sizzle</a>
+            <a class="button" href="https://github.com/leemac/sizzle">View the source</a>
+          </div>
+          <p class="fineprint">Free and open source under the AGPL. Runs in one small Docker container.</p>
+        </div>
+
+        <figure class="strip" aria-label="A cluttered recipe page reduced to a clean recipe card">
+          <div class="page" aria-hidden="true">
+            <div class="page-ad">Advertisement</div>
+            <div class="page-text"><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="page-popup">Join 40,000 home cooks!</div>
+            <div class="page-text"><span></span><span></span><span></span><span></span></div>
+            <div class="page-ad tall">Advertisement</div>
+            <div class="page-text"><span></span><span></span><span></span></div>
+            <div class="page-keep">
+              <b>Ingredients</b>
+              <span></span><span></span><span></span>
+              <b>Method</b>
+              <span></span><span></span>
+            </div>
+            <div class="page-text"><span></span><span></span><span></span></div>
+            <div class="page-ad">Advertisement</div>
+          </div>
+
+          <article class="card">
+            <div class="card-photo"></div>
+            <h2>Weeknight Chickpea Curry</h2>
+            <dl>
+              <div><dt>Total</dt><dd>30 min</dd></div>
+              <div><dt>Serves</dt><dd>4</dd></div>
+            </dl>
+            <ul>
+              <li><span>1½ cups</span> chickpeas, drained</li>
+              <li><span>1 can</span> coconut milk</li>
+              <li><span>2 tbsp</span> curry paste</li>
+            </ul>
+            <ol>
+              <li>Soften the onion in oil, about 8 minutes.</li>
+              <li>Add everything else and simmer for 20 minutes.</li>
+            </ol>
+          </article>
+        </figure>
+      </section>
+
+      <section class="how">
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li>
+            <h3>Share</h3>
+            <p>
+              On any recipe page, tap Share, then Save to Sizzle. Pasting a link or the recipe text works too, and
+              forwarding recipes by email is coming soon.
+            </p>
+          </li>
+          <li>
+            <h3>Sizzle cleans it up</h3>
+            <p>
+              Claude reads the page and writes up the recipe: exact quantities, tidy steps, sensible tags. Nothing gets
+              invented, and the junk is dropped.
+            </p>
+          </li>
+          <li>
+            <h3>Cook from your collection</h3>
+            <p>
+              Browse a fast, photo-first gallery. Search by ingredient, or filter by course, cuisine, diet and time.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="selfhost">
+        <div>
+          <h2>Yours, on your own server</h2>
+          <p>
+            Sizzle stores everything in SQLite on your own machine: a home server, a NAS, a Raspberry Pi. There are no
+            accounts, no tracking and no subscription. The only outside service it calls is the Claude API, with your
+            own key.
+          </p>
+          <p>
+            It’s built to be safe to run at home. Every link it fetches is checked so it can’t be turned against your
+            own network, imported content is never rendered as HTML, and the container runs read-only.
+          </p>
+        </div>
+        <pre><code><span class="dim"># three commands</span>
+git clone https://github.com/leemac/sizzle.git
+cp .env.example .env  <span class="dim"># add your API key</span>
+docker compose up -d</code></pre>
+      </section>
+
+      <section class="open">
+        <h2>Built in the open</h2>
+        <p>
+          Sizzle is developed in public as a small software factory: people write the specs, AI coding agents do much
+          of the building, and every change is reviewed by a human before it ships. The issues, the agent playbook and
+          the security model are all on GitHub.
+        </p>
+        <a class="button" href="https://github.com/leemac/sizzle/issues">See what’s being built</a>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Sizzle is open source under the AGPL-3.0.</span>
+      <a href="https://github.com/leemac/sizzle/blob/main/SECURITY.md">Security</a>
+    </footer>
+  </body>
+</html>

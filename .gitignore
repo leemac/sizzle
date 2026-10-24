@@ -1,0 +1,44 @@
+# Secrets and local configuration — never commit these.
+/.env
+/.env.*
+!/.env.example
+/config/master.key
+/config/credentials/*.key
+
+# Bundler / Node
+/.bundle
+node_modules/
+/vendor/bundle
+
+# Runtime data: databases, uploaded and imported images, logs, tmp
+/db/*.sqlite3
+/db/*.sqlite3-*
+/storage/*
+!/storage/.keep
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+!/tmp/pids/
+/tmp/pids/*
+!/tmp/pids/.keep
+!/tmp/storage/
+/tmp/storage/*
+!/tmp/storage/.keep
+
+# Vite Ruby
+/public/vite*
+/public/assets
+
+# Coverage, editor, OS noise
+/coverage
+.DS_Store
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Agent scratch space (worktrees, local notes)
+/.claude/settings.local.json
+/.worktrees
+/.playwright-mcp

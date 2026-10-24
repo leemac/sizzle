@@ -1,0 +1,36 @@
+name: Feature
+description: Propose a feature or change. A maintainer turns good proposals into agent-ready specs.
+labels: ["needs-spec"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Who is it for and what are they trying to do? Describe the need, not the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What should happen?
+      description: The behaviour you'd expect, from the user's point of view.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: |
+        Checkable statements that are true when this is done. These become the spec agents work from.
+        Example: "- [ ] Tapping an ingredient strikes it through and the state survives a page reload."
+      placeholder: "- [ ] …"
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope
+      description: Related things this issue should NOT do.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Implementation notes
+      description: Pointers to relevant files, prior art, constraints, security considerations.
