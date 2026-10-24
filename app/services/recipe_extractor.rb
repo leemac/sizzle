@@ -35,9 +35,9 @@ class RecipeExtractor
         items: {
           type: "object",
           additionalProperties: false,
-          required: %w[section quantity quantity_max unit item preparation note],
+          required: %w[quantity quantity_max unit item preparation note],
           properties: {
-            section: NULLABLE_STRING,
+            section: { type: "string" },
             quantity: NULLABLE_NUMBER,
             quantity_max: NULLABLE_NUMBER,
             unit: NULLABLE_STRING,
@@ -52,8 +52,8 @@ class RecipeExtractor
         items: {
           type: "object",
           additionalProperties: false,
-          required: %w[section text],
-          properties: { section: NULLABLE_STRING, text: { type: "string" } }
+          required: %w[text],
+          properties: { section: { type: "string" }, text: { type: "string" } }
         }
       },
       tips: { type: "array", items: { type: "string" } },
@@ -80,8 +80,9 @@ class RecipeExtractor
       quantity_max. unit is a standard abbreviation (tsp, tbsp, cup, fl oz, pint, quart, ml, l, g, kg, oz, lb) or a
       count noun such as "clove" or "can", null when there is none. item is the ingredient itself; preparation
       holds things like "finely chopped"; note holds extras like "or more to taste". section names a headed group
-      ("For the sauce"), otherwise null.
+      ("For the sauce"); omit section when there is no heading.
     - steps: one step per entry, tightened if verbose, keeping times, temperatures and visual cues as written.
+      Include section only when the source has a heading for those steps.
     - tips: up to five genuinely useful notes from the author (make-ahead, storage, substitutions). Skip fluff.
     - Times are whole minutes. total_minutes includes stated inactive time; if absent, use prep + cook when both
       are known.

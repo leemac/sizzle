@@ -56,6 +56,19 @@ class SafeHttpTest < ActiveSupport::TestCase
     assert_raises(SafeHttp::TooLarge) { safe_http.get("https://example.com/huge", max_bytes: 1_000) }
   end
 
+  test "HTTP failures expose their status without including the response body" do
+    [ 403, 404, 429, 503 ].each do |status|
+      stub_request(:get, "https://example.com/recipe").to_return(status:, body: "upstream challenge markup")
+
+      error = assert_raises(SafeHttp::HttpError) { safe_http.get("https://example.com/recipe") }
+
+      assert_kind_of SafeHttp::BadResponse, error
+      assert_equal status, error.status
+      assert_equal "HTTP #{status}", error.message
+      assert_not_includes error.message, "upstream challenge markup"
+    end
+  end
+
   test "filters by content type" do
     stub_request(:get, "https://example.com/not-an-image").to_return(body: "<html>", headers: { "Content-Type" => "text/html" })
 

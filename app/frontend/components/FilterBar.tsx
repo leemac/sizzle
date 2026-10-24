@@ -11,10 +11,19 @@ function visit(filters: RecipeFilters) {
 
 export default function FilterBar({ filters, facets }: { filters: RecipeFilters; facets: Facets }) {
   const [query, setQuery] = useState(filters.q ?? '')
+  const [previousQuery, setPreviousQuery] = useState(filters.q)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  if (filters.q !== previousQuery) {
+    setPreviousQuery(filters.q)
+    setQuery(filters.q ?? '')
+  }
 
   const cancelSearch = () => clearTimeout(timer.current)
   useEffect(() => () => clearTimeout(timer.current), [timer])
+  useEffect(() => {
+    if (query === (filters.q ?? '')) clearTimeout(timer.current)
+  }, [filters.q, query, timer])
 
   const search = (value: string) => {
     setQuery(value)
@@ -46,7 +55,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
         />
       </label>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+      <div className="relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
         {facets.courses.map(({ value }) => (
           <Chip key={value} selected={filters.course === value} onClick={() => set('course', value)}>
             {value}

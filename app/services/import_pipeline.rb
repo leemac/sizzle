@@ -17,6 +17,13 @@ class ImportPipeline
     recipe
   rescue SafeHttp::BlockedUrl => e
     @import.fail!("That link can't be fetched: #{e.message}.")
+  rescue SafeHttp::HttpError => e
+    if e.status == 403
+      @import.fail!("This site blocked Sizzle's request (HTTP 403). Open the recipe in your browser, " \
+                    "then add it with Write a recipe.")
+    else
+      @import.fail!("Couldn't load that page (#{e.message}).")
+    end
   rescue SafeHttp::Error => e
     @import.fail!("Couldn't load that page (#{e.message}).")
   rescue NotARecipe
