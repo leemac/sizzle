@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react'
 import { useState } from 'react'
 import AppLayout from '@/layouts/AppLayout'
 
@@ -7,7 +6,6 @@ type Props = { endpoint: string; token_required: boolean }
 export default function ShareShow({ endpoint, token_required }: Props) {
   return (
     <div className="mx-auto max-w-2xl">
-      <Head title="Share from your phone" />
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Share from your phone</h1>
       <p className="mt-3 text-graphite">
         Add Sizzle to your iPhone’s share sheet with a two-minute Shortcut. Then, on any recipe page or recipe text, tap

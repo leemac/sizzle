@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
@@ -15,7 +15,6 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
 
   return (
     <article>
-      <Head title={recipe.title} />
       <div className="mb-6 flex items-center justify-between gap-4 text-sm">
         <Link href="/" className="inline-flex items-center gap-1 text-graphite hover:text-ink">
           <Icon name="back" className="size-4" />
