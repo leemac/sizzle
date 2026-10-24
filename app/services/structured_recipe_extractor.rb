@@ -114,7 +114,7 @@ class StructuredRecipeExtractor
     return unless match && match.captures.any?
 
     days, hours, mins, seconds = match.captures.map(&:to_f)
-    result = (days * 1440 + hours * 60 + mins + seconds / 60).ceil
+    result = ((days * 1440) + (hours * 60) + mins + (seconds / 60)).ceil
     result if result.between?(0, MAX_MINUTES)
   end
 

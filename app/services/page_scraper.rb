@@ -9,6 +9,7 @@ class PageScraper
   MAX_HTML_BYTES = 6.megabytes
   MAX_TEXT_CHARS = 60_000
   MAX_IMAGES = 20
+  MAX_SITE_NAME_CHARS = 200
 
   JUNK_SELECTORS = %w[
     script style noscript template svg iframe object embed canvas form button select input textarea
@@ -46,9 +47,10 @@ class PageScraper
 
     Page.new(
       url: @base_url,
-      canonical_url: absolute(@doc.at_css("link[rel=canonical]")&.[]("href")) || @base_url,
+      canonical_url: trusted_canonical_url || @base_url,
       title: meta("og:title") || @doc.at_css("title")&.text&.strip,
-      site_name: meta("og:site_name"),
+      # Stored as the recipe's source name, so keep it to one short line.
+      site_name: meta("og:site_name")&.squish&.truncate(MAX_SITE_NAME_CHARS),
       description: meta("og:description") || meta("description"),
       structured_recipe: structured,
       text:,
@@ -58,6 +60,21 @@ class PageScraper
   end
 
   private
+
+  # The page picks its own canonical link, so a hostile page could claim another
+  # site's URL (and with it that recipe's duplicate check) or a javascript: URL.
+  # Only trust an http(s) canonical on the host we actually fetched.
+  def trusted_canonical_url
+    url = absolute(@doc.at_css("link[rel=canonical]")&.[]("href")) or return
+    uri = URI.parse(url)
+    url if uri.is_a?(URI::HTTP) && same_host?(uri.host, URI.parse(@base_url).host)
+  rescue URI::InvalidURIError
+    nil
+  end
+
+  def same_host?(a, b)
+    a.present? && a.downcase.delete_prefix("www.") == b.to_s.downcase.delete_prefix("www.")
+  end
 
   # --- schema.org ------------------------------------------------------------
 

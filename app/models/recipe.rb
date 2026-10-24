@@ -20,6 +20,7 @@ class Recipe < ApplicationRecord
   validates :course, inclusion: { in: COURSES }, allow_nil: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validate :diets_are_known
+  validate :source_url_is_http, if: :source_url
 
   # Strips tracking parameters and fragments so the same page shared twice
   # (once from Instagram, once from Safari) is recognized as a duplicate.
@@ -46,6 +47,13 @@ class Recipe < ApplicationRecord
   end
 
   private
+
+  # source_url is rendered as a link, so it must never be javascript: or data:.
+  def source_url_is_http
+    errors.add(:source_url, "must be an http(s) URL") unless URI.parse(source_url).is_a?(URI::HTTP)
+  rescue URI::InvalidURIError
+    errors.add(:source_url, "is not a valid URL")
+  end
 
   def diets_are_known
     unknown = Array(diets) - DIETS

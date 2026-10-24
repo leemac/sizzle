@@ -6,7 +6,7 @@ import { router } from '@inertiajs/react'
 import FilterBar from './FilterBar'
 import type { Facets, RecipeFilters } from '@/types'
 
-vi.mock('@inertiajs/react', () => ({ router: { get: vi.fn() } }))
+vi.mock('@inertiajs/react', () => ({ router: { get: vi.fn<() => void>() } }))
 const facets: Facets = {
   courses: [{ value: 'main', count: 1 }],
   cuisines: [],

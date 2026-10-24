@@ -64,4 +64,10 @@ class RecipeTest < ActiveSupport::TestCase
     assert_not Recipe.new(title: "x", course: "brunch-ish").valid?
     assert_not Recipe.new(title: "x", diets: [ "carnivore" ]).valid?
   end
+
+  test "rejects source URLs that aren't http(s)" do
+    assert_not Recipe.new(title: "x", source_url: "javascript:alert(1)").valid?
+    assert_not Recipe.new(title: "x", source_url: "data:text/html,hi").valid?
+    assert Recipe.new(title: "x", source_url: "https://example.com/pie").valid?
+  end
 end
