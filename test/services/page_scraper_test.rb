@@ -47,4 +47,12 @@ class PageScraperTest < ActiveSupport::TestCase
 
     assert_equal "https://www.samskitchen.example.com/curry", page.canonical_url
   end
+
+  test "keeps the site name to one short line" do
+    name = "Sam's\n\n  Kitchen #{'x' * 5000}"
+    page = PageScraper.parse(%(<meta property="og:site_name" content="#{name}">), base_url: "https://samskitchen.example.com/")
+
+    assert_equal PageScraper::MAX_SITE_NAME_CHARS, page.site_name.length
+    assert page.site_name.start_with?("Sam's Kitchen x")
+  end
 end

@@ -10,6 +10,7 @@ class PageScraper
   MAX_HTML_BYTES = 6.megabytes
   MAX_TEXT_CHARS = 60_000
   MAX_IMAGES = 20
+  MAX_SITE_NAME_CHARS = 200
 
   JUNK_SELECTORS = %w[
     script style noscript template svg iframe object embed canvas form button select input textarea
@@ -49,7 +50,8 @@ class PageScraper
       url: @base_url,
       canonical_url: trusted_canonical_url || @base_url,
       title: meta("og:title") || @doc.at_css("title")&.text&.strip,
-      site_name: meta("og:site_name"),
+      # Stored as the recipe's source name, so keep it to one short line.
+      site_name: meta("og:site_name")&.squish&.truncate(MAX_SITE_NAME_CHARS),
       description: meta("og:description") || meta("description"),
       structured_recipe: structured,
       text:,
