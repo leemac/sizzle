@@ -1,14 +1,15 @@
-# Claude's extraction, made safe to save. Claude reads hostile pages, so its
-# output is untrusted even though it matches RecipeExtractor::SCHEMA: every
+# An extracted recipe, made safe to save. Both sources are untrusted: Claude
+# reads hostile pages, and schema.org data is written by the page itself. Every
 # field is type-checked and clamped here, enums are enforced, and images can
-# only be chosen from candidates the scraper found on the page.
+# only be chosen from candidates the scraper found on the page. Limits match
+# StructuredRecipeExtractor's (RecipeText), so valid page data passes unchanged.
 class RecipeDraft
-  MAX_INGREDIENTS = 150
-  MAX_STEPS = 100
+  MAX_INGREDIENTS = RecipeText::MAX_ITEMS
+  MAX_STEPS = RecipeText::MAX_ITEMS
   MAX_TAGS = 6
   MAX_TIPS = 5
-  MAX_SERVINGS = 1000
-  MAX_MINUTES = 7 * 24 * 60 # a week covers long ferments and cures
+  MAX_SERVINGS = 10_000
+  MAX_MINUTES = StructuredRecipeExtractor::MAX_MINUTES
   MAX_QUANTITY = 100_000
 
   def initialize(data, images: [])
@@ -29,13 +30,13 @@ class RecipeDraft
     {
       title:,
       description: text(@data["description"], 2000),
-      author: text(@data["author"], 200),
+      author: text(@data["author"], 300),
       servings: integer(@data["servings"], 1..MAX_SERVINGS),
-      yield_text: text(@data["yield_text"], 200),
+      yield_text: text(@data["yield_text"], 300),
       prep_minutes: minutes(@data["prep_minutes"]),
       cook_minutes: minutes(@data["cook_minutes"]),
       total_minutes: minutes(@data["total_minutes"]),
-      cuisine: text(@data["cuisine"], 60),
+      cuisine: text(@data["cuisine"], 100),
       course: text(@data["course"], 20).presence_in(Recipe::COURSES),
       diets: strings(@data["diets"], 30) & Recipe::DIETS,
       main_ingredient: text(@data["main_ingredient"], 60)&.downcase,
@@ -59,9 +60,9 @@ class RecipeDraft
 
   def ingredients
     hashes(@data["ingredients"]).filter_map do |line|
-      item = text(line["item"], 200) or next
+      item = text(line["item"], RecipeText::MAX_INGREDIENT_LENGTH) or next
       {
-        "section" => text(line["section"], 120),
+        "section" => text(line["section"], 300),
         "quantity" => quantity(line["quantity"]),
         "quantity_max" => quantity(line["quantity_max"]),
         "unit" => text(line["unit"], 30),
@@ -74,8 +75,8 @@ class RecipeDraft
 
   def steps
     hashes(@data["steps"]).filter_map do |step|
-      body = text(step["text"], 3000) or next
-      { "section" => text(step["section"], 120), "text" => body }
+      body = text(step["text"], RecipeText::MAX_STEP_LENGTH) or next
+      { "section" => text(step["section"], 300), "text" => body }
     end.first(MAX_STEPS)
   end
 

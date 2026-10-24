@@ -20,6 +20,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <Link
+              href="/setup"
+              className="rounded-full px-3 py-2 text-sm text-graphite hover:text-ink"
+              aria-current={url.startsWith('/setup') ? 'page' : undefined}
+            >
+              Setup
+            </Link>
+            <Link
               href="/share"
               className={`hidden rounded-full px-3 py-2 text-sm text-graphite hover:text-ink sm:block ${url.startsWith('/share') ? 'text-ink' : ''}`}
             >

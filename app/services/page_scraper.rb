@@ -1,7 +1,6 @@
 # Turns a fetched HTML page into the raw material for RecipeExtractor:
 # readable text with the chrome stripped, any schema.org Recipe data, and a
-# ranked list of candidate images. It does not decide what the recipe *is* —
-# that's Claude's job — it just gets the junk out of the way cheaply.
+# ranked list of candidate images for local extraction or optional AI.
 class PageScraper
   Page = Data.define(:url, :canonical_url, :title, :site_name, :description, :structured_recipe, :text, :images,
                      :truncated)
@@ -95,7 +94,7 @@ class PageScraper
       node.each { |child| (found = find_recipe_node(child)) and return found }
       nil
     when Hash
-      return node if Array(node["@type"]).any? { |type| type.to_s.casecmp?("Recipe") }
+      return node if Array(node["@type"]).any? { |type| type.is_a?(String) && type.match?(%r{\A(?:https?://schema\.org/)?Recipe\z}i) }
 
       find_recipe_node(node["@graph"]) || find_recipe_node(node["mainEntity"])
     end
@@ -186,7 +185,7 @@ class PageScraper
   end
 
   def absolute(url)
-    return if url.blank?
+    return unless url.is_a?(String) && url.present?
 
     URI.join(@base_url, url.strip).to_s
   rescue URI::Error, ArgumentError

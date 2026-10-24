@@ -1,9 +1,10 @@
-# Runs one Import end to end: fetch → extract with Claude → save the recipe and
+# Runs one Import end to end: fetch → read recipe data (or optional AI) → save the recipe and
 # its images. Each stage updates the import's status so the UI can show progress.
 class ImportPipeline
   class NotARecipe < StandardError; end
+  class NeedsManualEntry < StandardError; end
 
-  def initialize(import, http: SafeHttp.new, extractor: RecipeExtractor.new, images: RecipeImages.new(http:))
+  def initialize(import, http: SafeHttp.new, extractor: nil, images: RecipeImages.new(http:))
     @import = import
     @http = http
     @extractor = extractor
@@ -22,7 +23,7 @@ class ImportPipeline
     @import.fail!("That doesn't look like a recipe.")
   rescue RecipeExtractor::Retryable
     raise # let ImportJob retry with backoff
-  rescue RecipeExtractor::Error => e
+  rescue NeedsManualEntry, RecipeExtractor::Error => e
     @import.fail!(e.message)
   end
 
@@ -41,7 +42,13 @@ class ImportPipeline
       end
 
       @import.advance!("extracting")
-      draft = RecipeDraft.new(@extractor.from_page(page), images: page.images)
+      data = StructuredRecipeExtractor.new.from_page(page)
+      unless data
+        raise NeedsManualEntry, "This page has no usable recipe data. Write the recipe manually, or enable optional AI in Setup." unless ai_extractor
+
+        data = ai_extractor.from_page(page)
+      end
+      draft = RecipeDraft.new(data, images: page.images)
       raise NotARecipe unless draft.recipe?
 
       @import.advance!("saving")
@@ -51,11 +58,19 @@ class ImportPipeline
 
   def import_text
     @import.advance!("extracting")
-    draft = RecipeDraft.new(@extractor.from_text(@import.text))
+    raise NeedsManualEntry, "Pasted text needs optional AI extraction. Write the recipe manually instead, or enable AI in Setup." unless ai_extractor
+
+    draft = RecipeDraft.new(ai_extractor.from_text(@import.text))
     raise NotARecipe unless draft.recipe?
 
     @import.advance!("saving")
     save_recipe(draft)
+  end
+
+  def ai_extractor
+    return @extractor if @extractor
+
+    @extractor = RecipeExtractor.new if Sizzle.claude_configured?
   end
 
   def save_recipe(draft, source_url: nil, source_name: nil)

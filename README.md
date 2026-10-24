@@ -10,24 +10,32 @@ recipe text. Sizzle keeps the ingredients, the steps and the best photo, drops t
 and adds it to a fast, photo-first collection you can search and filter.
 
 - **Share from anywhere.** One tap in your iPhone's share sheet sends a page to Sizzle.
-- **Clean recipes.** Claude reads the page and writes up a tidy, structured recipe. Quantities
-  and method stay faithful to the original.
+- **No AI required.** Import recipe data from a website, or write a recipe yourself. Optional
+  Claude extraction handles pages without usable recipe data and unstructured pasted text.
 - **Yours.** Runs on your own server with SQLite, in one small container. No accounts, no tracking.
 - **Browse.** Full-text search plus filters for course, cuisine, diet, main ingredient and time.
 
 ## Run it
 
-You need Docker and an [Anthropic API key](https://console.anthropic.com/settings/keys).
-Each import is a single Claude request.
+You need Docker. No AI account or API key is required for manual entry or imports from a page
+with usable recipe data. You can add an [Anthropic API key](https://console.anthropic.com/settings/keys)
+later for other pages and unstructured pasted text; each AI extraction is a paid Claude request.
 
 ```sh
 git clone https://github.com/leemac/sizzle.git && cd sizzle
-cp .env.example .env        # set ANTHROPIC_API_KEY (and SIZZLE_API_TOKEN — see below)
+cp .env.example .env        # set SIZZLE_API_TOKEN — see below
 docker compose up -d
 ```
 
 Open `http://<your-server>:3000`. Your recipes, photos and databases live in the
 `sizzle-storage` volume, so back that up.
+
+Choose **Setup** in Sizzle for a walkthrough of your cookbook and your first recipe. AI
+configuration is optional; credentials stay in your server environment.
+
+On **Add recipe**, choose **Import a link** to read a site's schema.org Recipe data, or **Write a
+recipe** to enter a title, ingredients and method. If a page lacks usable recipe data, Sizzle uses
+Claude only when an API key is configured; otherwise it explains how to add the recipe manually.
 
 Then set up sharing from your phone: open **Share from your phone** in Sizzle for a two-minute
 Shortcut walkthrough.
