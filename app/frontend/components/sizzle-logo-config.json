@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "design": "sizzle-zz",
+  "seed": 42,
+  "animate": true,
+  "riseEm": 0.66,
+  "spreadEm": 0.22,
+  "speed": 0.55,
+  "count": 60,
+  "pixelSizeEm": 0.042,
+  "opacity": 1,
+  "wander": 2,
+  "sourceWidthEm": 0.58
+}

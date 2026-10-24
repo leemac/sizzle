@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
+import SizzleLogo from '@/components/SizzleLogo'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { flash, url } = usePage()
@@ -14,7 +15,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-20 border-b border-hairline bg-porcelain/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" className="font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]">
-            Sizzle
+            <SizzleLogo />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <Link
