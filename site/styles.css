@@ -68,7 +68,8 @@ main > section,
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
+  margin-top: 24px;
+  margin-bottom: 24px;
   padding: 12px 18px 12px 12px;
   border-radius: 16px;
   background: var(--yolk-soft);
