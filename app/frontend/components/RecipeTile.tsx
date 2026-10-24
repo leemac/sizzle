@@ -5,8 +5,8 @@ import type { RecipeCard } from '@/types'
 
 const PILL = 'absolute top-2.5 inline-flex h-7 items-center rounded-full bg-black/70 text-white backdrop-blur-sm'
 
-// Gallery grid card: the photo fills the card and the title sits on a black
-// band that feathers into it. Time and favorite ride on top as pills.
+// Gallery grid card: the photo fills the card and the title sits on a
+// slightly see-through black band. Time and favorite ride on top as pills.
 export default function RecipeTile({ recipe }: { recipe: RecipeCard }) {
   const time = formatMinutes(recipe.total_minutes)
 
@@ -28,7 +28,7 @@ export default function RecipeTile({ recipe }: { recipe: RecipeCard }) {
           {time}
         </span>
       )}
-      <div className="absolute inset-x-0 bottom-0 bg-black/85 px-3 py-2.5 before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-gradient-to-t before:from-black/85 before:to-transparent sm:px-4 sm:py-3">
+      <div className="absolute inset-x-0 bottom-0 bg-black/85 px-3 py-2.5 sm:px-4 sm:py-3">
         <h3 className="line-clamp-2 font-display text-base leading-tight font-semibold text-balance text-white sm:text-lg">
           {recipe.title}
         </h3>
