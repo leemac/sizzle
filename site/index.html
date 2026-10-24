@@ -115,10 +115,10 @@
             own network, imported content is never rendered as HTML, and the container runs read-only.
           </p>
         </div>
-        <pre><code><span class="dim"># three commands</span>
-git clone https://github.com/leemac/sizzle.git
-cp .env.example .env  <span class="dim"># add your API key</span>
-docker compose up -d</code></pre>
+        <pre><code><span class="dim"># three steps, with Docker installed</span>
+git clone https://github.com/leemac/sizzle.git &amp;&amp; cd sizzle
+cp .env.example .env  <span class="dim"># add your API key and token</span>
+docker compose up -d  <span class="dim"># then open http://&lt;your-server&gt;:3000</span></code></pre>
       </section>
 
       <section class="open">

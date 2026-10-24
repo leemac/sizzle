@@ -2,6 +2,7 @@ class RecipesController < InertiaController
   PER_PAGE = 48
 
   def index
+    Import.reconcile_failed_jobs!
     filters = params.permit(*Recipe::Filterable::FILTER_KEYS).to_h
     page = [ params[:page].to_i, 1 ].max
     recipes = Recipe.filter_by(filters).with_attached_cover.offset((page - 1) * PER_PAGE).limit(PER_PAGE + 1).to_a

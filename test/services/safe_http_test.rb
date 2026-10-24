@@ -68,4 +68,73 @@ class SafeHttpTest < ActiveSupport::TestCase
 
     assert_equal "ok", http.get("http://nas.local/recipe").body
   end
+
+  test "ignores proxy environment variables so the vetted IP stays pinned" do
+    with_env("http_proxy" => "http://proxy.internal:3128", "HTTP_PROXY" => "http://proxy.internal:3128",
+             "https_proxy" => "http://proxy.internal:3128", "HTTPS_PROXY" => "http://proxy.internal:3128") do
+      %w[http://rebind.example/recipe https://rebind.example/recipe].each do |url|
+        http = safe_http("rebind.example" => "93.184.215.14").send(:build_http, URI(url), "93.184.215.14")
+
+        assert_not http.proxy?, "#{url} would go through a proxy, which re-resolves the hostname"
+        assert_not http.proxy_from_env?
+        assert_equal "93.184.215.14", http.ipaddr
+      end
+
+      stub_request(:get, "http://rebind.example/recipe").to_return(body: "ok")
+      assert_equal "ok", safe_http("rebind.example" => "93.184.215.14").get("http://rebind.example/recipe").body
+    end
+  end
+
+  test "an overall deadline stops a trickling response and closes the connection" do
+    response = Net::HTTPOK.new("1.1", "200", "OK")
+    chunks = 0
+    response.define_singleton_method(:read_body) do |&block|
+      loop do
+        sleep 0.01
+        chunks += 1
+        block.call("x")
+      end
+    end
+    connection = Object.new
+    closed = false
+    connection.define_singleton_method(:start) do |&block|
+      block.call(self)
+    ensure
+      closed = true
+    end
+    connection.define_singleton_method(:request) { |_req, &block| block.call(response) }
+    http = SafeHttp.new(resolver: FakeResolver.new, total_timeout: 0.1)
+    http.define_singleton_method(:build_http) { |_uri, _ip| connection }
+
+    assert_raises(SafeHttp::DeadlineExceeded) { http.get("https://example.com/") }
+    assert_operator chunks, :>, 0
+    assert closed
+  end
+
+  test "the deadline includes DNS and is shared across redirects" do
+    calls = 0
+    resolver = Object.new
+    resolver.define_singleton_method(:getaddresses) do |_host|
+      calls += 1
+      sleep 0.06
+      [ "93.184.215.14" ]
+    end
+    stub_request(:get, "https://example.com/a").to_return(status: 302, headers: { "Location" => "/b" })
+    stub_request(:get, "https://example.com/b").to_return(body: "too late")
+
+    http = SafeHttp.new(resolver:, total_timeout: 0.1)
+    assert_raises(SafeHttp::DeadlineExceeded) { http.get("https://example.com/a") }
+    assert_equal 2, calls
+    assert_not_requested :get, "https://example.com/b"
+  end
+
+  private
+
+  def with_env(vars)
+    saved = vars.keys.to_h { |key| [ key, ENV[key] ] }
+    vars.each { |key, value| ENV[key] = value }
+    yield
+  ensure
+    saved.each { |key, value| ENV[key] = value }
+  end
 end

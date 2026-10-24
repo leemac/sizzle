@@ -1,9 +1,9 @@
 # Sizzle — self-hosted cookbook.
-#   cp .env.example .env   # add your ANTHROPIC_API_KEY
-#   docker compose up -d   # then open http://<your-server>:3000
+#   cp .env.example .env   # set ANTHROPIC_API_KEY and SIZZLE_API_TOKEN
+#   docker compose up -d   # first start builds the image (a few minutes), then open http://<your-server>:3000
 services:
   sizzle:
-    image: ghcr.io/leemac/sizzle:latest
+    # Built from source until release images are published to ghcr.io.
     build: .
     restart: unless-stopped
     ports:

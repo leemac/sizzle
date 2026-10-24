@@ -1,6 +1,7 @@
 require "net/http"
 require "resolv"
 require "ipaddr"
+require "timeout"
 
 # The only way Sizzle code may fetch a URL that came from outside the app
 # (shared links, email bodies, model output). It defends against SSRF:
@@ -9,6 +10,8 @@ require "ipaddr"
 # * every hostname is resolved up front and *all* of its addresses must be
 #   public; the socket is then pinned to the vetted IP so a DNS-rebinding
 #   answer between check and connect can't redirect us inward
+# * proxy environment variables (http_proxy, HTTP_PROXY, ...) are ignored,
+#   since a proxy would re-resolve the hostname and undo the pinning
 # * redirects are followed manually and each hop is re-validated
 # * hard caps on redirects, timeouts and (decompressed) body size
 #
@@ -18,6 +21,7 @@ class SafeHttp
   class BlockedUrl < Error; end
   class TooLarge < Error; end
   class BadResponse < Error; end
+  class DeadlineExceeded < Error; end
 
   Response = Data.define(:url, :status, :content_type, :body)
 
@@ -38,34 +42,39 @@ class SafeHttp
   end
 
   def initialize(resolver: default_resolver, allow_private: Sizzle.allow_private_network_fetch?,
-                 open_timeout: 5, read_timeout: 15)
+                 open_timeout: 5, read_timeout: 15, total_timeout: 30)
     @resolver = resolver
     @allow_private = allow_private
     @open_timeout = open_timeout
     @read_timeout = read_timeout
+    @total_timeout = total_timeout
   end
 
   # Fetches `url` and returns a Response. `max_bytes` caps the decompressed
   # body; `accept` filters on the response's media type prefix (e.g. "image/").
   def get(url, max_bytes: 5.megabytes, accept: nil, headers: {})
-    uri = validate_uri!(url)
+    # Timeout uses CLOCK_MONOTONIC and covers DNS, headers, body reads and all
+    # redirects in one budget, including a peer that never stops trickling bytes.
+    Timeout.timeout(@total_timeout, DeadlineExceeded, "download deadline exceeded") do
+      uri = validate_uri!(url)
 
-    (MAX_REDIRECTS + 1).times do
-      response = request(uri, max_bytes:, headers:)
+      (MAX_REDIRECTS + 1).times do
+        response = request(uri, max_bytes:, headers:)
 
-      if response.is_a?(URI)
-        uri = response
-        next
+        if response.is_a?(URI)
+          uri = response
+          next
+        end
+
+        if accept && !response.content_type.to_s.start_with?(accept)
+          raise BadResponse, "unexpected content type #{response.content_type.inspect}"
+        end
+
+        return response
       end
 
-      if accept && !response.content_type.to_s.start_with?(accept)
-        raise BadResponse, "unexpected content type #{response.content_type.inspect}"
-      end
-
-      return response
+      raise BadResponse, "too many redirects"
     end
-
-    raise BadResponse, "too many redirects"
   end
 
   # Raises BlockedUrl unless `url` is something we're willing to fetch.
@@ -83,14 +92,7 @@ class SafeHttp
   private
 
   def request(uri, max_bytes:, headers:)
-    ip = resolve!(uri.hostname)
-
-    http = Net::HTTP.new(uri.hostname, uri.port)
-    http.ipaddr = ip
-    http.use_ssl = uri.scheme == "https"
-    http.open_timeout = @open_timeout
-    http.read_timeout = @read_timeout
-    http.write_timeout = @read_timeout
+    http = build_http(uri, resolve!(uri.hostname))
 
     req = Net::HTTP::Get.new(uri.request_uri)
     req["User-Agent"] = Sizzle.env("SIZZLE_USER_AGENT", DEFAULT_USER_AGENT)
@@ -124,6 +126,20 @@ class SafeHttp
   rescue SocketError, SystemCallError, IOError, OpenSSL::SSL::SSLError, Net::OpenTimeout, Net::ReadTimeout,
          Net::WriteTimeout, Zlib::Error => e
     raise BadResponse, "#{e.class.name}: #{e.message}"
+  end
+
+  # Connects straight to the vetted IP. The explicit nil proxy matters: by default Net::HTTP
+  # picks up http_proxy/HTTP_PROXY from the environment, and a proxy is sent the hostname and
+  # resolves it again itself, which undoes the IP pinning (DNS rebinding, split-horizon DNS).
+  def build_http(uri, ip)
+    http = Net::HTTP.new(uri.hostname, uri.port, nil)
+    http.max_retries = 0
+    http.ipaddr = ip
+    http.use_ssl = uri.scheme == "https"
+    http.open_timeout = @open_timeout
+    http.read_timeout = @read_timeout
+    http.write_timeout = @read_timeout
+    http
   end
 
   def resolve!(host)

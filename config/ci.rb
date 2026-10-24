@@ -15,4 +15,5 @@ CI.run do
 
   step "Tests: Frontend", "npm test --silent"
   step "Tests: Rails", "bin/rails test"
+  step "Tests: Browser", "npm run test:browser"
 end

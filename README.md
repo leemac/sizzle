@@ -46,6 +46,7 @@ explanations.
 ```sh
 bin/setup --seed   # Ruby 3.3, Node 22 and libvips required
 bin/dev            # http://localhost:3000
+npx playwright install chromium  # once, for browser regression tests
 bin/ci             # all checks and tests
 ```
 
@@ -58,3 +59,6 @@ well-specified issues are worked by agents and reviewed by people. See
 
 [AGPL-3.0](LICENSE). You can run, modify and share Sizzle freely. If you offer a modified version
 as a service, you must share your changes.
+
+Bundled third-party assets keep their own licenses, including the Bricolage Grotesque font (SIL Open
+Font License 1.1). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -10,8 +10,8 @@ export default function ShareShow({ endpoint, token_required }: Props) {
       <Head title="Share from your phone" />
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Share from your phone</h1>
       <p className="mt-3 text-graphite">
-        Add Sizzle to your iPhone’s share sheet with a two-minute Shortcut. Then, on any recipe page, tap Share and
-        choose Save to Sizzle.
+        Add Sizzle to your iPhone’s share sheet with a two-minute Shortcut. Then, on any recipe page or recipe text, tap
+        Share and choose Save to Sizzle.
       </p>
 
       <section className="mt-10">
@@ -26,8 +26,8 @@ export default function ShareShow({ endpoint, token_required }: Props) {
             Add the <strong>Get Contents of URL</strong> action with this URL:
             <CopyField value={endpoint} />
             Set Method to <strong>POST</strong> and Request Body to <strong>JSON</strong>, with a text field named{' '}
-            <code className="rounded bg-paper px-1.5 py-0.5 text-sm ring-1 ring-hairline">url</code> set to{' '}
-            <strong>Shortcut Input</strong>.
+            <code className="rounded bg-paper px-1.5 py-0.5 text-sm ring-1 ring-hairline">text</code> set to{' '}
+            <strong>Shortcut Input</strong>. Sizzle works out whether you shared a link or the recipe itself.
           </li>
           {token_required && (
             <li>
@@ -46,8 +46,8 @@ export default function ShareShow({ endpoint, token_required }: Props) {
       <section className="mt-12">
         <h2 className="font-display text-2xl font-semibold">Your phone needs to reach this server</h2>
         <p className="mt-3 text-graphite">
-          The Shortcut sends links straight to this address, so your phone has to be able to reach it: on your home
-          Wi-Fi, or anywhere through a private network like Tailscale or WireGuard. Don’t put Sizzle on the open
+          The Shortcut sends what you share straight to this address, so your phone has to be able to reach it: on your
+          home Wi-Fi, or anywhere through a private network like Tailscale or WireGuard. Don’t put Sizzle on the open
           internet without a SIZZLE_API_TOKEN and a login in front of it.
         </p>
       </section>

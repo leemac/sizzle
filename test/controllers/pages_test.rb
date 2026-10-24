@@ -65,6 +65,16 @@ class PagesTest < ActionDispatch::IntegrationTest
     assert_equal api_imports_url, inertia.props[:endpoint]
   end
 
+  test "history encryption is enabled over HTTPS and omitted for LAN HTTP" do
+    get "http://192.168.1.20/", headers: { "X-Inertia" => "true", "X-Inertia-Version" => ViteRuby.digest }
+    assert_response :success
+    assert_not response.parsed_body["encryptHistory"]
+
+    get "https://cookbook.example/", headers: { "X-Inertia" => "true", "X-Inertia-Version" => ViteRuby.digest }
+    assert_response :success
+    assert response.parsed_body["encryptHistory"]
+  end
+
   test "sends a strict content security policy" do
     get root_url
 

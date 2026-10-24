@@ -11,21 +11,21 @@ function visit(filters: RecipeFilters) {
 
 export default function FilterBar({ filters, facets }: { filters: RecipeFilters; facets: Facets }) {
   const [query, setQuery] = useState(filters.q ?? '')
-  const first = useRef(true)
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  useEffect(() => {
-    if (first.current) {
-      first.current = false
-      return
-    }
-    const timer = setTimeout(() => visit({ ...filters, q: query }), 250)
-    return () => clearTimeout(timer)
-    // Only re-run when the search text changes; other filters apply immediately.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  const cancelSearch = () => clearTimeout(timer.current)
+  useEffect(() => cancelSearch, [])
 
-  const set = (key: keyof RecipeFilters, value: string | undefined) =>
+  const search = (value: string) => {
+    setQuery(value)
+    cancelSearch()
+    timer.current = setTimeout(() => visit({ ...filters, q: value }), 250)
+  }
+
+  const set = (key: keyof RecipeFilters, value: string | undefined) => {
+    cancelSearch()
     visit({ ...filters, q: query, [key]: filters[key] === value ? undefined : value })
+  }
 
   const active = Object.entries(filters).some(([, value]) => value)
 
@@ -40,7 +40,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
         <input
           type="search"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => search(event.target.value)}
           placeholder="Search by dish, ingredient or tag"
           className="w-full rounded-full border-hairline bg-paper py-3 pr-4 pl-12 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
         />
@@ -78,6 +78,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
           <button
             type="button"
             onClick={() => {
+              cancelSearch()
               setQuery('')
               visit({})
             }}

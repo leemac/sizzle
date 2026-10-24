@@ -53,6 +53,47 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal 1, @extractor.pages.size, "Claude is only called once"
   end
 
+  test "a concurrent import of the same canonical source waits before calling Claude" do
+    first = url_import
+    second = url_import("#{URL}?utm_source=share")
+    stub_request(:get, "#{URL}?utm_source=share").to_return(
+      body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" }
+    )
+    inner_extractor = FakeExtractor.new
+    outer_extractor = FakeExtractor.new
+    # Enter a second worker precisely after the first has claimed its canonical
+    # source but before its paid extraction finishes (no scheduler timing race).
+    test_case = self
+    outer_extractor.define_singleton_method(:from_page) do |page|
+      test_case.assert_raises(ImportSourceLock::Busy) do
+        ImportPipeline.new(second, http: test_case.safe_http,
+                           extractor: inner_extractor).run
+      end
+      super(page)
+    end
+    recipe = run_import(first, extractor: outer_extractor)
+    assert_empty inner_extractor.pages
+    assert_equal recipe, run_import(second, extractor: inner_extractor)
+    assert_equal 1, Recipe.count
+    assert_empty inner_extractor.pages
+  end
+
+  test "source claims are released when extraction raises" do
+    import = url_import
+    extractor = Object.new
+    extractor.define_singleton_method(:from_page) { |_page| raise RecipeExtractor::Retryable, "busy" }
+    assert_raises(RecipeExtractor::Retryable) { run_import(import, extractor:) }
+    assert run_import(import)
+    assert_equal "done", import.reload.status
+  end
+
+  test "the database rejects duplicate normalized recipe URLs" do
+    Recipe.create!(title: "Pie", source_url: URL)
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      Recipe.create!(title: "Duplicate", source_url: "#{URL}?utm_source=share")
+    end
+  end
+
   test "fails cleanly when the page isn't a recipe" do
     import = url_import
     run_import(import, extractor: FakeExtractor.new(FakeExtractor.recipe("is_recipe" => false)))
