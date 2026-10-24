@@ -17,6 +17,11 @@ Sizzle uses [semantic versioning](https://semver.org) with a `v` prefix on tags:
 
 Pre-releases (`v0.1.0-rc.1`) get only their exact image tag, never `latest`.
 
+Release runs are serialized across versions, with up to 100 pending runs queued instead of
+replaced by newer tags. Floating image tags (`latest`, minor and major)
+advance only to an equal or newer stable version, so a delayed release or a backport cannot
+downgrade them. An older release also leaves GitHub's latest release unchanged.
+
 ## Cut a release
 
 1. Make sure `main` is green in CI and has everything you want to ship.
@@ -33,8 +38,9 @@ Pre-releases (`v0.1.0-rc.1`) get only their exact image tag, never `latest`.
    2. runs all of CI again on that commit;
    3. builds `linux/amd64` and `linux/arm64` on native runners, with the version baked in
       (Setup shows it), plus an SBOM and build provenance;
-   4. pushes `ghcr.io/leemac/sizzle` tagged `0.0.1`, `0.0` and `latest` (and the major
-      version, `1`, from 1.0 on), and signs a provenance attestation for it;
+   4. publishes the exact image tag (`0.0.1`) and signs its provenance, then advances `0.0`
+      and `latest` if they don't already point to a newer version (and the major tag, `1`,
+      from 1.0 on);
    5. creates the GitHub release with generated notes and attaches `docker-compose.yml` and
       `env.example`, which the install instructions download from `releases/latest`.
 
@@ -44,9 +50,14 @@ You can also start from `gh release create v0.0.1 --generate-notes`, which creat
 for you. The workflow then attaches the files to that release, but the release page appears
 before the image is pushed, so the install commands fail for the ~15 minutes the build takes.
 
-If the workflow fails before **Publish image**, nothing was published: fix the problem on
-`main`, delete the tag (`git push origin :v0.0.1 && git tag -d v0.0.1`) and tag again. Once
-an image is published, don't move or reuse its tag; release the next patch version instead.
+Retry transient failures with GitHub Actions' **Re-run failed jobs**. A full rerun may rebuild
+the platform images, but if the exact version was already published, publication reuses its
+original digest, checks that it belongs to the same commit, and resumes attestation and tag
+promotion. Rebuilt images never replace an existing exact version. Registry access failures
+stop publication rather than being treated as a missing tag.
+
+If a fix requires a code change, release the next patch version. Never move or reuse a version
+tag, including after a partially failed release.
 
 ## First release only
 
