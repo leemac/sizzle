@@ -42,6 +42,22 @@ class FavoritesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "favoriting keeps browser CSRF protection" do
+    previous = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+
+    post recipe_favorite_url(@recipe)
+    assert_response :unprocessable_content
+    assert_not @recipe.reload.favorite?
+
+    @recipe.favorite!
+    delete recipe_favorite_url(@recipe)
+    assert_response :unprocessable_content
+    assert @recipe.reload.favorite?
+  ensure
+    ActionController::Base.allow_forgery_protection = previous
+  end
+
   test "gallery cards and the recipe page say whether a recipe is a favorite" do
     @recipe.favorite!
 
