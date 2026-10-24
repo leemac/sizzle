@@ -38,14 +38,14 @@ class ImportPipeline
 
   def import_url
     if (existing = Recipe.find_by(source_url: Recipe.normalize_url(@import.url)))
-      return existing
+      return restore(existing)
     end
 
     @import.advance!("fetching")
     page = PageScraper.fetch(@import.url, http: @http)
     ImportSourceLock.synchronize(page.canonical_url) do
       if (existing = Recipe.find_by(source_url: Recipe.normalize_url(page.canonical_url)))
-        return existing
+        return restore(existing)
       end
 
       @import.advance!("extracting")
@@ -72,6 +72,11 @@ class ImportPipeline
 
     @import.advance!("saving")
     save_recipe(draft)
+  end
+
+  # Sharing an archived recipe again brings it back to the gallery.
+  def restore(recipe)
+    recipe.tap(&:unarchive!)
   end
 
   def ai_extractor

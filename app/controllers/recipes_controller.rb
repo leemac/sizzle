@@ -12,7 +12,7 @@ class RecipesController < InertiaController
       has_more: recipes.size > PER_PAGE,
       filters:,
       facets: -> { Recipe.facets },
-      total_count: -> { Recipe.count },
+      total_count: -> { Recipe.active.count },
       pending_imports: -> { Import.pending.recent.limit(12).map { |import| ImportSerializer.call(import) } },
       failed_imports: -> { Import.where(status: "failed").recent.limit(3).map { |import| ImportSerializer.call(import) } }
     }
@@ -21,6 +21,21 @@ class RecipesController < InertiaController
   def show
     recipe = Recipe.with_attached_cover.with_attached_photos.find(params[:id])
     render inertia: "recipes/show", props: { recipe: RecipeSerializer.detail(recipe) }
+  end
+
+  def edit
+    recipe = Recipe.find(params[:id])
+    render inertia: "recipes/edit", props: { recipe: RecipeSerializer.edit(recipe, RecipeEdit.for(recipe)) }
+  end
+
+  def update
+    recipe = Recipe.find(params[:id])
+    form = RecipeEdit.new(recipe, params.expect(recipe: RecipeEdit::FIELDS))
+    if form.save
+      redirect_to recipe_path(recipe), notice: "Changes saved."
+    else
+      redirect_to edit_recipe_path(recipe), inertia: { errors: form.errors.to_hash.transform_values(&:to_sentence) }
+    end
   end
 
   def destroy

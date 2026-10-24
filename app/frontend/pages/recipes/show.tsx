@@ -18,10 +18,25 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
   return (
     <article>
       <Head title={recipe.title} />
-      <Link href="/" className="mb-6 inline-flex items-center gap-1 text-sm text-graphite hover:text-ink">
-        <Icon name="back" className="size-4" />
-        All recipes
-      </Link>
+      <div className="mb-6 flex items-center justify-between gap-4 text-sm">
+        <Link href="/" className="inline-flex items-center gap-1 text-graphite hover:text-ink">
+          <Icon name="back" className="size-4" />
+          All recipes
+        </Link>
+        <Link
+          href={`/recipes/${recipe.id}/edit`}
+          className="inline-flex items-center gap-1.5 text-graphite hover:text-ink"
+        >
+          <Icon name="edit" className="size-4" />
+          Edit recipe
+        </Link>
+      </div>
+
+      {recipe.archived && (
+        <p role="status" className="mb-6 rounded-2xl bg-paper px-4 py-3 text-sm ring-1 ring-hairline">
+          This recipe is archived. It's hidden from your recipes and search.
+        </p>
+      )}
 
       <header className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
         {recipe.hero_url && (
@@ -95,7 +110,7 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         </section>
       )}
 
-      <DeleteRecipe recipe={recipe} />
+      <RecipeActions recipe={recipe} />
     </article>
   )
 }
@@ -194,15 +209,22 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
           </ul>
         </div>
       )}
+
+      {recipe.notes && (
+        <div className="mt-12">
+          <h2 className="font-display text-xl font-semibold">Your notes</h2>
+          <p className="mt-3 max-w-prose whitespace-pre-line text-graphite">{recipe.notes}</p>
+        </div>
+      )}
     </section>
   )
 }
 
-function DeleteRecipe({ recipe }: { recipe: RecipeDetail }) {
+function RecipeActions({ recipe }: { recipe: RecipeDetail }) {
   const [confirming, setConfirming] = useState(false)
 
   return (
-    <footer className="mt-20 flex items-center gap-3 border-t border-hairline pt-6 text-sm">
+    <footer className="mt-20 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-hairline pt-6 text-sm">
       {confirming ? (
         <>
           <span>Delete “{recipe.title}” for good?</span>
@@ -218,9 +240,23 @@ function DeleteRecipe({ recipe }: { recipe: RecipeDetail }) {
           </button>
         </>
       ) : (
-        <button type="button" onClick={() => setConfirming(true)} className="text-graphite hover:text-danger">
-          Delete recipe
-        </button>
+        <>
+          <Link href={`/recipes/${recipe.id}/edit`} className="text-graphite hover:text-ink">
+            Edit recipe
+          </Link>
+          {!recipe.archived && (
+            <button
+              type="button"
+              onClick={() => router.post(`/recipes/${recipe.id}/archive`)}
+              className="text-graphite hover:text-ink"
+            >
+              Archive recipe
+            </button>
+          )}
+          <button type="button" onClick={() => setConfirming(true)} className="text-graphite hover:text-danger">
+            Delete recipe
+          </button>
+        </>
       )}
     </footer>
   )

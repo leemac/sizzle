@@ -1,7 +1,6 @@
 import { useForm } from '@inertiajs/react'
+import FieldError, { inputClass } from '@/components/FieldError'
 import type { ManualRecipeInput } from '@/types'
-
-const inputClass = 'mt-2 w-full rounded-xl border-hairline bg-paper px-4 py-3 text-base focus:border-ink focus:ring-0'
 
 export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | null }) {
   const form = useForm<ManualRecipeInput>({
@@ -154,12 +153,4 @@ export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | n
       </button>
     </form>
   )
-}
-
-function FieldError({ name, error }: { name: string; error?: string }) {
-  return error ? (
-    <p id={`${name}-error`} role="alert" className="mt-2 text-sm text-danger">
-      {error}
-    </p>
-  ) : null
 }

@@ -6,6 +6,7 @@ const PATHS = {
   close: 'M6 6l12 12M18 6 6 18',
   share: 'M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',
   check: 'M5 12.5 10 17 19 7',
+  edit: 'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4ZM13.5 6.5l4 4',
 } as const
 
 export type IconName = keyof typeof PATHS
