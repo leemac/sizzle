@@ -14,7 +14,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const cancelSearch = () => clearTimeout(timer.current)
-  useEffect(() => cancelSearch, [])
+  useEffect(() => () => clearTimeout(timer.current), [timer])
 
   const search = (value: string) => {
     setQuery(value)

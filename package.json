@@ -16,9 +16,9 @@
   },
   "scripts": {
     "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
-    "lint": "oxlint app/frontend",
-    "format": "prettier --write app/frontend",
-    "format:check": "prettier --check app/frontend",
+    "lint": "oxlint app/frontend test/browser vite.config.ts playwright.config.ts",
+    "format": "prettier --write app/frontend test/browser vite.config.ts playwright.config.ts",
+    "format:check": "prettier --check app/frontend test/browser vite.config.ts playwright.config.ts",
     "test": "vitest run",
     "test:browser": "playwright test"
   },

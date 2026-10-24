@@ -1,8 +1,43 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+# Sizzle's own cops enforce the security rules in AGENTS.md.
+require:
+  - ./lib/rubocop/cop/sizzle/untrusted_fetch
+  - ./lib/rubocop/cop/sizzle/shell_string
+
+AllCops:
+  NewCops: enable
+
+# Omakase only checks style. Turn on the cops that find bugs and unsafe calls too.
+Lint:
+  Enabled: true
+
+# `assert_equal expected, list.map { ... }` is idiomatic Minitest.
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "test/**/*"
+
+Security:
+  Enabled: true
+
+# Imported content is plain text; nothing may mark it as safe HTML (AGENTS.md security rule 3).
+Rails/OutputSafety:
+  Enabled: true
+
+Sizzle/UntrustedFetch:
+  Enabled: true
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"
+    - "config/**/*.rb"
+  Exclude:
+    - "app/services/safe_http.rb"
+    - "lib/rubocop/**/*"
+
+Sizzle/ShellString:
+  Enabled: true
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"
+    - "config/**/*.rb"
