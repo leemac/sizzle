@@ -1,0 +1,2598 @@
+[
+  {
+    "title": "Coconut vegetable korma",
+    "image": "curry",
+    "cuisine": "Indian",
+    "course": "main",
+    "main_ingredient": "cauliflower",
+    "prep_minutes": 10,
+    "cook_minutes": 30,
+    "total_minutes": 40,
+    "servings": 4,
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "tags": [
+      "weeknight",
+      "one-pot",
+      "freezer-friendly"
+    ],
+    "description": "Cauliflower, potato and peas in a gently spiced coconut and tomato sauce, served with rice.",
+    "ingredients": [
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "neutral oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "onion",
+        "section": null,
+        "preparation": "finely chopped",
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": null,
+        "unit": "clove",
+        "item": "garlic",
+        "section": null,
+        "preparation": "minced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "fresh ginger",
+        "section": null,
+        "preparation": "grated",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "curry powder",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 400,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "canned chopped tomatoes",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 400,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "coconut milk",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lime",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "cooked rice",
+        "section": null,
+        "preparation": null,
+        "note": "to serve"
+      },
+      {
+        "quantity": 300,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "cauliflower",
+        "section": null,
+        "preparation": "cut into small florets",
+        "note": null
+      },
+      {
+        "quantity": 250,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "potatoes",
+        "section": null,
+        "preparation": "cut into 1 cm cubes",
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "frozen peas",
+        "section": null,
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oil in a large saucepan over medium heat. Cook the onion with the salt for 7 minutes, stirring until softened."
+      },
+      {
+        "section": null,
+        "text": "Add the garlic, ginger and curry powder. Stir for 1 minute, then add the tomatoes, coconut milk, cauliflower and potatoes."
+      },
+      {
+        "section": null,
+        "text": "Simmer covered for 15 to 20 minutes, stirring occasionally, until the potatoes are tender. Add a splash of water if the sauce becomes too thick."
+      },
+      {
+        "section": null,
+        "text": "Stir in the peas and cook for 3 minutes. Squeeze in the lime juice, taste for salt and serve with cooked rice."
+      }
+    ],
+    "tips": [
+      "Freeze the curry without the rice for up to 3 months.",
+      "Use a mild curry powder for a gentler sauce."
+    ],
+    "legacy_title": "Weeknight Chickpea Curry"
+  },
+  {
+    "title": "Lemon salmon with cucumber salsa",
+    "image": "salmon",
+    "cuisine": "Mediterranean",
+    "course": "main",
+    "main_ingredient": "salmon",
+    "prep_minutes": 15,
+    "cook_minutes": 15,
+    "total_minutes": 30,
+    "servings": 2,
+    "diets": [
+      "pescatarian",
+      "gluten-free",
+      "dairy-free",
+      "low-carb"
+    ],
+    "tags": [
+      "weeknight",
+      "date-night"
+    ],
+    "description": "Golden pan-seared salmon with a crisp cucumber, avocado and lemon salsa.",
+    "ingredients": [
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "salmon fillets",
+        "section": null,
+        "preparation": null,
+        "note": "about 150 g each, skin on"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "black pepper",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": null,
+        "item": "cucumber",
+        "section": "Salsa",
+        "preparation": "finely diced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "avocado",
+        "section": "Salsa",
+        "preparation": "diced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lemon",
+        "section": "Salsa",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "flat-leaf parsley",
+        "section": "Salsa",
+        "preparation": "chopped",
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "salad leaves",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Pat the salmon dry and season with the salt and pepper. Heat the oil in a nonstick skillet over medium-high heat."
+      },
+      {
+        "section": null,
+        "text": "Place the salmon skin-side down and press gently for 20 seconds. Cook for 5 to 6 minutes until the skin is crisp. Turn and cook for another 3 to 5 minutes, until the thickest part reaches 63°C."
+      },
+      {
+        "section": null,
+        "text": "Combine the cucumber, avocado and parsley with the zest and juice of half the lemon. Taste and add a pinch of salt if needed."
+      },
+      {
+        "section": null,
+        "text": "Divide the salad leaves between plates, add the salmon and spoon over the salsa. Serve with the remaining lemon cut into wedges."
+      }
+    ],
+    "tips": [
+      "Drying the fish well helps the skin crisp.",
+      "Make the salsa just before serving to keep the avocado bright."
+    ],
+    "legacy_title": "Miso Glazed Salmon"
+  },
+  {
+    "title": "Blueberry buttermilk pancakes",
+    "image": "pancakes",
+    "cuisine": "American",
+    "course": "breakfast",
+    "main_ingredient": "blueberries",
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "total_minutes": 25,
+    "servings": 4,
+    "diets": [
+      "vegetarian",
+      "nut-free"
+    ],
+    "tags": [
+      "brunch",
+      "family-favourite"
+    ],
+    "description": "Fluffy pancakes with blueberries, sliced banana and a generous drizzle of maple syrup.",
+    "ingredients": [
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "baking powder",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 250,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "buttermilk",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "eggs",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 30,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "butter",
+        "section": null,
+        "preparation": "melted, plus more for the pan",
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "blueberries",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "banana",
+        "section": "To serve",
+        "preparation": "sliced",
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "maple syrup",
+        "section": "To serve",
+        "preparation": null,
+        "note": "to taste"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Whisk together the flour, baking powder, sugar and salt in a large bowl."
+      },
+      {
+        "section": null,
+        "text": "Whisk the buttermilk, eggs and melted butter in a separate bowl. Fold the wet ingredients into the dry ingredients just until no dry flour remains; a few lumps are fine."
+      },
+      {
+        "section": null,
+        "text": "Heat a lightly buttered skillet over medium heat. Pour in small ladlefuls of batter and scatter a few blueberries over each pancake."
+      },
+      {
+        "section": null,
+        "text": "Cook for 2 to 3 minutes, until bubbles form and the edges look set. Flip and cook for 1 to 2 minutes more. Repeat with the remaining batter."
+      },
+      {
+        "section": null,
+        "text": "Serve warm with banana, the remaining blueberries and maple syrup."
+      }
+    ],
+    "tips": [
+      "Keep finished pancakes warm in a 100°C oven.",
+      "Freeze with baking paper between pancakes and reheat in a toaster."
+    ]
+  },
+  {
+    "title": "Avocado toast with a crispy fried egg",
+    "image": "avocado-toast",
+    "cuisine": "Australian",
+    "course": "breakfast",
+    "main_ingredient": "eggs",
+    "prep_minutes": 5,
+    "cook_minutes": 5,
+    "total_minutes": 10,
+    "servings": 2,
+    "diets": [
+      "vegetarian",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "quick",
+      "brunch"
+    ],
+    "description": "Creamy smashed avocado on sourdough, topped with a crisp-edged egg, lime and chilli flakes.",
+    "ingredients": [
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "slice",
+        "item": "sourdough bread",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ripe avocado",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "eggs",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lime",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "chilli flakes",
+        "section": null,
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Toast the sourdough until deeply golden."
+      },
+      {
+        "section": null,
+        "text": "Mash the avocado with the lime juice and salt, leaving some texture."
+      },
+      {
+        "section": null,
+        "text": "Heat the olive oil in a skillet over medium-high heat. Crack in the eggs, reduce the heat to medium and fry for 3 to 4 minutes, until the whites are completely set. Cook longer if you prefer a firm yolk."
+      },
+      {
+        "section": null,
+        "text": "Spread the avocado over the toast, top each slice with an egg and finish with chilli flakes."
+      }
+    ],
+    "tips": [
+      "Mash the avocado just before serving."
+    ],
+    "legacy_title": "Shakshuka"
+  },
+  {
+    "title": "Rainbow chickpea salad with lemon tahini dressing",
+    "image": "salad",
+    "cuisine": "Mediterranean",
+    "course": "salad",
+    "main_ingredient": "chickpeas",
+    "prep_minutes": 20,
+    "cook_minutes": 0,
+    "total_minutes": 20,
+    "servings": 4,
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "tags": [
+      "no-cook",
+      "meal-prep",
+      "lunch"
+    ],
+    "description": "A big, crunchy salad of chickpeas, avocado, radish and colourful vegetables with a creamy lemon dressing.",
+    "ingredients": [
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "can",
+        "item": "chickpeas",
+        "section": null,
+        "preparation": null,
+        "note": "400 g, drained and rinsed"
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "mixed salad leaves",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "yellow pepper",
+        "section": null,
+        "preparation": "thinly sliced",
+        "note": null
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "cherry tomatoes",
+        "section": null,
+        "preparation": "halved",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "carrot",
+        "section": null,
+        "preparation": "grated",
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "red cabbage",
+        "section": null,
+        "preparation": "shredded",
+        "note": null
+      },
+      {
+        "quantity": 4,
+        "quantity_max": null,
+        "unit": null,
+        "item": "radishes",
+        "section": null,
+        "preparation": "thinly sliced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "avocado",
+        "section": null,
+        "preparation": "sliced",
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "tahini",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lemon",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "maple syrup",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": 4,
+        "unit": "tbsp",
+        "item": "water",
+        "section": "Dressing",
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": "Dressing",
+        "text": "Whisk the tahini, lemon juice, olive oil, maple syrup and salt. Add 3 to 4 tablespoons of water, a little at a time, until pourable."
+      },
+      {
+        "section": "Salad",
+        "text": "Arrange the leaves, chickpeas, pepper, tomatoes, carrot, cabbage and radishes in a large bowl."
+      },
+      {
+        "section": "Salad",
+        "text": "Add the avocado, drizzle over the dressing and toss gently just before serving."
+      }
+    ],
+    "tips": [
+      "Keep the dressing and avocado separate if preparing lunches ahead.",
+      "The dressing thickens in the fridge; loosen it with a splash of water."
+    ]
+  },
+  {
+    "title": "Margherita pizza",
+    "image": "pizza",
+    "cuisine": "Italian",
+    "course": "main",
+    "main_ingredient": "tomatoes",
+    "prep_minutes": 20,
+    "cook_minutes": 15,
+    "total_minutes": 45,
+    "servings": 2,
+    "diets": [
+      "vegetarian",
+      "nut-free"
+    ],
+    "tags": [
+      "weekend",
+      "family-favourite"
+    ],
+    "description": "A blistered crust, bright tomato sauce, melting mozzarella and fresh basil. A simple pizza for a very hot oven.",
+    "ingredients": [
+      {
+        "quantity": 500,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "prepared pizza dough",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "canned crushed tomatoes",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "mozzarella",
+        "section": null,
+        "preparation": "torn and patted dry",
+        "note": "use vegetarian mozzarella if needed"
+      },
+      {
+        "quantity": 10,
+        "quantity_max": null,
+        "unit": null,
+        "item": "basil leaves",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": "for dusting"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Place a heavy baking sheet or pizza stone in the oven and heat to 250°C for at least 30 minutes. Bring refrigerated dough to room temperature while the oven heats."
+      },
+      {
+        "section": null,
+        "text": "Mix the tomatoes with the oil and salt. Divide the dough in half and stretch each piece on a floured surface into a 25 cm circle."
+      },
+      {
+        "section": null,
+        "text": "Transfer each base to baking paper. Spread with tomato sauce, leaving a 2 cm border, and scatter over the mozzarella."
+      },
+      {
+        "section": null,
+        "text": "Slide onto the hot sheet and bake for 10 to 15 minutes, until the crust is deeply golden and the cheese bubbles. Bake separately if needed."
+      },
+      {
+        "section": null,
+        "text": "Scatter with basil and serve immediately."
+      }
+    ],
+    "tips": [
+      "Total time allows for oven preheating; bring cold dough to room temperature first.",
+      "Dry mozzarella gives a crisper base."
+    ]
+  },
+  {
+    "title": "Roasted carrot and ginger soup",
+    "image": "soup",
+    "cuisine": "British",
+    "course": "soup",
+    "main_ingredient": "carrots",
+    "prep_minutes": 15,
+    "cook_minutes": 40,
+    "total_minutes": 55,
+    "servings": 4,
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "tags": [
+      "one-pot",
+      "freezer-friendly",
+      "autumn"
+    ],
+    "description": "Velvety roasted carrot soup with fresh ginger, coconut milk and toasted almonds.",
+    "ingredients": [
+      {
+        "quantity": 800,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "carrots",
+        "section": null,
+        "preparation": "peeled and cut into chunks",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "onion",
+        "section": null,
+        "preparation": "chopped",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "clove",
+        "item": "garlic",
+        "section": null,
+        "preparation": "chopped",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "fresh ginger",
+        "section": null,
+        "preparation": "grated",
+        "note": null
+      },
+      {
+        "quantity": 750,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "vegetable stock",
+        "section": null,
+        "preparation": null,
+        "note": "gluten-free if needed"
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "coconut milk",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "flaked almonds",
+        "section": "To serve",
+        "preparation": "toasted",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "coriander leaves",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oven to 220°C. Toss the carrots with 1 tablespoon of oil and half the salt. Roast for 25 to 30 minutes until tender and browned at the edges."
+      },
+      {
+        "section": null,
+        "text": "Meanwhile, heat the remaining oil in a large saucepan over medium heat. Cook the onion for 8 minutes, then stir in the garlic and ginger for 1 minute."
+      },
+      {
+        "section": null,
+        "text": "Add the roasted carrots and stock. Bring to a simmer and cook for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Take off the heat and blend with an immersion blender until smooth. Stir in the coconut milk and remaining salt, then warm gently. Add a splash of water if too thick."
+      },
+      {
+        "section": null,
+        "text": "Serve with toasted almonds and coriander."
+      }
+    ],
+    "tips": [
+      "For a nut-free version, use pumpkin seeds instead of almonds.",
+      "Freeze for up to 3 months."
+    ]
+  },
+  {
+    "title": "Smoky sweetcorn and black bean tacos",
+    "image": "tacos",
+    "cuisine": "Mexican",
+    "course": "main",
+    "main_ingredient": "black beans",
+    "prep_minutes": 15,
+    "cook_minutes": 15,
+    "total_minutes": 30,
+    "servings": 4,
+    "diets": [
+      "vegetarian",
+      "gluten-free"
+    ],
+    "tags": [
+      "weeknight",
+      "sharing"
+    ],
+    "description": "Warm corn tortillas filled with smoky beans, sweetcorn and crunchy peppers, finished with lime and coriander.",
+    "ingredients": [
+      {
+        "quantity": 8,
+        "quantity_max": null,
+        "unit": null,
+        "item": "corn tortillas",
+        "section": null,
+        "preparation": null,
+        "note": "check they are gluten-free"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "red onion",
+        "section": null,
+        "preparation": "diced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "red pepper",
+        "section": null,
+        "preparation": "diced",
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "sweetcorn",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "can",
+        "item": "black beans",
+        "section": null,
+        "preparation": null,
+        "note": "400 g, drained and rinsed"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "smoked paprika",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "ground cumin",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "grated cheddar",
+        "section": "To serve",
+        "preparation": null,
+        "note": "use vegetarian cheddar if needed"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lime",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "coriander leaves",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "spring onion",
+        "section": "To serve",
+        "preparation": "sliced",
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oil in a large skillet over medium-high heat. Cook the onion and pepper for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Add the sweetcorn, beans, paprika, cumin and salt. Cook for 6 to 8 minutes, stirring, until hot and lightly charred. Add a splash of water if the beans stick."
+      },
+      {
+        "section": null,
+        "text": "Warm the tortillas in a dry frying pan for about 20 seconds per side and wrap in a clean tea towel."
+      },
+      {
+        "section": null,
+        "text": "Fill the tortillas with the bean mixture and cheese. Finish with coriander, spring onion and a squeeze of lime."
+      }
+    ],
+    "tips": [
+      "For vegan tacos, leave out the cheese or use a plant-based alternative.",
+      "Leftover filling works well in a rice bowl."
+    ]
+  },
+  {
+    "title": "Brown Butter Banana Bread",
+    "image": "banana-bread",
+    "cuisine": "American",
+    "course": "baking",
+    "main_ingredient": "bananas",
+    "prep_minutes": 20,
+    "cook_minutes": 55,
+    "total_minutes": 75,
+    "servings": 10,
+    "diets": [
+      "vegetarian",
+      "nut-free"
+    ],
+    "tags": [
+      "make-ahead",
+      "weekend"
+    ],
+    "description": "A moist banana loaf with the nutty flavour of browned butter and a dark, caramelised crust.",
+    "ingredients": [
+      {
+        "quantity": 115,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "unsalted butter",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ripe bananas",
+        "section": null,
+        "preparation": null,
+        "note": "about 300 g peeled"
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "light brown sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "eggs",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "vanilla extract",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "bicarbonate of soda",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "ground cinnamon",
+        "section": null,
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oven to 175°C. Grease and line a 23 × 13 cm loaf tin."
+      },
+      {
+        "section": null,
+        "text": "Melt the butter in a small saucepan over medium heat. Swirl for 4 to 6 minutes, until the milk solids turn golden brown and smell nutty. Pour into a bowl, including the browned bits, and let cool for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Mash the bananas in a large bowl. Whisk in the sugar, eggs, vanilla and cooled butter."
+      },
+      {
+        "section": null,
+        "text": "Mix the flour, bicarbonate of soda, salt and cinnamon separately, then fold into the banana mixture just until combined."
+      },
+      {
+        "section": null,
+        "text": "Pour into the tin and bake for 50 to 55 minutes, until a skewer inserted in the centre comes out clean. Cover loosely with foil if browning too quickly."
+      },
+      {
+        "section": null,
+        "text": "Cool in the tin for 15 minutes, then transfer to a rack. Let cool before slicing."
+      }
+    ],
+    "tips": [
+      "The bananas should be heavily speckled.",
+      "Slice and freeze for up to 3 months."
+    ]
+  },
+  {
+    "title": "Chocolate chunk cookies with flaky salt",
+    "image": "cookies",
+    "cuisine": "American",
+    "course": "baking",
+    "main_ingredient": "chocolate",
+    "prep_minutes": 15,
+    "cook_minutes": 12,
+    "total_minutes": 57,
+    "servings": null,
+    "diets": [
+      "vegetarian",
+      "nut-free"
+    ],
+    "tags": [
+      "baking-project",
+      "make-ahead"
+    ],
+    "description": "Crisp edges, soft centres and generous puddles of dark chocolate. Finish with a little flaky salt.",
+    "ingredients": [
+      {
+        "quantity": 125,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "unsalted butter",
+        "section": null,
+        "preparation": "softened",
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "light brown sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 75,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "caster sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "egg",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "vanilla extract",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "bicarbonate of soda",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "fine salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 180,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "dark chocolate",
+        "section": null,
+        "preparation": "roughly chopped",
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "flaky salt",
+        "section": null,
+        "preparation": null,
+        "note": "a pinch for each cookie"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Beat the butter and both sugars until creamy, about 3 minutes. Beat in the egg and vanilla."
+      },
+      {
+        "section": null,
+        "text": "Mix the flour, bicarbonate of soda and fine salt, then fold into the butter mixture. Stir in the chocolate."
+      },
+      {
+        "section": null,
+        "text": "Scoop into 16 balls. Chill for at least 30 minutes while the oven heats to 180°C. Line two baking sheets."
+      },
+      {
+        "section": null,
+        "text": "Arrange the dough balls well apart and sprinkle with flaky salt. Bake for 10 to 12 minutes, until the edges are golden but the centres still look soft."
+      },
+      {
+        "section": null,
+        "text": "Leave on the sheets for 10 minutes before transferring to a rack."
+      }
+    ],
+    "tips": [
+      "Total time includes the 30-minute chill.",
+      "Freeze unbaked dough balls; bake from frozen for 2 extra minutes."
+    ],
+    "yield_text": "Makes 16 cookies"
+  },
+  {
+    "title": "Little summer berry lattice tarts",
+    "image": "berry-tarts",
+    "cuisine": "French",
+    "course": "dessert",
+    "main_ingredient": "berries",
+    "prep_minutes": 30,
+    "cook_minutes": 30,
+    "total_minutes": 75,
+    "servings": 6,
+    "diets": [
+      "vegetarian",
+      "nut-free"
+    ],
+    "tags": [
+      "weekend",
+      "summer",
+      "sharing"
+    ],
+    "description": "Buttery individual tarts filled with juicy mixed berries under a golden pastry lattice.",
+    "ingredients": [
+      {
+        "quantity": 500,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "shortcrust pastry",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 450,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "mixed berries",
+        "section": null,
+        "preparation": "strawberries quartered; other berries left whole",
+        "note": null
+      },
+      {
+        "quantity": 75,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "caster sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "cornflour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "lemon zest",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "egg",
+        "section": null,
+        "preparation": "beaten",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "demerara sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": "for dusting"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oven to 190°C. Roll two-thirds of the pastry on a floured surface to 3 mm thick. Line six 10 cm tart tins and chill for 15 minutes."
+      },
+      {
+        "section": null,
+        "text": "Mix the berries with the caster sugar, cornflour and lemon zest. Divide between the pastry cases."
+      },
+      {
+        "section": null,
+        "text": "Roll the remaining pastry and cut into thin strips. Weave a loose lattice over each tart, pressing the edges to seal. Brush with beaten egg and sprinkle with demerara sugar."
+      },
+      {
+        "section": null,
+        "text": "Bake on a tray for 25 to 30 minutes, until the pastry is golden and the filling bubbles. Cool for at least 20 minutes before removing from the tins."
+      }
+    ],
+    "tips": [
+      "Total time includes chilling the pastry; cool for at least 20 minutes before serving.",
+      "Put the tins on a tray to catch any bubbling berry juice."
+    ],
+    "legacy_title": "Lemon Olive Oil Cake"
+  },
+  {
+    "title": "Seeded wholemeal bread rolls",
+    "image": "bread",
+    "cuisine": "British",
+    "course": "bread",
+    "main_ingredient": "wholemeal flour",
+    "prep_minutes": 25,
+    "cook_minutes": 25,
+    "total_minutes": 170,
+    "servings": 8,
+    "diets": [
+      "vegan",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "baking-project",
+      "freezer-friendly"
+    ],
+    "description": "Hearty wholemeal rolls with a soft crumb and a generous coating of sunflower, pumpkin and sesame seeds.",
+    "ingredients": [
+      {
+        "quantity": 300,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "strong wholemeal flour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "strong white bread flour",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 7,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "instant yeast",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1.5,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 350,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "lukewarm water",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 60,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "mixed seeds",
+        "section": null,
+        "preparation": null,
+        "note": "sunflower, pumpkin and sesame"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "plain flour",
+        "section": null,
+        "preparation": null,
+        "note": "for dusting"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Mix both flours with the yeast and salt. Add the oil and water, then mix to a rough dough."
+      },
+      {
+        "section": null,
+        "text": "Knead on a lightly floured surface for 10 minutes, until smooth and elastic. Place in an oiled bowl, cover and leave for 60 to 90 minutes until doubled."
+      },
+      {
+        "section": null,
+        "text": "Divide into 8 equal pieces and shape into rolls. Brush the tops with water and press into the seeds. Arrange on a lined tray, cover loosely and prove for 30 to 45 minutes until puffy."
+      },
+      {
+        "section": null,
+        "text": "Heat the oven to 220°C. Bake for 20 to 25 minutes, until well browned and hollow-sounding when tapped underneath. Cool on a rack."
+      }
+    ],
+    "tips": [
+      "Allow 90 to 135 minutes for rising; total time uses a 2-hour rise.",
+      "Freeze cooled rolls, then reheat from frozen at 180°C for 10 minutes."
+    ],
+    "yield_text": "Makes 8 rolls"
+  },
+  {
+    "title": "Chocolate brownie milkshake",
+    "image": "milkshake",
+    "cuisine": "American",
+    "course": "drink",
+    "main_ingredient": "chocolate",
+    "prep_minutes": 10,
+    "cook_minutes": 0,
+    "total_minutes": 10,
+    "servings": 2,
+    "diets": [
+      "vegetarian"
+    ],
+    "tags": [
+      "no-cook",
+      "treat"
+    ],
+    "description": "A thick chocolate shake with whipped cream, chocolate sauce and a bite of brownie on top.",
+    "ingredients": [
+      {
+        "quantity": 400,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "chocolate ice cream",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "milk",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "chocolate sauce",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 60,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "double cream",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "small brownie",
+        "section": null,
+        "preparation": "cut in half",
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Chill two serving glasses in the freezer for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Whip the cream to soft peaks. Drizzle half the chocolate sauce around the inside of the glasses."
+      },
+      {
+        "section": null,
+        "text": "Blend the ice cream, milk and remaining chocolate sauce until thick and smooth. Add a splash more milk if needed."
+      },
+      {
+        "section": null,
+        "text": "Pour into the glasses. Top with whipped cream and a piece of brownie, then serve immediately."
+      }
+    ],
+    "tips": [
+      "Use cold glasses and very cold milk for a thicker shake."
+    ]
+  },
+  {
+    "title": "Miso ramen with salmon and soft-boiled eggs",
+    "image": "noodles",
+    "cuisine": "Japanese",
+    "course": "main",
+    "main_ingredient": "noodles",
+    "prep_minutes": 15,
+    "cook_minutes": 20,
+    "total_minutes": 35,
+    "servings": 2,
+    "diets": [
+      "pescatarian",
+      "dairy-free"
+    ],
+    "tags": [
+      "comfort-food",
+      "weeknight"
+    ],
+    "description": "A quick miso broth with springy noodles, seared salmon, jammy eggs and plenty of spring onion.",
+    "ingredients": [
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "eggs",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "salmon fillets",
+        "section": null,
+        "preparation": null,
+        "note": "about 125 g each"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "neutral oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 800,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "vegetable stock",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "fresh ginger",
+        "section": null,
+        "preparation": "grated",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "white miso",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "soy sauce",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "ramen noodles",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": null,
+        "item": "spring onions",
+        "section": null,
+        "preparation": "thinly sliced",
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "sesame seeds",
+        "section": null,
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Bring a small pan of water to a boil. Lower in the eggs and cook for 7 minutes. Transfer to cold water, then peel and halve."
+      },
+      {
+        "section": null,
+        "text": "Pat the salmon dry. Heat the oil in a skillet over medium-high heat and sear the salmon for 4 minutes on the first side and 3 to 5 on the second, until the thickest part reaches 63°C."
+      },
+      {
+        "section": null,
+        "text": "Simmer the stock with the ginger for 5 minutes. Meanwhile, cook the noodles according to the packet directions and drain."
+      },
+      {
+        "section": null,
+        "text": "Turn off the heat under the stock. Mix the miso with a ladleful of hot stock, then stir back into the pan with the soy sauce."
+      },
+      {
+        "section": null,
+        "text": "Divide the noodles between bowls, pour over the broth and top with salmon, eggs, spring onions and sesame seeds."
+      }
+    ],
+    "tips": [
+      "Add the miso off the heat to keep its flavour bright.",
+      "For firm egg yolks, boil for 10 minutes instead."
+    ],
+    "legacy_title": "Pad Kra Pao"
+  },
+  {
+    "title": "Crispy oven fries with parmesan and parsley",
+    "image": "fries",
+    "cuisine": "American",
+    "course": "side",
+    "main_ingredient": "potatoes",
+    "prep_minutes": 15,
+    "cook_minutes": 40,
+    "total_minutes": 55,
+    "servings": 4,
+    "diets": [
+      "vegetarian",
+      "gluten-free",
+      "nut-free"
+    ],
+    "tags": [
+      "sharing",
+      "weekend"
+    ],
+    "description": "Golden oven-baked potato fries with crisp edges, grated parmesan and fresh parsley.",
+    "ingredients": [
+      {
+        "quantity": 800,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "floury potatoes",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.75,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "parsley",
+        "section": null,
+        "preparation": "chopped",
+        "note": null
+      },
+      {
+        "quantity": 40,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "vegetarian parmesan-style cheese",
+        "section": null,
+        "preparation": "finely grated",
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Heat the oven to 230°C with two large baking sheets inside. Cut the potatoes into 1 cm fries, leaving the skins on if you like."
+      },
+      {
+        "section": null,
+        "text": "Rinse the fries in cold water and dry thoroughly with a clean tea towel."
+      },
+      {
+        "section": null,
+        "text": "Toss with the oil and salt. Spread carefully over the hot trays in a single layer with space between them."
+      },
+      {
+        "section": null,
+        "text": "Bake for 35 to 40 minutes, turning after 20 minutes and swapping the trays, until deeply golden. Scatter with grated cheese and parsley and serve hot."
+      }
+    ],
+    "tips": [
+      "Dry potatoes and space on the tray make the biggest difference to crispness."
+    ],
+    "legacy_title": "Crispy Smashed Potatoes with Herby Yogurt"
+  },
+  {
+    "title": "Steak and mushroom tagliatelle",
+    "image": "pasta",
+    "cuisine": "Italian",
+    "course": "main",
+    "main_ingredient": "beef",
+    "prep_minutes": 15,
+    "cook_minutes": 20,
+    "total_minutes": 35,
+    "servings": 4,
+    "diets": [],
+    "tags": [
+      "weeknight",
+      "date-night"
+    ],
+    "description": "Seared steak, golden mushrooms and cherry tomatoes tossed with ribbons of pasta in a light cream sauce.",
+    "ingredients": [
+      {
+        "quantity": 350,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "tagliatelle",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 350,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "sirloin steak",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 250,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "mushrooms",
+        "section": null,
+        "preparation": "quartered",
+        "note": null
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "cherry tomatoes",
+        "section": null,
+        "preparation": "halved",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "clove",
+        "item": "garlic",
+        "section": null,
+        "preparation": "minced",
+        "note": null
+      },
+      {
+        "quantity": 150,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "double cream",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 50,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "baby spinach",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.75,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "salt",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "black pepper",
+        "section": null,
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Pat the steak dry and season with half the salt and all the pepper. Heat 1 tablespoon of oil in a large skillet over high heat. Sear the steak for 3 to 4 minutes per side, until cooked to your preference. Transfer to a board and rest for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Meanwhile, cook the tagliatelle in salted boiling water according to the packet. Reserve a mug of cooking water before draining."
+      },
+      {
+        "section": null,
+        "text": "Add the remaining oil to the skillet. Cook the mushrooms over medium-high heat for 5 minutes until golden. Add the tomatoes, garlic and remaining salt and cook for 3 minutes."
+      },
+      {
+        "section": null,
+        "text": "Reduce the heat and add the cream and spinach. Simmer for 2 minutes, until the spinach wilts."
+      },
+      {
+        "section": null,
+        "text": "Slice the rested steak thinly. Toss the pasta into the sauce with a splash of cooking water, then fold in the steak and its resting juices. Serve immediately."
+      }
+    ],
+    "tips": [
+      "Slice steak across the grain to keep it tender."
+    ],
+    "legacy_title": "Charred Broccoli Orecchiette"
+  },
+  {
+    "title": "Cucumber mint cooler",
+    "image": "cucumber-mint-cooler",
+    "cuisine": "British",
+    "course": "drink",
+    "main_ingredient": "cucumber",
+    "prep_minutes": 10,
+    "cook_minutes": 0,
+    "total_minutes": 10,
+    "servings": 2,
+    "yield_text": "Makes 2 tall glasses",
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "mocktail",
+      "caffeine-free",
+      "no-cook",
+      "summer"
+    ],
+    "description": "A crisp, gently sweet sparkling cooler with fresh cucumber, mint and lime.",
+    "ingredients": [
+      {
+        "quantity": 0.5,
+        "quantity_max": null,
+        "unit": null,
+        "item": "cucumber",
+        "section": null,
+        "preparation": "thinly sliced",
+        "note": null
+      },
+      {
+        "quantity": 12,
+        "quantity_max": null,
+        "unit": null,
+        "item": "mint leaves",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lime",
+        "section": null,
+        "preparation": "juiced",
+        "note": null
+      },
+      {
+        "quantity": 2,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "caster sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 300,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "sparkling water",
+        "section": null,
+        "preparation": null,
+        "note": "chilled"
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ice cubes",
+        "section": null,
+        "preparation": null,
+        "note": "enough to fill two glasses"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Reserve a few cucumber slices and mint sprigs for garnish. Put the remaining cucumber, mint, lime juice and sugar in a small jug."
+      },
+      {
+        "section": null,
+        "text": "Press gently with a wooden spoon to release the cucumber juice and mint aroma. Stir until the sugar dissolves."
+      },
+      {
+        "section": null,
+        "text": "Fill two tall glasses with ice. Divide the cucumber mixture between them, top up with sparkling water and stir gently."
+      },
+      {
+        "section": null,
+        "text": "Garnish with the reserved cucumber and mint. Serve straight away."
+      }
+    ],
+    "tips": [
+      "Add the sparkling water just before serving to keep the bubbles.",
+      "Gently press the mint rather than crushing it to a paste."
+    ]
+  },
+  {
+    "title": "Hibiscus iced tea with lemon",
+    "image": "hibiscus-iced-tea",
+    "cuisine": "Mexican",
+    "course": "drink",
+    "main_ingredient": "hibiscus",
+    "prep_minutes": 10,
+    "cook_minutes": 5,
+    "total_minutes": 85,
+    "servings": 6,
+    "yield_text": "Makes about 1.5 litres",
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "caffeine-free",
+      "make-ahead",
+      "batch",
+      "summer"
+    ],
+    "description": "A ruby-red hibiscus infusion with a bright squeeze of lemon, brewed as a jug for the fridge.",
+    "ingredients": [
+      {
+        "quantity": 20,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "dried culinary hibiscus",
+        "section": null,
+        "preparation": null,
+        "note": "hibiscus sabdariffa, sold for tea"
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": "litre",
+        "item": "water",
+        "section": "To brew",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 60,
+        "quantity_max": 80,
+        "unit": "g",
+        "item": "caster sugar",
+        "section": "To brew",
+        "preparation": null,
+        "note": "adjust to taste"
+      },
+      {
+        "quantity": 500,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "cold water",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 1,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lemon",
+        "section": "To serve",
+        "preparation": "half juiced, half sliced",
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ice cubes",
+        "section": "To serve",
+        "preparation": null,
+        "note": "for serving"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Bring the litre of water to a boil in a saucepan. Turn off the heat, add the hibiscus and cover. Steep for 10 minutes."
+      },
+      {
+        "section": null,
+        "text": "Strain through a fine sieve into a heatproof jug. Stir in the sugar while the infusion is warm, then add the cold water."
+      },
+      {
+        "section": null,
+        "text": "Allow to cool for 20 minutes, then refrigerate for at least 40 minutes until cold."
+      },
+      {
+        "section": null,
+        "text": "Stir in the lemon juice. Taste and dilute with a little extra cold water if too tart. Serve over ice with lemon slices."
+      }
+    ],
+    "tips": [
+      "Total time includes steeping and cooling.",
+      "Keep covered in the fridge for up to 3 days; add ice only when serving."
+    ]
+  },
+  {
+    "title": "Strawberry lemonade",
+    "image": "strawberry-lemonade",
+    "cuisine": "American",
+    "course": "drink",
+    "main_ingredient": "strawberries",
+    "prep_minutes": 15,
+    "cook_minutes": 0,
+    "total_minutes": 15,
+    "servings": 4,
+    "yield_text": "Makes about 1 litre",
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "caffeine-free",
+      "make-ahead",
+      "no-cook",
+      "summer"
+    ],
+    "description": "Fresh strawberries and sharp lemon juice blended into a bright pink lemonade for sharing.",
+    "ingredients": [
+      {
+        "quantity": 250,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "strawberries",
+        "section": null,
+        "preparation": "hulled and halved",
+        "note": null
+      },
+      {
+        "quantity": 120,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "lemon juice",
+        "section": null,
+        "preparation": null,
+        "note": "about 3 lemons"
+      },
+      {
+        "quantity": 60,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "caster sugar",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 750,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "cold water",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ice cubes",
+        "section": null,
+        "preparation": null,
+        "note": "for serving"
+      },
+      {
+        "quantity": 4,
+        "quantity_max": null,
+        "unit": null,
+        "item": "lemon slices",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 4,
+        "quantity_max": null,
+        "unit": null,
+        "item": "mint sprigs",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Blend the strawberries, lemon juice, sugar and 250 ml of the water until smooth and the sugar has dissolved."
+      },
+      {
+        "section": null,
+        "text": "For a smoother drink, pour through a fine sieve into a jug. Stir in the remaining 500 ml of water."
+      },
+      {
+        "section": null,
+        "text": "Taste and add a little extra water or sugar if needed. Fill four glasses with ice and pour over the lemonade."
+      },
+      {
+        "section": null,
+        "text": "Garnish with lemon slices and mint, then serve."
+      }
+    ],
+    "tips": [
+      "Refrigerate the lemonade for up to 2 days and stir before pouring.",
+      "Frozen strawberries work too; thaw them before blending."
+    ]
+  },
+  {
+    "title": "Vanilla iced coffee",
+    "image": "iced-coffee",
+    "cuisine": "American",
+    "course": "drink",
+    "main_ingredient": "coffee",
+    "prep_minutes": 5,
+    "cook_minutes": 0,
+    "total_minutes": 5,
+    "servings": 2,
+    "yield_text": "Makes 2 glasses",
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "quick",
+      "no-cook",
+      "caffeinated"
+    ],
+    "description": "Strong chilled coffee over plenty of ice, softened with oat milk and a little vanilla syrup.",
+    "ingredients": [
+      {
+        "quantity": 240,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "strong brewed coffee",
+        "section": null,
+        "preparation": null,
+        "note": "cooled and chilled before starting"
+      },
+      {
+        "quantity": 200,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "oat milk",
+        "section": null,
+        "preparation": null,
+        "note": "certified gluten-free if needed"
+      },
+      {
+        "quantity": 2,
+        "quantity_max": 4,
+        "unit": "tsp",
+        "item": "maple syrup",
+        "section": null,
+        "preparation": null,
+        "note": "to taste"
+      },
+      {
+        "quantity": 0.25,
+        "quantity_max": null,
+        "unit": "tsp",
+        "item": "alcohol-free vanilla flavouring",
+        "section": null,
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ice cubes",
+        "section": null,
+        "preparation": null,
+        "note": "enough to fill two glasses"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Stir the maple syrup and vanilla into the chilled coffee until combined."
+      },
+      {
+        "section": null,
+        "text": "Fill two glasses with ice and divide the coffee between them."
+      },
+      {
+        "section": null,
+        "text": "Pour in the oat milk, stir and taste. Add a little more maple syrup if you like it sweeter. Serve immediately."
+      }
+    ],
+    "tips": [
+      "Prep and total times assume the coffee is already chilled.",
+      "Freeze leftover coffee in an ice cube tray to chill the drink without diluting it."
+    ]
+  },
+  {
+    "title": "Ginger lime spritz",
+    "image": "ginger-lime-spritz",
+    "cuisine": "British",
+    "course": "drink",
+    "main_ingredient": "ginger",
+    "prep_minutes": 10,
+    "cook_minutes": 5,
+    "total_minutes": 35,
+    "servings": 4,
+    "yield_text": "Makes 4 glasses",
+    "diets": [
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "tags": [
+      "mocktail",
+      "caffeine-free",
+      "make-ahead",
+      "sharing"
+    ],
+    "description": "A lively alcohol-free spritz made with fresh ginger syrup, lime and sparkling water.",
+    "ingredients": [
+      {
+        "quantity": 40,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "fresh ginger",
+        "section": "Ginger syrup",
+        "preparation": "thinly sliced",
+        "note": null
+      },
+      {
+        "quantity": 60,
+        "quantity_max": null,
+        "unit": "g",
+        "item": "caster sugar",
+        "section": "Ginger syrup",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 100,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "water",
+        "section": "Ginger syrup",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": 3,
+        "quantity_max": null,
+        "unit": null,
+        "item": "limes",
+        "section": "To serve",
+        "preparation": "2 juiced, 1 sliced",
+        "note": null
+      },
+      {
+        "quantity": 600,
+        "quantity_max": null,
+        "unit": "ml",
+        "item": "sparkling water",
+        "section": "To serve",
+        "preparation": null,
+        "note": "chilled"
+      },
+      {
+        "quantity": 4,
+        "quantity_max": null,
+        "unit": null,
+        "item": "mint sprigs",
+        "section": "To serve",
+        "preparation": null,
+        "note": null
+      },
+      {
+        "quantity": null,
+        "quantity_max": null,
+        "unit": null,
+        "item": "ice cubes",
+        "section": "To serve",
+        "preparation": null,
+        "note": "enough to fill four glasses"
+      }
+    ],
+    "steps": [
+      {
+        "section": null,
+        "text": "Put the ginger, sugar and water in a small saucepan. Bring to a simmer, stirring until the sugar dissolves. Simmer gently for 5 minutes."
+      },
+      {
+        "section": null,
+        "text": "Remove from the heat and let the syrup steep and cool for 20 minutes. Strain into a small jug and discard the ginger."
+      },
+      {
+        "section": null,
+        "text": "Fill four glasses with ice. Divide the ginger syrup and lime juice between them."
+      },
+      {
+        "section": null,
+        "text": "Top each glass with sparkling water, stir gently and garnish with lime slices and mint. Serve straight away."
+      }
+    ],
+    "tips": [
+      "Total time includes cooling the syrup.",
+      "Make the syrup up to a week ahead and refrigerate in a clean covered jar. Add sparkling water when serving."
+    ]
+  }
+]

@@ -2,6 +2,9 @@
 
 **Every recipe you love, minus the life story.**
 
+> **Very, very early in development.** Sizzle is experimental and unfinished. Expect rough edges
+> and frequent changes. See the [roadmap](https://github.com/leemac/sizzle/issues).
+
 Sizzle is a self-hosted cookbook. Share a recipe page from your phone, paste a link, or paste the
 recipe text. Sizzle keeps the ingredients, the steps and the best photo, drops the ads and pop-ups,
 and adds it to a fast, photo-first collection you can search and filter.
@@ -11,8 +14,6 @@ and adds it to a fast, photo-first collection you can search and filter.
   and method stay faithful to the original.
 - **Yours.** Runs on your own server with SQLite, in one small container. No accounts, no tracking.
 - **Browse.** Full-text search plus filters for course, cuisine, diet, main ingredient and time.
-
-> **Status:** early and moving fast. See the [roadmap](https://github.com/leemac/sizzle/issues).
 
 ## Run it
 
