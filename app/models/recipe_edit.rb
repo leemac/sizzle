@@ -6,6 +6,7 @@ class RecipeEdit < ManualRecipe
   FIELDS = %i[title description ingredients steps servings prep_minutes cook_minutes total_minutes
               source_url cuisine course main_ingredient tips notes].freeze
   HEADING = /\A#+(\s+|\z)/ # "# Sauce", but not "#10 can tomatoes"
+  MAX_SECTION_LENGTH = 300 # same as imported sections (RecipeDraft)
   MAX_TIP_LENGTH = 1000
   MAX_NOTES_LENGTH = 10_000
 
@@ -120,7 +121,7 @@ class RecipeEdit < ManualRecipe
     section = nil
     RecipeText.lines(text).filter_map do |line|
       if line.match?(HEADING)
-        section = line.sub(HEADING, "").presence
+        section = line.sub(HEADING, "").presence&.truncate(MAX_SECTION_LENGTH)
         next
       end
       [ section, line ]

@@ -62,6 +62,12 @@ class RecipeEditTest < ActiveSupport::TestCase
     assert_equal [ [ nil, "#10 can tomatoes" ], [ nil, "salt" ] ], @recipe.reload.ingredients.map { |line| line.values_at("section", "item") }
   end
 
+  test "long headings are capped like imported sections" do
+    assert edit(steps: "# #{'x' * 400}\nStir.").save
+
+    assert_equal 300, @recipe.reload.steps.sole["section"].length
+  end
+
   test "headings alone don't count as ingredients or steps" do
     form = edit(ingredients: "# Sauce", steps: "# Method")
 
