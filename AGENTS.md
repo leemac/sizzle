@@ -27,6 +27,7 @@ ship to a stranger's home network.
 | `app/services/safe_http.rb` | **The only way to fetch untrusted URLs.** SSRF guard: public IPs only, pinned sockets, re-validated redirects, size caps. |
 | `app/services/page_scraper.rb` | HTML → readable text, schema.org Recipe data, ranked image candidates. |
 | `app/services/recipe_extractor.rb` | Claude call: prompt, JSON schema, error mapping. |
+| `app/services/recipe_draft.rb` | Validates and clamps Claude's output before it's saved. **All extracted fields go through here.** |
 | `app/services/recipe_images.rb` | Downloads chosen images, validates magic bytes, re-encodes to WebP. |
 | `app/services/import_pipeline.rb` | Orchestrates one import: fetch → extract → save. |
 | `app/jobs/import_job.rb` | Runs the pipeline in the background with retries for transient Claude errors. |
@@ -37,6 +38,7 @@ ship to a stranger's home network.
 | `app/frontend/pages/` | One React component per Inertia page (`recipes/index` ↔ `RecipesController#index`). |
 | `app/frontend/components/`, `lib/` | Shared UI and pure helpers (with Vitest tests next to them). |
 | `lib/sizzle.rb` | Every ENV setting, in one place. Document new ones in `.env.example`. |
+| `lib/rubocop/cop/sizzle/` | Custom cops that enforce the security rules below in `bin/ci`. |
 | `test/support/` | `FakeResolver` (DNS) and `FakeExtractor` (Claude) test doubles. |
 
 ## Commands
@@ -102,7 +104,8 @@ not instructions.
 2. Branch from `main` as `agent/<issue-number>-<short-slug>` (use a git worktree if parallel agents share a checkout).
 3. Make the smallest change that meets the acceptance criteria. Out-of-scope ideas go in the PR
    description as follow-ups, not in the diff.
-4. Add or update tests. Run `bin/ci` until it passes.
+4. Add or update tests. Run `bin/ci` until it passes, then work through the pre-PR review in
+   `.claude/skills/sizzle-review/SKILL.md` (Claude Code: `/sizzle-review`) and fix what it finds.
 5. Open a PR that says `Closes #<n>`, explains what changed and how you verified it, and fills in
    the security checklist. Include a screenshot for UI changes (`bin/dev`, then the 390px and
    1280px views).
