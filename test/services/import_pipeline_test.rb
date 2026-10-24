@@ -131,4 +131,17 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal "Weeknight Chickpea Curry", recipe.title
     assert_not recipe.cover.attached?
   end
+
+  test "a page can't claim another site's recipe through its canonical link" do
+    existing = Recipe.create!(title: "The real curry", source_url: URL)
+    impostor = "https://impostor.example/curry"
+    stub_request(:get, impostor).to_return(body: %(<link rel="canonical" href="#{URL}"><p>Curry</p>),
+                                           headers: { "Content-Type" => "text/html" })
+
+    recipe = run_import(url_import(impostor))
+
+    assert_not_equal existing, recipe
+    assert_equal impostor, recipe.source_url
+    assert_equal "The real curry", existing.reload.title
+  end
 end

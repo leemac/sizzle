@@ -32,4 +32,19 @@ class PageScraperTest < ActiveSupport::TestCase
     refute(urls.any? { |url| url.include?("logo") || url.include?("tiny") })
     assert_equal %w[img1 img2 img3], @page.images.map(&:id)
   end
+
+  test "ignores a canonical link to another site or a non-http URL" do
+    [ "https://bigrecipes.example/chickpea-curry", "javascript:alert(1)", "data:text/html,hi", "//bigrecipes.example/x" ].each do |href|
+      page = PageScraper.parse(%(<link rel="canonical" href="#{href}">), base_url: "https://samskitchen.example.com/curry")
+
+      assert_equal "https://samskitchen.example.com/curry", page.canonical_url, href
+    end
+  end
+
+  test "accepts a canonical link that only adds or drops www" do
+    page = PageScraper.parse(%(<link rel="canonical" href="https://www.samskitchen.example.com/curry">),
+                             base_url: "https://samskitchen.example.com/curry?ref=ig")
+
+    assert_equal "https://www.samskitchen.example.com/curry", page.canonical_url
+  end
 end
