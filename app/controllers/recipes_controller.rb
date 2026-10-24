@@ -14,7 +14,8 @@ class RecipesController < InertiaController
       filters:,
       facets: -> { Recipe.facets },
       total_count: -> { Recipe.count },
-      pending_imports: -> { Import.pending.recent.limit(12).map { |import| ImportSerializer.call(import) } }
+      pending_imports: -> { Import.pending.recent.limit(12).map { |import| ImportSerializer.call(import) } },
+      failed_imports: -> { Import.where(status: "failed").recent.limit(3).map { |import| ImportSerializer.call(import) } }
     }
   end
 

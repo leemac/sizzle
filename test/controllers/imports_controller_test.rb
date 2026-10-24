@@ -1,0 +1,84 @@
+require "test_helper"
+
+class ImportsControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
+  test "gallery URL imports are trimmed, enqueued and redirect back to the gallery" do
+    assert_enqueued_with(job: ImportJob) do
+      post imports_url, params: { url: "  https://example.com/pie  " }
+    end
+
+    assert_redirected_to root_url
+    import = Import.last
+    assert_equal "url", import.kind
+    assert_equal "web", import.origin
+    assert_equal "https://example.com/pie", import.url
+    follow_redirect!
+    assert_equal [ import.id ], inertia.props[:pending_imports].map { |item| item[:id] }
+  end
+
+  test "invalid gallery URLs return field errors without creating or enqueueing imports" do
+    [ "", "Apple pie: bake apples", "file:///etc/passwd", "https://user:password@example.com/pie",
+      "https://example.com:6379/pie", "https://example.com/#{'a' * 2048}" ].each do |url|
+      assert_no_enqueued_jobs do
+        assert_no_difference("Import.count") { post imports_url, params: { url: } }
+      end
+      assert_redirected_to root_url
+      follow_redirect!
+      assert inertia.props[:errors][:url].present?, "expected a URL error"
+    end
+  end
+
+  test "gallery import runs through the secure pipeline and appears as a recipe" do
+    url = "https://samskitchen.example.com/chickpea-curry"
+    stub_request(:get, url).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
+    stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(body: sample_jpeg, headers: { "Content-Type" => "image/jpeg" })
+
+    post imports_url, params: { url: }
+    import = Import.last
+    ImportPipeline.new(import, http: safe_http, extractor: FakeExtractor.new).run
+    follow_redirect!
+
+    assert_equal "done", import.reload.status
+    assert_empty inertia.props[:pending_imports]
+    assert_empty inertia.props[:failed_imports]
+    assert_equal "Weeknight Chickpea Curry", inertia.props[:recipes].sole[:title]
+    assert inertia.props[:recipes].sole[:image_url]
+  end
+
+  test "gallery shows background failures including blocked private network fetches" do
+    post imports_url, params: { url: "http://router.example/pie" }
+    import = Import.last
+    extractor = FakeExtractor.new
+    ImportPipeline.new(import, http: safe_http("router.example" => "192.168.1.1"), extractor:).run
+    follow_redirect!
+
+    assert_empty extractor.pages
+    assert_empty inertia.props[:pending_imports]
+    failure = inertia.props[:failed_imports].sole
+    assert_equal import.id, failure[:id]
+    assert_match "non-public address", failure[:error]
+  end
+
+  test "gallery limits failed imports to the three most recent" do
+    4.times do |index|
+      Import.create!(kind: "url", url: "https://example.com/#{index}", origin: "web").fail!("Could not import")
+    end
+
+    get root_url
+
+    assert_equal Import.recent.limit(3).pluck(:id), inertia.props[:failed_imports].map { |item| item[:id] }
+  end
+
+  test "URL imports keep browser CSRF protection" do
+    previous = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+
+    assert_no_enqueued_jobs do
+      assert_no_difference("Import.count") { post imports_url, params: { url: "https://example.com/pie" } }
+    end
+    assert_response :unprocessable_content
+  ensure
+    ActionController::Base.allow_forgery_protection = previous
+  end
+end

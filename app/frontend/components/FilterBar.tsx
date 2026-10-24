@@ -46,7 +46,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
         />
       </label>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+      <div className="relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
         {facets.courses.map(({ value }) => (
           <Chip key={value} selected={filters.course === value} onClick={() => set('course', value)}>
             {value}
