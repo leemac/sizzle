@@ -51,12 +51,31 @@ install_pinned() {
   rm -rf "$download"
 }
 
+# A gitleaks elsewhere on PATH, skipping this script: with the repo's bin/ on PATH, `command -v`
+# would find this wrapper and it would call itself forever.
+installed_elsewhere() {
+  self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+  old_ifs=$IFS
+  IFS=:
+  for path_dir in $PATH
+  do
+    if [ -n "$path_dir" ] && [ -f "$path_dir/gitleaks" ] && [ -x "$path_dir/gitleaks" ] && [ ! "$path_dir/gitleaks" -ef "$self" ]
+    then
+      IFS=$old_ifs
+      echo "$path_dir/gitleaks"
+      return 0
+    fi
+  done
+  IFS=$old_ifs
+  return 1
+}
+
 if [ ! -x "$binary" ] && ! install_pinned
 then
-  if command -v gitleaks 1> /dev/null 2>&1
+  if fallback=$(installed_elsewhere)
   then
-    echo "Using the gitleaks on your PATH instead ($(gitleaks version))." >&2
-    exec gitleaks "$@"
+    echo "Using the gitleaks on your PATH instead ($fallback)." >&2
+    exec "$fallback" "$@"
   fi
   echo "Sizzle couldn't install gitleaks, so it can't check for secrets." >&2
   echo "Check your connection and try again, or install it yourself: https://github.com/gitleaks/gitleaks#installing" >&2
