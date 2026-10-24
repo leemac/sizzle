@@ -15,7 +15,8 @@ class RecipeEditTest < ActiveSupport::TestCase
       title: "Chickpea Curry", source_url: "https://example.com/curry", source_name: "Example Kitchen",
       ingredients: INGREDIENTS, steps: [ { "section" => nil, "text" => "Cook the rice." },
                                          { "section" => "Sauce", "text" => "Simmer the paste." } ],
-      tips: [ "Freezes well." ], prep_minutes: 10, cook_minutes: 30, total_minutes: 50, servings: 4
+      tips: [ "Freezes well." ], prep_minutes: 10, cook_minutes: 30, total_minutes: 50, servings: 4,
+      yield_text: "4 servings"
     )
   end
 
@@ -38,6 +39,23 @@ class RecipeEditTest < ActiveSupport::TestCase
     assert edit.save
 
     assert_equal before, @recipe.reload.attributes.except("updated_at")
+  end
+
+  test "unsectioned steps after a section keep their place when saved unchanged" do
+    steps = [ { "section" => "Dough", "text" => "Knead." }, { "section" => nil, "text" => "Bake." } ]
+    @recipe.update!(steps:)
+
+    assert_equal "# Dough\nKnead.\n#\nBake.", RecipeEdit.for(@recipe).steps
+    assert edit.save
+    assert_equal steps, @recipe.reload.steps
+  end
+
+  test "changing servings drops the imported yield, other edits keep it" do
+    assert edit(title: "Curry").save
+    assert_equal "4 servings", @recipe.reload.yield_text
+
+    assert edit(servings: "6").save
+    assert_equal [ 6, nil ], @recipe.reload.values_at(:servings, :yield_text)
   end
 
   test "an edited line becomes plain text while unchanged lines keep their structure" do

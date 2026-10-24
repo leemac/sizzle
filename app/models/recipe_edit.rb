@@ -41,11 +41,14 @@ class RecipeEdit < ManualRecipe
         steps: sectioned_text(recipe.steps) { |step| step["text"] })
   end
 
-  # Lines grouped the way the recipe page shows them, unsectioned first.
+  # Lines grouped the way the recipe page shows them, in first-seen order. Unsectioned
+  # lines after a section get a bare "#" so they don't join the section above.
   def self.sectioned_text(entries)
     groups = Array(entries).group_by { |entry| entry["section"].to_s.strip.presence }
-    groups = groups.sort_by { |section, _| section ? 1 : 0 }
-    groups.flat_map { |section, items| [ ("# #{section}" if section), *items.map { |item| yield item } ].compact }.join("\n")
+    groups.each_with_index.flat_map do |(section, items), index|
+      heading = section ? "# #{section}" : ("#" unless index.zero?)
+      [ heading, *items.map { |item| yield item } ].compact
+    end.join("\n")
   end
 
   # "1½ cups flour, sifted (or bread flour)", matching the recipe page's amount column.
@@ -102,6 +105,8 @@ class RecipeEdit < ManualRecipe
     }
     # The site name came from the old page; don't show it next to a different link.
     attributes[:source_name] = nil if (url && Recipe.normalize_url(url)) != recipe.source_url
+    # The imported yield ("4 servings") isn't on the form; drop it rather than contradict new servings.
+    attributes[:yield_text] = nil if attributes[:servings] != recipe.servings
     recipe.update!(attributes)
     true
   end

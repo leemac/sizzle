@@ -53,7 +53,7 @@ export function formatAmount(ingredient: Ingredient): string {
   return [amount, unit && pluralizeUnit(unit, largest)].filter(Boolean).join(' ')
 }
 
-/** Groups items by their `section`, preserving order. Items without a section come first. */
+/** Groups items by their `section`, in the order each section first appears. */
 export function groupBySection<T extends { section: string | null }>(items: T[]): [string | null, T[]][] {
   const groups = new Map<string | null, T[]>()
   for (const item of items) {
