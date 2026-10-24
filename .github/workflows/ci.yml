@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The release workflow runs all of CI on the tagged commit before publishing.
+  workflow_call:
 
 # Least privilege: CI only reads the repo. Nothing here can push, comment or publish.
 permissions:
@@ -82,14 +84,24 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: docker build -t sizzle:ci .
+      - name: Compose files are valid, for release installs and source builds
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.build.yml config --quiet
+      - run: docker build --build-arg SIZZLE_VERSION=0.0.0-ci -t sizzle:ci .
       - name: Boot with the same hardening as docker-compose.yml and hit /up
         run: |
           docker run -d --name sizzle -p 3000:80 --read-only --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 --tmpfs /tmp:mode=1777 \
             -v sizzle-storage:/rails/storage --security-opt no-new-privileges:true sizzle:ci
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             # /up proves Rails booted; / proves the database was prepared and the gallery renders.
-            curl -fsS http://localhost:3000/up && curl -fsS -o /dev/null http://localhost:3000/ && exit 0
+            if curl -fsS http://localhost:3000/up && curl -fsS -o /dev/null http://localhost:3000/; then
+              # The version passed at build time is what Setup reports.
+              curl -fsS http://localhost:3000/setup | grep -q '0\.0\.0-ci' && exit 0
+              echo "Setup does not report the build's version"
+              break
+            fi
             sleep 2
           done
           docker logs sizzle

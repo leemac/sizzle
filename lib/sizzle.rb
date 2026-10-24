@@ -19,6 +19,14 @@ module Sizzle
     env(name, "").split(",").map(&:strip).reject(&:empty?)
   end
 
+  # --- Release -------------------------------------------------------------
+
+  # The release this build came from. Release images write VERSION from the git
+  # tag (see the Dockerfile); anything else, like a local checkout, is "dev".
+  def version(path = Rails.root.join("VERSION"))
+    File.exist?(path) ? File.read(path).strip.presence || "dev" : "dev"
+  end
+
   # --- Claude --------------------------------------------------------------
 
   def claude_model

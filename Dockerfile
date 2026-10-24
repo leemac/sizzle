@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# Production image. Most people should use docker-compose.yml; to build by hand:
+# Production image, published to ghcr.io/leemac/sizzle for each release (see docs/releasing.md).
+# Most people should use docker-compose.yml; to build by hand:
 #   docker build -t sizzle .
 #   docker run -d -p 3000:80 -v sizzle-storage:/rails/storage -e ANTHROPIC_API_KEY=... sizzle
 
@@ -65,6 +66,10 @@ RUN bundle exec bootsnap precompile -j 1 app/ lib/
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 VITE_RUBY_SKIP_ASSETS_PRECOMPILE_INSTALL=true ./bin/rails assets:precompile && \
     rm -rf node_modules tmp/cache
+
+# The release workflow passes the git tag's version; local builds report "dev".
+ARG SIZZLE_VERSION=dev
+RUN echo "$SIZZLE_VERSION" > VERSION
 
 
 
