@@ -48,9 +48,11 @@ export default function RecipesIndex({
       <Head title="Sizzle" />
       <div className="mb-8 flex items-baseline justify-between gap-4">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
-        <p className="text-sm text-graphite">
-          {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
-        </p>
+        {total_count > 0 && (
+          <p className="text-sm text-graphite">
+            {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
+          </p>
+        )}
       </div>
 
       <UrlImportForm />

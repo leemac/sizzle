@@ -1,8 +1,7 @@
-import { Link, useForm, usePage } from '@inertiajs/react'
+import { useForm } from '@inertiajs/react'
 import { useRef } from 'react'
 
 export default function UrlImportForm() {
-  const { app } = usePage().props
   const form = useForm({ url: '' })
   const submitting = useRef(false)
 
@@ -76,15 +75,6 @@ export default function UrlImportForm() {
       {form.errors.url && (
         <p id="recipe-url-error" className="mt-2 text-sm text-danger" role="alert">
           {form.errors.url}
-        </p>
-      )}
-      {!app.claude_configured && (
-        <p className="mt-3 text-sm text-graphite">
-          Links with recipe data work without AI.{' '}
-          <Link href="/setup?step=claude" className="underline underline-offset-4">
-            Set up optional AI
-          </Link>{' '}
-          for other pages.
         </p>
       )}
     </form>
