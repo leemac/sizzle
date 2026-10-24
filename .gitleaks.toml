@@ -1,0 +1,17 @@
+# Secret scanning rules for bin/secret-scan (pre-commit hook, bin/ci and GitHub Actions).
+# gitleaks' built-in rules cover provider keys (Anthropic, GitHub, AWS, private keys, …);
+# the rules below add Sizzle's own credentials.
+
+[extend]
+useDefault = true
+
+# The share API token from .env.example (`openssl rand -hex 32`). The built-in generic rule
+# misses it when it's hard-coded in Ruby, e.g. ENV["SIZZLE_API_TOKEN"] = "…". Short test
+# placeholders like "s3cret-token" stay below the 32-character floor.
+[[rules]]
+id = "sizzle-api-token"
+description = "Sizzle share API token (SIZZLE_API_TOKEN)"
+regex = '''SIZZLE_API_TOKEN["'\]]*\s*(?:=>|=|:)\s*["']?([A-Za-z0-9+/_=-]{32,})'''
+secretGroup = 1
+entropy = 3.0
+keywords = ["sizzle_api_token"]

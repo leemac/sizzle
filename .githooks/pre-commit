@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Blocks commits that contain secrets. bin/setup turns this on with `git config core.hooksPath .githooks`.
+exec bin/secret-scan --pre-commit --staged
