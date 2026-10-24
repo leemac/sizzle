@@ -42,7 +42,7 @@ export default function UrlImportForm() {
         Add a recipe
       </label>
       <p id="recipe-url-help" className="mt-1 text-sm text-graphite">
-        Paste a recipe link to import it automatically, or type a URL and press Import.
+        Paste or type a recipe link, then press Enter or click Import.
       </p>
       <div className="mt-3 flex gap-2">
         <input
@@ -62,14 +62,6 @@ export default function UrlImportForm() {
           onChange={(event) => {
             form.setData('url', event.target.value)
             form.clearErrors('url')
-          }}
-          onPaste={(event) => {
-            event.preventDefault()
-            if (submitting.current) return
-            const text = event.clipboardData.getData('text').trim()
-            form.setData('url', text)
-            form.clearErrors('url')
-            submit(text)
           }}
           className="min-w-0 flex-1 rounded-full border-hairline bg-porcelain px-4 py-3 text-base placeholder:text-graphite focus:border-ink focus:ring-0"
         />

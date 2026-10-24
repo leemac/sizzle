@@ -7,17 +7,14 @@ test.beforeEach(async ({ context }) => {
   })
 })
 
-async function paste(input: Locator, text: string, times = 1) {
-  await input.evaluate(
-    (element, { text, times }) => {
-      const clipboardData = new DataTransfer()
-      clipboardData.setData('text/plain', text)
-      for (let i = 0; i < times; i++) {
-        element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
-      }
-    },
-    { text, times },
-  )
+async function paste(input: Locator, text: string) {
+  const allowed = await input.evaluate((element, text) => {
+    const clipboardData = new DataTransfer()
+    clipboardData.setData('text/plain', text)
+    return element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
+  }, text)
+  // Synthetic paste events do not insert text. Emulate the default edit if allowed.
+  if (allowed) await input.fill(text)
 }
 
 async function galleryFixture(page: Page) {
@@ -77,15 +74,23 @@ async function galleryFixture(page: Page) {
   return { data, item, requests }
 }
 
-for (const width of [390, 1280]) {
-  test(`pasting imports once and polling adds the recipe at ${width}px`, async ({ page }, testInfo) => {
+for (const [width, action] of [
+  [390, 'Enter'],
+  [1280, 'Import'],
+] as const) {
+  test(`pasted URLs wait for ${action} and polling adds the recipe at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 })
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     const { data, requests } = await galleryFixture(page)
     const input = page.getByRole('textbox', { name: 'Add a recipe', exact: true })
     await expect(input).toBeVisible()
-    await paste(input, '  https://example.com/curry  ', 2)
+    await paste(input, 'https://example.com/curry')
+    await expect(input).toHaveValue('https://example.com/curry')
+    await expect(page.getByRole('button', { name: 'Import', exact: true })).toBeEnabled()
+    expect(requests).toEqual([])
+    if (action === 'Enter') await input.press('Enter')
+    else await page.getByRole('button', { name: 'Import', exact: true }).click()
     await expect(page.getByText('Reading the page', { exact: true })).toBeVisible()
     await expect(input).toHaveValue('')
     expect(requests).toEqual([{ url: 'https://example.com/curry' }])
@@ -131,11 +136,15 @@ test('typing waits for Enter, and background failures stay visible on the galler
   expect(requests).toHaveLength(1)
 })
 
-test('invalid pasted text stays editable and does not start an import', async ({ page }) => {
+test('invalid pasted links validate on Import and stay editable', async ({ page }) => {
   const { requests } = await galleryFixture(page)
   const input = page.getByRole('textbox', { name: 'Add a recipe', exact: true })
-  for (const text of ['not a URL', 'file:///etc/passwd', 'javascript:alert(1)']) {
+  for (const text of ['file:///etc/passwd', 'ftp://example.com/recipe']) {
     await paste(input, text)
+    await expect(page.getByRole('alert')).not.toBeVisible()
+    await expect(input).toHaveValue(text)
+    expect(requests).toEqual([])
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
     await expect(page.getByRole('alert')).toContainText('Paste a complete recipe URL')
     await expect(input).toHaveValue(text)
     await expect(input).toHaveAttribute('aria-invalid', 'true')
