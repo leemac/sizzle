@@ -11,6 +11,7 @@ module RecipeSerializer
       course: recipe.course,
       total_minutes: recipe.total_minutes,
       source_host: recipe.source_host,
+      favorite: recipe.favorite?,
       image_url: image_path(recipe.cover, :card)
     }
   end

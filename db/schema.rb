@@ -81,10 +81,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_213604) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "archived_at"
+    t.datetime "favorited_at"
     t.index ["archived_at"], name: "index_recipes_on_archived_at"
     t.index ["course"], name: "index_recipes_on_course"
     t.index ["created_at"], name: "index_recipes_on_created_at"
     t.index ["cuisine"], name: "index_recipes_on_cuisine"
+    t.index ["favorited_at"], name: "index_recipes_on_favorited_at"
     t.index ["main_ingredient"], name: "index_recipes_on_main_ingredient"
     t.index ["source_url"], name: "index_recipes_on_source_url", unique: true
     t.index ["total_minutes"], name: "index_recipes_on_total_minutes"

@@ -9,6 +9,7 @@ CI.run do
   step "Lint: Frontend", "npm run -s lint"
   step "Types: Frontend", "npm run -s check"
 
+  step "Security: Secret scan", "bin/secret-scan"
   step "Security: Gem audit", "bin/bundler-audit check --update"
   step "Security: npm audit", "npm audit --audit-level=high --omit=dev"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"

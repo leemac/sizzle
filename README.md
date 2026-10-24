@@ -22,13 +22,16 @@ with usable recipe data. You can add an [Anthropic API key](https://console.anth
 later for other pages and unstructured pasted text; each AI extraction is a paid Claude request.
 
 ```sh
-git clone https://github.com/leemac/sizzle.git && cd sizzle
-cp .env.example .env        # set SIZZLE_API_TOKEN — see below
+mkdir sizzle && cd sizzle
+curl -fsSLO https://github.com/leemac/sizzle/releases/latest/download/docker-compose.yml
+curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
+# edit .env: set SIZZLE_API_TOKEN — see below
 docker compose up -d
 ```
 
 Open `http://<your-server>:3000`. Your recipes, photos and databases live in the
-`sizzle-storage` volume, so back that up.
+`sizzle-storage` volume, so back that up. To upgrade, run `docker compose pull && docker compose up -d`.
+[Self-hosting](docs/self-hosting.md) covers versions, upgrades, backups and building from source.
 
 Choose **Setup** in Sizzle for a walkthrough of your cookbook and your first recipe. AI
 configuration is optional; credentials stay in your server environment.

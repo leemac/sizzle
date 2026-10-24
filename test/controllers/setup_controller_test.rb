@@ -18,7 +18,7 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "setup/show", inertia.component
     assert_equal "welcome", inertia.props[:step]
-    assert_equal({ "claude_configured" => false }, inertia.props[:setup])
+    assert_equal({ "claude_configured" => false, "version" => "dev" }, inertia.props[:setup])
   end
 
   test "whitespace credentials are not treated as configured" do
@@ -38,7 +38,7 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
       get setup_url, params: { step: }
 
       assert_equal step, inertia.props[:step]
-      assert_equal({ "claude_configured" => true }, inertia.props[:setup])
+      assert_equal({ "claude_configured" => true, "version" => "dev" }, inertia.props[:setup])
       assert_not response.body.include?(ENV.fetch("ANTHROPIC_API_KEY")), "Setup must not expose the Claude credential"
       assert_not response.body.include?(ENV.fetch("SIZZLE_API_TOKEN")), "Setup must not expose the share credential"
     end

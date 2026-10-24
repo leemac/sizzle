@@ -12,6 +12,7 @@ export type SharedProps = {
 
 export type SetupStatus = {
   claude_configured: boolean
+  version: string
 }
 
 export type ManualRecipeInput = {
@@ -32,6 +33,7 @@ export type RecipeCard = {
   course: string | null
   total_minutes: number | null
   source_host: string | null
+  favorite: boolean
   image_url: string | null
 }
 
@@ -107,6 +109,7 @@ export type Import = {
 export type FacetCount = { value: string; count: number }
 
 export type Facets = {
+  favorites: number
   courses: FacetCount[]
   cuisines: FacetCount[]
   main_ingredients: FacetCount[]
@@ -116,6 +119,7 @@ export type Facets = {
 
 export type RecipeFilters = {
   q?: string
+  favorites?: string
   course?: string
   cuisine?: string
   diet?: string

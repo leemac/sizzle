@@ -21,6 +21,12 @@ FileUtils.chdir APP_ROOT do
     FileUtils.cp ".env.example", ".env"
   end
 
+  puts "\n== Installing git hooks (secret scan before every commit) =="
+  system! "git", "config", "core.hooksPath", ".githooks"
+  unless system("gitleaks", "version", out: File::NULL, err: File::NULL)
+    puts "gitleaks isn't installed yet. Install it with 'brew install gitleaks' so commits can be checked for secrets."
+  end
+
   puts "\n== Preparing database =="
   system! "bin/rails db:prepare"
   system! "bin/rails db:reset" if ARGV.include?("--reset")

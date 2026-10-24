@@ -4,7 +4,8 @@ module SetupSerializer
 
   def call
     {
-      claude_configured: Sizzle.claude_configured?
+      claude_configured: Sizzle.claude_configured?,
+      version: Sizzle.version
     }
   end
 end

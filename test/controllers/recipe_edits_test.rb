@@ -83,6 +83,7 @@ class RecipeEditsTest < ActionDispatch::IntegrationTest
 
   test "archiving hides a recipe from the gallery, facets, counts and search" do
     Recipe.create!(title: "Apple Pie", course: "dessert")
+    @recipe.favorite!
 
     post recipe_archive_url(@recipe)
     assert_redirected_to root_url
@@ -94,6 +95,10 @@ class RecipeEditsTest < ActionDispatch::IntegrationTest
     assert_equal [ "dessert" ], inertia.props[:facets]["courses"].map { |facet| facet["value"] }
     assert_empty inertia.props[:facets]["cuisines"]
     assert_empty inertia.props[:facets]["diets"]
+    assert_equal 0, inertia.props[:facets]["favorites"]
+
+    get root_url, params: { favorites: "1" }
+    assert_empty inertia.props[:recipes]
 
     get root_url, params: { q: "chickpea" }
     assert_empty inertia.props[:recipes]

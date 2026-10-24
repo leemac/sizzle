@@ -21,6 +21,13 @@ git switch -c fix/123-short-description
 bin/ci
 ```
 
+`bin/setup` turns on a pre-commit hook that blocks commits containing API keys or tokens. It needs
+[gitleaks](https://github.com/gitleaks/gitleaks) (`brew install gitleaks`). CI runs the same scan
+over every commit in your pull request, so a secret you add and then delete still fails the check.
+If you do commit a real secret, revoke it before you do anything else: once it's pushed to a public
+repository, rewriting history doesn't make it safe again. A finding that isn't a secret can be
+silenced with a `gitleaks:allow` comment on that line.
+
 Open a pull request that links the issue (`Closes #123`), says how you verified the change, and
 includes screenshots at phone and desktop widths for UI changes. Keep pull requests small and
 focused. Follow-up ideas belong in new issues.

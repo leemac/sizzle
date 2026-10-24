@@ -47,6 +47,7 @@ ship to a stranger's home network.
 bin/setup --seed     # install deps, create .env, prepare and seed the dev database
 bin/dev              # Rails + Vite at http://localhost:3000 (PORT=3210 bin/dev to change port)
 bin/ci               # everything CI runs: style, lint, types, security scans, all tests
+bin/secret-scan      # gitleaks over every commit (also runs as a pre-commit hook after bin/setup)
 bin/rails test       # Ruby tests only
 npm test             # frontend unit tests (Vitest)
 npm run check        # TypeScript
