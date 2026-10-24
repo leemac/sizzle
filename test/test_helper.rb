@@ -9,6 +9,9 @@ require_relative "support/fake_extractor"
 # No test may touch the real network. Stub HTTP with WebMock and DNS with FakeResolver.
 WebMock.disable_net_connect!
 
+# Build once before Rails forks workers; concurrent auto-builds can expose a partial manifest.
+abort "Vite test assets failed to build" unless ViteRuby.commands.build
+
 module ActiveSupport
   class TestCase
     parallelize(workers: :number_of_processors)
