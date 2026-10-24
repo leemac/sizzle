@@ -9,6 +9,9 @@ const PATHS = {
   edit: 'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4ZM13.5 6.5l4 4',
   heart:
     'M12 20s-7.5-4.6-9.2-9.4C1.6 7.2 3.8 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.2 0 5.4 2.7 4.2 6.1C19.5 15.4 12 20 12 20Z',
+  clock: 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM12 7.5V12l3 2',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  list: 'M4 5h4v4H4zM4 15h4v4H4zM11 7h9M11 17h9',
 } as const
 
 export type IconName = keyof typeof PATHS

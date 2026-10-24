@@ -17,9 +17,6 @@ Rails.application.routes.draw do
   get "share", to: "share#show"
   get "setup", to: "setup#show"
 
-  # Temporary design lab for gallery cards. Development only; delete once a design is picked.
-  get "lab/cards", to: "card_lab#show" if Rails.env.development?
-
   namespace :api do
     resources :imports, only: %i[create show]
   end
