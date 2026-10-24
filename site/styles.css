@@ -89,13 +89,29 @@ main > section,
   pointer-events: none;
 }
 
+.icon {
+  width: 1.125em;
+  height: 1.125em;
+  flex: none;
+  fill: currentColor;
+}
+
 .bar-link {
-  color: var(--graphite);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
   text-decoration: none;
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 
 .bar-link:hover {
-  color: var(--ink);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--graphite);
 }
 
 /* Hero -------------------------------------------------------------------- */
@@ -130,7 +146,9 @@ main > section,
 }
 
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 13px 22px;
   border-radius: 999px;
   text-decoration: none;
