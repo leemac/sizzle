@@ -24,7 +24,11 @@ for (const width of [390, 1280]) {
     await page.getByRole('button', { name: 'Save recipe', exact: true }).click()
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
 
-    const rows = page.locator('[data-ingredient-list] button')
+    // Rows as a reader sees them: amount and item are separate columns once a line is parsed.
+    const rowText = () =>
+      page
+        .locator('[data-ingredient-list] button')
+        .evaluateAll((rows) => rows.map((row) => (row as HTMLElement).innerText.replace(/\s+/g, ' ').trim()))
     const headings = page.locator('[data-ingredient-list]').locator('xpath=preceding-sibling::h3')
     const recipeOrder = page.getByRole('button', { name: 'Recipe order', exact: true })
     const byType = page.getByRole('button', { name: 'By type', exact: true })
@@ -42,14 +46,16 @@ for (const width of [390, 1280]) {
       'Oils, sauces and liquids',
       'Other',
     ])
-    await expect(rows).toHaveText([
-      '1 tbsp lemon juice',
-      '4 cups curly kale',
-      '¼ cup grated parmesan',
-      'salt',
-      '2 tbsp olive oil',
-      '2 tbsp dried hibiscus',
-    ])
+    await expect
+      .poll(rowText)
+      .toEqual([
+        '1 tbsp lemon juice',
+        '4 cups curly kale',
+        '¼ cup grated parmesan',
+        'salt',
+        '2 tbsp olive oil',
+        '2 tbsp dried hibiscus',
+      ])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.locator('[data-ingredient-list]').first().scrollIntoViewIfNeeded()
     await page.screenshot({ path: testInfo.outputPath(`ingredient-order-${width}.jpg`), type: 'jpeg', quality: 85 })
@@ -60,7 +66,7 @@ for (const width of [390, 1280]) {
 
     await page.getByRole('button', { name: 'Recipe order', exact: true }).click()
     await expect(headings).toHaveText(['Dressing', 'Salad'])
-    await expect(rows.first()).toHaveText('2 tbsp olive oil')
+    await expect.poll(async () => (await rowText())[0]).toBe('2 tbsp olive oil')
     expect(errors).toEqual([])
   })
 }
