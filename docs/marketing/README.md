@@ -7,8 +7,8 @@ sample recipes.
 
 ## Reproduce the screenshots
 
-Use a disposable snapshot of app revision
-`450836948943daa7ae9f1e6f5a60d313f6d3151f`, which renders both system appearances.
+Use a disposable snapshot of the current app. The capture helpers select the
+supported light/dark appearance preferences before loading each page.
 Keep its database and Active Storage under a temporary directory. Do not point the
 following command at a personal cookbook. After preparing its development database
 and loading the standard seeds, run from that snapshot:

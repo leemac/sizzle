@@ -32,6 +32,11 @@ try {
       await context.route('**/*', (route) =>
         new URL(route.request().url()).origin === base.origin ? route.continue() : route.abort(),
       )
+      // Select supported app preferences; do not override rendered theme CSS.
+      await context.addCookies([
+        { name: 'sizzle_theme', value: 'sunny-side-up', url: base.href },
+        { name: 'sizzle_mode', value: colorScheme, url: base.href },
+      ])
       const page = await context.newPage()
       page.on('pageerror', (error) => errors.push(error.message))
       async function ready() {
@@ -52,7 +57,13 @@ try {
         }
       }
       async function save(name, locator, clip) {
-        if (locator) await locator.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+        if (locator) {
+          // Leave room above the crop for the app's sticky navigation/cooking toolbar.
+          const bounds = await locator.boundingBox()
+          await page.setViewportSize({ width, height: Math.max(1000, Math.ceil(bounds.height) + 240) })
+          await locator.evaluate((el) => el.scrollIntoView({ block: 'start' }))
+          await page.evaluate(() => window.scrollBy(0, -120))
+        }
         await ready()
         await page.mouse.move(0, 0)
         const png = resolve(scratch, `${name}-${width}.png`)
@@ -74,6 +85,7 @@ try {
           '-o',
           resolve(output, `${name}-${width}@2x${suffix}.webp`),
         ])
+        await page.setViewportSize({ width, height: 1000 })
       }
       await page.goto(base.href)
       await page.getByRole('heading', { name: 'Your cookbook', exact: true }).waitFor()
@@ -81,7 +93,7 @@ try {
       const expected = colorScheme === 'dark' ? 'rgb(20, 20, 22)' : 'rgb(246, 246, 243)'
       if (background !== expected) {
         throw new Error(
-          `Demo does not render ${colorScheme} mode. Use the capture revision in references/screenshots.md.`,
+          `Demo does not render ${colorScheme} mode. Check the appearance preferences and current theme palette.`,
         )
       }
       await ready()
@@ -100,7 +112,7 @@ try {
         .locator('article section')
         .filter({ has: page.getByRole('heading', { name: 'Ingredients', exact: true }) })
         .first()
-      await ingredients.getByRole('button').first().click()
+      await ingredients.getByRole('button', { name: /neutral oil/ }).click()
       const method = page
         .locator('article section')
         .filter({ has: page.getByRole('heading', { name: 'Method', exact: true }) })
