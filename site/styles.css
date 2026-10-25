@@ -402,10 +402,44 @@ main h2 {
 }
 
 .steps p,
+.video-note,
 .selfhost p,
 .open p {
   color: var(--graphite);
   max-width: 36rem;
+}
+
+.video-note {
+  max-width: 52rem;
+  margin: 32px 0 0;
+}
+
+.video-note strong {
+  color: var(--ink);
+}
+
+.cookbook {
+  margin: 48px 0 0;
+}
+
+.cookbook-screen {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+}
+
+.cookbook img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cookbook figcaption {
+  margin-top: 12px;
+  color: var(--graphite);
+  font-size: 0.875rem;
 }
 
 .selfhost {
@@ -413,6 +447,10 @@ main h2 {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 56px;
   align-items: center;
+}
+
+.install {
+  min-width: 0;
 }
 
 .selfhost h2 + p {
@@ -473,6 +511,10 @@ pre {
 }
 
 @media (max-width: 480px) {
+  .cookbook-screen {
+    aspect-ratio: 390 / 925;
+  }
+
   .strip {
     grid-template-columns: 0.7fr 1fr;
     gap: 12px;
