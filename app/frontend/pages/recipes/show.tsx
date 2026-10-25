@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
+import IngredientIcon from '@/components/IngredientIcon'
 import RecipeVideo from '@/components/RecipeVideo'
 import CookingMode from '@/components/CookingMode'
 import RecipePrint from '@/components/RecipePrint'
@@ -275,6 +276,7 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
                     onClick={() => toggle(ingredient.index)}
                     className={`flex w-full gap-3 py-3 text-left transition-colors ${done ? 'text-graphite' : ''}`}
                   >
+                    <IngredientIcon item={ingredient.item} className="mt-0.5 size-5 shrink-0 text-graphite" />
                     {hasAmounts && <span className="w-20 shrink-0 font-medium tabular-nums">{amount}</span>}
                     <span className={done ? 'highlight' : ''}>
                       {ingredient.item}
