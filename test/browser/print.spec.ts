@@ -64,6 +64,20 @@ test('the printout uses the servings chosen on the page, in ink on white', async
   expect(colors).toEqual(['rgb(24, 24, 27)', 'rgb(255, 255, 255)'])
 })
 
+test('the footer says when the recipe was added, made and printed, as dates that stay true', async ({ page }) => {
+  await createRecipe(page, 'Footer dal', ['1 cup red lentils'], ['Simmer everything.'])
+  await page.getByRole('button', { name: 'I made this', exact: true }).click()
+  await expect(page.getByText('Made today', { exact: true })).toBeVisible()
+  await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
+
+  const footer = page.getByTestId('print-sheet').locator('footer')
+  const date = String.raw`[A-Z][a-z]{2} \d{1,2}, \d{4}`
+  await expect(footer).toContainText(new RegExp(`Added ${date} · Made once · last made ${date}`))
+  await expect(footer).toContainText(new RegExp(String.raw`Printed ${date}, \d{1,2}:\d{2}\s?[AP]M`))
+  await expect(footer).not.toContainText('Today')
+  await expect(page.getByTestId('print-sheet')).toHaveAttribute('data-fit', 'page')
+})
+
 test('imported text with one enormous word still wraps inside the paper', async ({ page }) => {
   await createRecipe(page, 'Unbroken stew', ['1 onion', 'y'.repeat(300)], ['Simmer everything.', 'x'.repeat(400)])
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
