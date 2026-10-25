@@ -263,3 +263,10 @@ export type CookbookImportSettings = {
   max_mib: number
   latest: CookbookImportStatus | null
 }
+
+export type MenuRecipe = RecipeCard & {
+  description: string | null
+  meal_times: string[]
+  cooks_count: number
+  signature_keys: string[]
+}

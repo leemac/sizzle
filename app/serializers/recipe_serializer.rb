@@ -16,6 +16,21 @@ module RecipeSerializer
     }
   end
 
+  def menu(recipe)
+    keys = {
+      uid: recipe.uid,
+      url: RecipeSignature.url_key(recipe.source_url),
+      content: RecipeSignature.fingerprint(recipe.title, recipe.ingredients)
+    }.filter_map { |kind, value| "#{kind}:#{value}" if value.present? }
+
+    card(recipe).merge(
+      description: recipe.description&.truncate(240),
+      meal_times: recipe.meal_times,
+      cooks_count: recipe.cooks_count,
+      signature_keys: keys
+    )
+  end
+
   def cover_image_url(recipe)
     image_path(recipe.cover, :card)
   end
