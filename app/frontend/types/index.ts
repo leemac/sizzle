@@ -248,6 +248,8 @@ export type RecipeFilters = {
 export type CookbookImportStatus = {
   status: 'queued' | 'running' | 'done' | 'failed'
   in_progress: boolean
+  /** Queued or running, but no progress for an hour: the worker likely stopped. */
+  stalled: boolean
   imported_count: number
   skipped_count: number
   rejected_count: number

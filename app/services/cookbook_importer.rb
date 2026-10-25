@@ -17,13 +17,19 @@ class CookbookImporter
     @cookbook_import.update!(status: "running")
     @cookbook_import.archive.open do |file|
       archive = CookbookArchive.new(file.path)
-      wanted = {}
       seen = Seen.new
-      archive.recipes.each_with_index do |data, index|
-        add(CookbookRecipe.new(data), seen, wanted)
-        @cookbook_import.update!(@counts) if (index + 1) % PROGRESS_EVERY == 0
+      owners = {}
+      entries = archive.recipes.filter_map { |data| accept(CookbookRecipe.new(data), seen, owners) }
+      # Photos are converted before any recipe is saved, then attached in the
+      # same transaction as their recipe. A recipe is never saved without its
+      # photos, so importing again after a failure finishes the job.
+      Tempfile.create([ "sizzle-cookbook-photos-", ".bin" ], binmode: true) do |store|
+        photos = convert_photos(archive, owners.keys.to_set, store)
+        entries.each_with_index do |entry, index|
+          save(entry, owners, photos, store)
+          heartbeat(index)
+        end
       end
-      attach_images(archive, wanted)
     end
     @cookbook_import.update!(**@counts, status: "done", finished_at: Time.current)
   rescue CookbookArchive::Invalid => e
@@ -37,44 +43,65 @@ class CookbookImporter
 
   private
 
-  def add(entry, seen, wanted)
-    return @counts[:rejected_count] += 1 unless entry.valid?
+  # The recipes to add: valid, and not one already here or earlier in the file.
+  def accept(entry, seen, owners)
+    unless entry.valid?
+      @counts[:rejected_count] += 1
+      return
+    end
+    keys = Seen.keys(entry.attributes)
+    if seen.any?(keys)
+      @counts[:skipped_count] += 1
+      return
+    end
+    seen.add(keys)
+    # Each photo in the file is used once: by one recipe, as its cover or a step photo.
+    owners[entry.cover_path] ||= [ entry, :cover ] if entry.cover_path
+    entry.photo_paths.each { |path| owners[path] ||= [ entry, :photo ] }
+    entry
+  end
 
-    attributes = entry.attributes
-    keys = Seen.keys(attributes)
-    return @counts[:skipped_count] += 1 if seen.any?(keys)
+  # Photos are re-checked and re-encoded like any downloaded image. The WebP
+  # bytes wait in one temporary file, found by offset, never by archive name.
+  def convert_photos(archive, paths, store)
+    photos = {}
+    archive.each_image(paths) do |path, bytes|
+      webp = @images.to_webp(bytes) or next
+      photos[path] = [ store.pos, webp.bytesize ]
+      store.write(webp)
+      heartbeat(photos.size - 1)
+    end
+    store.flush
+    photos
+  end
 
+  def save(entry, owners, photos, store)
     cooked_at = entry.cooked_at.first([ CookbookExport::MAX_COOKS - @cooks, 0 ].max)
-    recipe = Recipe.transaction do
-      Recipe.create!(attributes).tap do |saved|
-        now = Time.current
-        Cook.insert_all!(cooked_at.map { |at| { recipe_id: saved.id, cooked_at: at, created_at: now, updated_at: now } }) if cooked_at.any?
-        saved.update_column(:cooks_count, cooked_at.size)
+    owned = ->(path, role) { path if owners[path]&.first.equal?(entry) && owners[path].last == role && photos.key?(path) }
+    read = ->(path) { StringIO.new(store.pread(photos[path].last, photos[path].first)) }
+    Recipe.transaction do
+      recipe = Recipe.create!(entry.attributes)
+      now = Time.current
+      Cook.insert_all!(cooked_at.map { |at| { recipe_id: recipe.id, cooked_at: at, created_at: now, updated_at: now } }) if cooked_at.any?
+      recipe.update_column(:cooks_count, cooked_at.size)
+      if (cover = owned.(entry.cover_path, :cover))
+        recipe.cover.attach(io: read.(cover), filename: "cover.webp", content_type: "image/webp")
+      end
+      entry.photo_paths.filter_map { |path| owned.(path, :photo) }.each_with_index do |path, index|
+        recipe.photos.attach(io: read.(path), filename: "photo-#{index + 1}.webp", content_type: "image/webp")
       end
     end
     @cooks += cooked_at.size
-    seen.add(Seen.keys(recipe.attributes.symbolize_keys))
     @counts[:imported_count] += 1
-    # Each photo in the file belongs to at most one recipe.
-    wanted[entry.cover_path] ||= [ recipe, :cover ] if entry.cover_path
-    entry.photo_paths.each { |path| wanted[path] ||= [ recipe, :photo ] }
   rescue ActiveRecord::RecordNotUnique
     @counts[:skipped_count] += 1
   rescue ActiveRecord::RecordInvalid
     @counts[:rejected_count] += 1
   end
 
-  # Photos are re-checked and re-encoded like any downloaded image.
-  def attach_images(archive, wanted)
-    archive.each_image(wanted.keys.to_set) do |path, bytes|
-      recipe, role = wanted.fetch(path)
-      webp = @images.to_webp(bytes) or next
-      if role == :cover
-        recipe.cover.attach(io: StringIO.new(webp), filename: "cover.webp", content_type: "image/webp")
-      else
-        recipe.photos.attach(io: StringIO.new(webp), filename: "photo-#{recipe.photos.count + 1}.webp", content_type: "image/webp")
-      end
-    end
+  # Saves progress now and then, which also shows the import hasn't stalled.
+  def heartbeat(index)
+    @cookbook_import.update!(@counts) if (index + 1) % PROGRESS_EVERY == 0
   end
 
   # Every signature of the recipes already here and those added so far.

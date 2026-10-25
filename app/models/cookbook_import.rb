@@ -12,6 +12,11 @@ class CookbookImport < ApplicationRecord
   scope :in_progress, -> { where(status: %w[queued running]).where(updated_at: STALE_AFTER.ago..) }
 
   def in_progress?
-    status.in?(%w[queued running])
+    status.in?(%w[queued running]) && !stalled?
+  end
+
+  # Queued or running, but nothing has happened for too long.
+  def stalled?
+    status.in?(%w[queued running]) && updated_at < STALE_AFTER.ago
   end
 end

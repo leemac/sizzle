@@ -102,6 +102,10 @@ function ImportStatus({ status }: { status: CookbookImportStatus }) {
         <p>
           <span className="font-medium">Importing your cookbook…</span> {summary}
         </p>
+      ) : status.stalled ? (
+        <p className="text-danger">
+          The last import stopped without finishing. Import the same file again to add the rest.
+        </p>
       ) : status.status === 'failed' ? (
         <>
           <p className="text-danger">{status.error ?? 'The cookbook couldn’t be imported.'}</p>

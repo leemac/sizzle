@@ -190,18 +190,56 @@ class CookbookImporterTest < ActiveSupport::TestCase
     assert_equal 0, Recipe.count
   end
 
-  test "an unexpected error keeps what was imported and says importing again is safe" do
+  def two_recipes_with_photos
+    archive([ [ "recipes/1/cover.jpg", sample_jpeg ], [ "recipes/2/cover.jpg", sample_jpeg ],
+      manifest([ recipe_data("title" => "First", "cover" => "recipes/1/cover.jpg", "cooks" => [ { "cooked_at" => 1.day.ago.iso8601 } ]),
+        recipe_data("title" => "Second", "ingredients" => [ { "item" => "pears" } ], "cover" => "recipes/2/cover.jpg",
+          "cooks" => [ { "cooked_at" => 2.days.ago.iso8601 } ]) ]) ])
+  end
+
+  def importing(bytes, **options)
+    cookbook_import = CookbookImport.create!(archive: { io: StringIO.new(bytes), filename: "cookbook.tar.gz", content_type: "application/gzip" })
+    CookbookImporter.new(cookbook_import, **options).run
+  ensure
+    cookbook_import&.reload
+  end
+
+  test "a failure while converting photos saves nothing, so importing again adds every recipe with its photo" do
     images = Object.new
     images.define_singleton_method(:to_webp) { |_bytes| raise "disk full" }
-    bytes = archive([ [ "recipes/1/cover.jpg", sample_jpeg ], manifest([ recipe_data("cover" => "recipes/1/cover.jpg") ]) ])
-    cookbook_import = CookbookImport.create!(archive: { io: StringIO.new(bytes), filename: "cookbook.tar.gz", content_type: "application/gzip" })
+    bytes = two_recipes_with_photos
 
-    assert_raises(RuntimeError) { CookbookImporter.new(cookbook_import, images:).run }
+    assert_raises(RuntimeError) { importing(bytes, images:) }
 
-    cookbook_import.reload
-    assert_equal [ "failed", 1 ], [ cookbook_import.status, cookbook_import.imported_count ]
-    assert_equal CookbookImporter::FAILED, cookbook_import.error
-    assert_not cookbook_import.archive.attached?
+    failed = CookbookImport.sole
+    assert_equal [ "failed", 0 ], [ failed.status, failed.imported_count ]
+    assert_equal CookbookImporter::FAILED, failed.error
+    assert_not failed.archive.attached?
+    assert_equal 0, Recipe.count
+
+    retried = run_import(bytes)
+    assert_equal [ "done", 2 ], [ retried.status, retried.imported_count ]
+    assert Recipe.all.all? { |recipe| recipe.cover.attached? }
+  end
+
+  test "a failure partway through keeps finished recipes whole, and importing again adds the rest with photos" do
+    calls = 0
+    insert = Cook.method(:insert_all!)
+    Cook.define_singleton_method(:insert_all!) { |*args, **options| (calls += 1) == 2 ? raise("database locked") : insert.call(*args, **options) }
+    bytes = two_recipes_with_photos
+
+    assert_raises(RuntimeError) { importing(bytes) }
+    Cook.singleton_class.remove_method(:insert_all!)
+
+    assert_equal [ "First" ], Recipe.pluck(:title), "the recipe that failed was rolled back with its photo"
+    assert Recipe.sole.cover.attached?
+    retried = run_import(bytes)
+    assert_equal [ 1, 1 ], [ retried.imported_count, retried.skipped_count ]
+    second = Recipe.find_by!(title: "Second")
+    assert second.cover.attached?
+    assert_equal 1, second.cooks_count
+  ensure
+    Cook.singleton_class.remove_method(:insert_all!) if Cook.singleton_methods(false).include?(:insert_all!)
   end
 
   include ActiveSupport::Testing::ConstantStubbing

@@ -68,6 +68,9 @@ class CookbookImportsControllerTest < ActionDispatch::IntegrationTest
     assert_match "already importing", inertia.props[:errors][:archive]
 
     running.update_column(:updated_at, 2.hours.ago)
+    get settings_url
+    latest = inertia.props[:instance][:cookbook_import][:latest]
+    assert_equal [ false, true ], [ latest[:in_progress], latest[:stalled] ], "a stalled import doesn't lock the form"
     assert_difference("CookbookImport.count") { post cookbook_import_url, params: { archive: upload(gzip) } }
   end
 

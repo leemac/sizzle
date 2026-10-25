@@ -37,6 +37,6 @@ class SettingsController < InertiaController
   def latest_cookbook_import
     latest = CookbookImport.order(:created_at).last or return
     latest.slice(:status, :imported_count, :skipped_count, :rejected_count, :error)
-      .merge(in_progress: latest.in_progress?, finished_at: latest.finished_at&.iso8601)
+      .merge(in_progress: latest.in_progress?, stalled: latest.stalled?, finished_at: latest.finished_at&.iso8601)
   end
 end
