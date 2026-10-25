@@ -78,6 +78,13 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
             Under {formatMinutes(minutes)}
           </Chip>
         ))}
+        <FacetSelect label="Meal" value={filters.meal} options={facets.meal_times} onChange={(v) => set('meal', v)} />
+        <FacetSelect
+          label="Season"
+          value={filters.season}
+          options={facets.seasons.map((value) => ({ value }))}
+          onChange={(v) => set('season', v)}
+        />
         <FacetSelect
           label="Cuisine"
           value={filters.cuisine}
@@ -132,7 +139,7 @@ function FacetSelect({
 }: {
   label: string
   value?: string
-  options: FacetCount[]
+  options: (Omit<FacetCount, 'count'> & { count?: number })[]
   onChange: (value: string | undefined) => void
 }) {
   if (options.length === 0) return null
@@ -150,7 +157,8 @@ function FacetSelect({
         <option value="">{label}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.value} ({option.count})
+            {option.value}
+            {option.count !== undefined && ` (${option.count})`}
           </option>
         ))}
       </select>

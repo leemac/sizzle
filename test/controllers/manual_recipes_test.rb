@@ -35,6 +35,15 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     original_key ? ENV["ANTHROPIC_API_KEY"] = original_key : ENV.delete("ANTHROPIC_API_KEY")
   end
 
+  test "manual recipes can say when they're good to cook" do
+    post imports_url, params: { manual_recipe: fields.merge(meal_times: %w[lunch], seasons: %w[summer]) }
+
+    assert_equal [ %w[lunch], %w[summer] ], Recipe.last.values_at(:meal_times, :seasons)
+    assert_no_difference "Recipe.count" do
+      post imports_url, params: { manual_recipe: fields.merge(title: "Other", seasons: %w[monsoon]) }
+    end
+  end
+
   test "rejects missing fields and returns field errors to the manual form" do
     assert_no_difference "Recipe.count" do
       post imports_url, params: { manual_recipe: { title: " " } }
