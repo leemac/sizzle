@@ -14,6 +14,8 @@ class PageScraper
   MAX_TEXT_CHARS = 60_000
   MAX_IMAGES = 20
   MAX_SITE_NAME_CHARS = 200
+  MAX_TITLE_CHARS = 300
+  MAX_URL_LENGTH = 2048
 
   JUNK_SELECTORS = %w[
     script style noscript template svg iframe object embed canvas form button select input textarea
@@ -26,6 +28,9 @@ class PageScraper
 
   BLOCK_ELEMENTS = %w[p li h1 h2 h3 h4 h5 h6 div tr section article ul ol table blockquote figcaption dt dd].freeze
   JUNK_IMAGE_PATTERN = /logo|avatar|icon|sprite|gravatar|badge|pixel|spacer|emoji|\bads?\b|banner|pinit|pinterest/i
+  # Text a reader can't see is a favourite place to hide instructions for the model. This only catches inline
+  # styles — a stylesheet can hide anything — so it narrows the channel; it doesn't close it.
+  HIDDEN_STYLE = /(?:\A|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden|(?:font-size|opacity)\s*:\s*(?:0+(?:\.0*)?|\.0+)(?:px|em|rem|pt|%)?)\s*(?:!important\s*)?(?:;|\z)/i
 
   def self.fetch(url, http: SafeHttp.new)
     response = http.get(url, max_bytes: MAX_HTML_BYTES)
@@ -52,9 +57,9 @@ class PageScraper
     Page.new(
       url: @base_url,
       canonical_url: trusted_canonical_url || @base_url,
-      title: meta("og:title") || @doc.at_css("title")&.text&.strip,
+      title: (meta("og:title") || @doc.at_css("title")&.text&.strip)&.truncate(MAX_TITLE_CHARS),
       # Stored as the recipe's source name, so keep it to one short line.
-      site_name: meta("og:site_name")&.squish&.truncate(MAX_SITE_NAME_CHARS),
+      site_name: meta("og:site_name").then { |name| RecipeText.visible(name).squish.truncate(MAX_SITE_NAME_CHARS).presence },
       description: meta("og:description") || meta("description"),
       structured_recipe: structured,
       text:,
@@ -70,6 +75,8 @@ class PageScraper
   # Only trust an http(s) canonical on the host we actually fetched.
   def trusted_canonical_url
     url = absolute(@doc.at_css("link[rel=canonical]")&.[]("href")) or return
+    return if url.length > MAX_URL_LENGTH
+
     uri = URI.parse(url)
     url if uri.is_a?(URI::HTTP) && same_host?(uri.host, URI.parse(@base_url).host)
   rescue URI::InvalidURIError
@@ -111,6 +118,7 @@ class PageScraper
     return [ "", false ] unless body
 
     body.css(JUNK_SELECTORS).each(&:remove)
+    body.css("[style]").each { |node| node.remove if node["style"].match?(HIDDEN_STYLE) }
     root = largest_content_root(body)
     root.css("br").each { |br| br.replace("\n") }
     root.css(BLOCK_ELEMENTS.join(",")).each { |el| el.add_next_sibling("\n") }
@@ -141,6 +149,7 @@ class PageScraper
     urls.filter_map do |url, alt, source|
       absolute_url = absolute(url)
       next unless absolute_url&.start_with?("http")
+      next if absolute_url.length > MAX_URL_LENGTH
       next if absolute_url.match?(/\.svg(\?|\z)/i) || absolute_url.match?(JUNK_IMAGE_PATTERN)
 
       key = absolute_url.sub(/-\d+x\d+(?=\.\w+(\?|\z))/, "").sub(/\?.*\z/, "")

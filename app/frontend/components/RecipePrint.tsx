@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import Icon from '@/components/Icon'
-import { formatAmount, formatDate, formatQuantity, formatTimestamp, groupBySection } from '@/lib/format'
+import { formatAmount, formatDate, formatQuantity, formatTimestamp, groupBySection, sourceLabel } from '@/lib/format'
 import { fitToPage } from '@/lib/print'
 import { scaleIngredient } from '@/lib/scaleIngredient'
 import type { RecipeDetail } from '@/types'
@@ -56,7 +56,7 @@ function PrintSheet({ recipe, stats, scale, ref }: PrintProps & { ref: React.Ref
     .filter((value): value is string => Boolean(value))
     .map(sentenceCase)
     .join(' · ')
-  const source = recipe.source_name || recipe.source_host
+  const source = sourceLabel(recipe.source_name, recipe.source_host)
   const labels = [...recipe.diets, ...recipe.tags].map(sentenceCase).join(' · ')
   // The sheet mounts afresh for each print, so this is when this copy was printed.
   const [printedAt] = useState(() => new Date().toISOString())

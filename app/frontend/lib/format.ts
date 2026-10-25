@@ -114,3 +114,13 @@ export function formatDay(iso: string, now: Date = new Date()): string {
     year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric',
   })
 }
+
+/**
+ * "Sam's Kitchen (samskitchen.com)". The name comes from the page itself, so it could claim to be any site;
+ * the host is where the recipe really came from and is always shown when there is one.
+ */
+export function sourceLabel(name: string | null, host: string | null): string | null {
+  if (!host) return name || null
+  if (!name || name.toLowerCase() === host.toLowerCase()) return host
+  return `${name} (${host})`
+}

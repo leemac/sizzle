@@ -11,7 +11,8 @@ class SafeHttpTest < ActiveSupport::TestCase
   end
 
   test "blocks hosts that resolve to private, loopback, link-local or CGNAT addresses" do
-    %w[127.0.0.1 10.1.2.3 172.16.0.5 192.168.2.79 169.254.169.254 100.100.1.1 0.0.0.0 ::1 fd00::1 fe80::1 ::ffff:127.0.0.1].each do |ip|
+    %w[127.0.0.1 10.1.2.3 172.16.0.5 192.168.2.79 169.254.169.254 100.100.1.1 0.0.0.0 ::1 fd00::1 fe80::1 ::ffff:127.0.0.1
+       2002:7f00:1::1 2001:0:4136:e378:8000:63bf:3fff:fdd2 64:ff9b:1::a00:1 fec0::1].each do |ip|
       error = assert_raises(SafeHttp::BlockedUrl, "expected #{ip} to be blocked") do
         safe_http("internal.example" => ip).get("http://internal.example/")
       end
