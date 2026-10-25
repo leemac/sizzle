@@ -15,8 +15,10 @@ class StructuredRecipeExtractorTest < ActiveSupport::TestCase
 
     assert result["is_recipe"]
     assert_equal "Weeknight Chickpea Curry", result["title"]
-    assert_equal "1 1/2 cups chickpeas, drained", result["ingredients"].sole["item"]
-    assert_nil result["ingredients"].sole["quantity"]
+    assert_equal "chickpeas", result["ingredients"].sole["item"]
+    assert_equal "cup", result["ingredients"].sole["unit"]
+    assert_equal "drained", result["ingredients"].sole["preparation"]
+    assert_equal 1.5, result["ingredients"].sole["quantity"]
     assert_equal [ { "section" => nil, "text" => "Simmer." } ], result["steps"]
     assert_equal "img1", result["hero_image_id"]
   end
@@ -81,12 +83,12 @@ class StructuredRecipeExtractorTest < ActiveSupport::TestCase
     assert_equal "Curry & rice", result["title"]
     assert_equal "Warm curry.", result["description"]
     assert_equal "Sam", result["author"]
-    assert_equal "1 cup rice", result["ingredients"].sole["item"]
+    assert_equal "rice", result["ingredients"].sole["item"]
     assert_equal({ "section" => "Finish", "text" => "Serve & enjoy." }, result["steps"].sole)
   end
 
   test "requires a title, ingredients and instructions with supported types" do
-    [ { "name" => "" }, { "name" => "x" * 301 }, { "recipeIngredient" => [] }, { "recipeIngredient" => [ 123 ] },
+    [ { "name" => "" }, { "name" => "x" * 301 }, { "recipeIngredient" => [] }, { "recipeIngredient" => [ "\u200b" ] }, { "recipeIngredient" => [ 123 ] },
       { "recipeInstructions" => nil }, { "recipeInstructions" => [] }, { "recipeInstructions" => [ "Mix.", { "url" => "https://example.com/video" } ] } ].each do |overrides|
       assert_nil extract(overrides), "Incomplete or unsupported core recipe data must not be saved"
     end
