@@ -19,10 +19,12 @@ export function mergeScreenshotFields(
   const data = { ...current }
   let filled = 0
   let kept = 0
-  for (const key of Object.keys(found) as (keyof ScreenshotFields)[]) {
-    const value = found[key]
+  for (const name of Object.keys(found)) {
     // Only the form's own fields, and never the source link: a screenshot can't vouch for where it came from.
-    if (value === undefined || value === null || isBlank(value) || !(key in current) || key === 'source_url') continue
+    if (!(name in current) || name === 'source_url') continue
+    const key = name as keyof ScreenshotFields
+    const value = found[key]
+    if (value === undefined || value === null || isBlank(value)) continue
     if (isBlank(current[key])) {
       Object.assign(data, { [key]: value })
       filled += 1
