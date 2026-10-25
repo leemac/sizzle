@@ -5,9 +5,11 @@ Guidance for AI coding agents (Claude Code, Codex, and others) and for humans wo
 
 ## What Sizzle is
 
-A self-hosted cookbook. You share a recipe page from your phone (or paste a link or text),
-Sizzle fetches it, has Claude extract a clean structured recipe — no ads, no life story — and
-stores it with its best photo. You browse your collection in a fast, photo-first gallery.
+A self-hosted cookbook. Share a recipe page from your phone or paste several links at once.
+Sizzle reads the page's structured recipe data and stores a clean recipe with its best photo —
+no ads, no life story. Write recipes manually, or enable optional Claude extraction for pasted
+text and pages without usable recipe data. YouTube imports read descriptions or linked recipe
+pages, not spoken audio. Browse a photo grid or compact list, save favorites and track what you cook.
 
 It is open source (AGPL-3.0) and runs on other people's servers. Every change must be safe to
 ship to a stranger's home network.
@@ -17,7 +19,7 @@ ship to a stranger's home network.
 - Rails 8.1 (Ruby 3.3) with SQLite for everything: app data, Solid Queue (jobs), Solid Cache.
 - React 19 + TypeScript via Inertia.js 3 — no separate API for the UI; controllers render pages.
 - Vite (vite_rails) and Tailwind CSS 4. Design tokens live in `app/frontend/entrypoints/application.css`.
-- Claude via the official `anthropic` gem, structured outputs only.
+- Local schema.org Recipe extraction; optional Claude via the official `anthropic` gem, structured outputs only.
 - libvips for images, Active Storage on local disk. Full-text search with SQLite FTS5.
 
 ## Map
@@ -26,10 +28,12 @@ ship to a stranger's home network.
 |------|------------------|
 | `app/services/safe_http.rb` | **The only way to fetch untrusted URLs.** SSRF guard: public IPs only, pinned sockets, re-validated redirects, size caps. |
 | `app/services/page_scraper.rb` | HTML → readable text, schema.org Recipe data, ranked image candidates. |
+| `app/services/structured_recipe_extractor.rb` | Reads schema.org Recipe data locally, without AI. Output still goes through `RecipeDraft`. |
+| `app/services/youtube_video.rb` | YouTube descriptions and linked recipe pages, fetched through `SafeHttp`; no audio transcription. |
 | `app/services/recipe_extractor.rb` | Claude call: prompt, JSON schema, error mapping. |
-| `app/services/recipe_draft.rb` | Validates and clamps Claude's output before it's saved. **All extracted fields go through here.** |
+| `app/services/recipe_draft.rb` | Validates and clamps extracted recipe data before it's saved. **All extracted fields go through here.** |
 | `app/services/recipe_images.rb` | Downloads chosen images, validates magic bytes, re-encodes to WebP. |
-| `app/services/import_pipeline.rb` | Orchestrates one import: fetch → extract → save. |
+| `app/services/import_pipeline.rb` | Orchestrates one import: fetch → local extraction → optional Claude fallback → validate → save. |
 | `app/jobs/import_job.rb` | Runs the pipeline in the background with retries for transient Claude errors. |
 | `app/models/recipe.rb` (+ `recipe/`) | Recipe, FTS search (`Searchable`), gallery filters and facets (`Filterable`). |
 | `app/models/import.rb` | An import request and its status lifecycle. |
@@ -50,6 +54,7 @@ bin/ci               # everything CI runs: style, lint, types, security scans, a
 bin/secret-scan      # gitleaks over every commit (also runs as a pre-commit hook after bin/setup)
 bin/rails test       # Ruby tests only
 npm test             # frontend unit tests (Vitest)
+npm run test:browser # Playwright browser tests (npx playwright install chromium once)
 npm run check        # TypeScript
 npm run format       # Prettier (frontend); bin/rubocop -a for Ruby
 ```
