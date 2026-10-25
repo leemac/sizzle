@@ -41,7 +41,9 @@ module RecipeText
   end
 
   def ingredient(text)
-    { "section" => nil, "quantity" => nil, "quantity_max" => nil, "unit" => nil,
-      "item" => text, "preparation" => nil, "note" => nil }
+    # Normalize before parsing too, so reprocessing old data is idempotent.
+    bounded = visible(text).strip.truncate(MAX_INGREDIENT_LENGTH)
+    parsed = IngredientLineParser.parse(bounded)
+    RecipeDraft.new({ "ingredients" => [ parsed ] }).ingredients.first
   end
 end

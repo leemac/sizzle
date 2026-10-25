@@ -57,7 +57,7 @@ class RecipeEditsTest < ActionDispatch::IntegrationTest
     assert_redirected_to recipe_url(@recipe)
     @recipe.reload
     assert_equal "Chickpea curry", @recipe.title
-    assert_equal [ "chickpeas", "1 can coconut milk" ], @recipe.ingredients.map { |line| line["item"] }
+    assert_equal [ "chickpeas", "coconut milk" ], @recipe.ingredients.map { |line| line["item"] }
     assert_equal "Add more ginger.", @recipe.notes
     assert_equal [ @recipe ], Recipe.search("coconut").to_a
     follow_redirect!(headers: inertia_headers)

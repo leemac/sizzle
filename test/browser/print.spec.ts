@@ -37,7 +37,7 @@ test('the print button opens the browser print dialog with the sheet ready', asy
   await page.getByRole('button', { name: 'Print recipe', exact: true }).click()
   await expect(page.locator('body')).toHaveAttribute('data-printed', 'true')
   await expect(sheet).toContainText('Print button soup')
-  await expect(sheet).toContainText('1 cup lentils')
+  await expect(sheet).toContainText(/1 cup\s*lentils/)
   await expect(sheet).toContainText('Simmer everything.')
   await expect(sheet).toHaveAttribute('data-fit', 'page')
 
@@ -55,7 +55,8 @@ test('the printout uses the servings chosen on the page, in ink on white', async
   const sheet = page.getByTestId('print-sheet')
   await expect(sheet).toContainText('Serves8')
   await expect(sheet).toContainText('Scaled from the original 4 servings')
-  await expect(sheet).not.toContainText('1 cup rice')
+  await expect(sheet).toContainText(/2 cups\s*rice/)
+  await expect(sheet).not.toContainText(/1 cup\s*rice/)
   // The app is dark; paper isn't.
   const colors = await sheet.evaluate((element) => {
     const style = getComputedStyle(element)

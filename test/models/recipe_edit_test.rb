@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../support/ingredient_line_cases"
 
 class RecipeEditTest < ActiveSupport::TestCase
   INGREDIENTS = [
@@ -41,6 +42,17 @@ class RecipeEditTest < ActiveSupport::TestCase
     assert_equal before, @recipe.reload.attributes.except("updated_at")
   end
 
+  test "saving all parser fixtures unchanged preserves plain and structured ingredients" do
+    plain = IngredientLineCases::CASES.map do |line, *_|
+      INGREDIENTS.last.merge("item" => line)
+    end
+    [ plain, plain.map { |entry| RecipeText.ingredient(entry["item"]) } ].each do |ingredients|
+      @recipe.update!(ingredients:)
+      assert edit.save
+      assert_equal ingredients, @recipe.reload.ingredients
+    end
+  end
+
   test "a real change records when the recipe was edited; favoriting and cooking don't" do
     @recipe.favorite!
     @recipe.cooked!
@@ -69,11 +81,11 @@ class RecipeEditTest < ActiveSupport::TestCase
     assert_equal [ 6, nil ], @recipe.reload.values_at(:servings, :yield_text)
   end
 
-  test "an edited line becomes plain text while unchanged lines keep their structure" do
+  test "an edited line gets parsed while unchanged lines keep their structure" do
     assert edit(ingredients: "2 cups jasmine rice\n# For the sauce\n2–3 tbsp curry paste (or more to taste)\nsalt").save
 
     rice, paste, salt = @recipe.reload.ingredients
-    assert_equal RecipeText.ingredient("2 cups jasmine rice"), rice
+    assert_equal [ 2, "cup", "jasmine rice" ], rice.values_at("quantity", "unit", "item")
     assert_equal INGREDIENTS[1], paste
     assert_equal INGREDIENTS[2], salt
   end
@@ -98,6 +110,10 @@ class RecipeEditTest < ActiveSupport::TestCase
   end
 
   test "headings alone don't count as ingredients or steps" do
+    assert_not edit(ingredients: "\u200b").save
+    assert edit(ingredients: "salt\n\u200b").save
+    assert_equal [ "salt" ], @recipe.reload.ingredients.map { |ingredient| ingredient["item"] }
+
     form = edit(ingredients: "# Sauce", steps: "# Method")
 
     assert_not form.save
