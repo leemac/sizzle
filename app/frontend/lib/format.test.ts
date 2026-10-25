@@ -25,6 +25,7 @@ describe('formatQuantity', () => {
     expect(formatQuantity(2)).toBe('2')
     expect(formatQuantity(2.4)).toBe('2.4')
     expect(formatQuantity(1.99)).toBe('2')
+    expect(formatQuantity(0.001)).toBe('0.001')
   })
 })
 

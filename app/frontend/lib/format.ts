@@ -26,6 +26,7 @@ export function formatQuantity(value: number | null | undefined): string {
   if (value == null) return ''
   const whole = Math.floor(value)
   const fraction = value - whole
+  if (value > 0 && value < 0.02) return String(Number(value.toPrecision(2)))
   if (fraction < 0.02) return String(whole)
   if (fraction > 0.98) return String(whole + 1)
 
