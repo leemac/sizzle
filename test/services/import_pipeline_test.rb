@@ -159,6 +159,30 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_not recipe.cover.attached?
   end
 
+  test "denied AI permission prevents URL and text extraction even with an injected extractor" do
+    import = url_import
+    import.update!(ai_allowed: false)
+    assert_no_difference("Recipe.count") { run_import(import) }
+    assert_equal "failed", import.reload.status
+    assert_match "AI wasn't allowed", import.error
+    assert_empty @extractor.pages
+
+    text = Import.create!(kind: "text", origin: "web", text: "Private family recipe", ai_allowed: false)
+    assert_no_difference("Recipe.count") { run_import(text) }
+    assert_match "Allow Claude", text.reload.error
+    assert_empty @extractor.texts
+  end
+
+  test "denying AI does not prevent local structured extraction" do
+    stub_request(:get, URL).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
+    import = url_import
+    import.update!(ai_allowed: false)
+    recipe = run_import(import)
+    assert_equal "Weeknight Chickpea Curry", recipe.title
+    assert_equal "done", import.reload.status
+    assert_empty @extractor.pages
+  end
+
   test "a missing or broken image doesn't fail the import" do
     stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(status: 404)
     stub_request(:get, "https://cdn.example.com/curry-hero.jpg").to_return(body: "not an image", headers: { "Content-Type" => "image/jpeg" })

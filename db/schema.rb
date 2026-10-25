@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_040000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_040000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "active_job_id"
+    t.boolean "ai_allowed", default: true, null: false
     t.index ["created_at"], name: "index_imports_on_created_at"
     t.index ["recipe_id"], name: "index_imports_on_recipe_id"
     t.index ["status"], name: "index_imports_on_status"

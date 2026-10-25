@@ -1,4 +1,4 @@
-import { Link, usePoll } from '@inertiajs/react'
+import { Link, router, usePoll } from '@inertiajs/react'
 import { useEffect } from 'react'
 import FilterBar from '@/components/FilterBar'
 import Icon, { type IconName } from '@/components/Icon'
@@ -8,6 +8,7 @@ import RecipeRow from '@/components/RecipeRow'
 import RecipeTile from '@/components/RecipeTile'
 import AppLayout from '@/layouts/AppLayout'
 import { useGalleryLayout, type GalleryLayout } from '@/lib/galleryLayout'
+import { RECIPE_SORTS } from '@/lib/recipeSort'
 import type { Facets, Import, RecipeCard, RecipeFilters } from '@/types'
 
 const GRIDS: Record<GalleryLayout, string> = {
@@ -20,6 +21,7 @@ type Props = {
   page: number
   has_more: boolean
   filters: RecipeFilters
+  sort: import('@/types').RecipeSort
   facets: Facets
   total_count: number
   pending_imports: Import[]
@@ -31,6 +33,7 @@ export default function RecipesIndex({
   page,
   has_more,
   filters,
+  sort,
   facets,
   total_count,
   pending_imports,
@@ -57,7 +60,7 @@ export default function RecipesIndex({
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
         {total_count > 0 && (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <p className="text-sm text-graphite">
               {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
             </p>
@@ -65,6 +68,30 @@ export default function RecipesIndex({
           </div>
         )}
       </div>
+
+      {total_count > 0 && (
+        <label className="mb-5 inline-flex items-center gap-3 text-sm text-graphite">
+          Recipe order
+          <select
+            aria-label="Recipe order"
+            value={sort}
+            onChange={(event) =>
+              router.patch(
+                '/settings',
+                { ...filters, preferences: { sort: event.target.value }, return_to: 'cookbook' },
+                { preserveScroll: true },
+              )
+            }
+            className="rounded-full border-hairline bg-paper py-2 pr-9 pl-4 text-sm text-ink focus:border-ink focus:ring-0"
+          >
+            {RECIPE_SORTS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {failed_imports.length > 0 && (
         <section aria-label="Failed imports" className="mb-8 rounded-photo bg-paper p-4 ring-1 ring-hairline">

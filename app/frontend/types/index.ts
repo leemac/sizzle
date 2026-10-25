@@ -22,6 +22,16 @@ export type SharedProps = {
   appearance: Appearance
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string
+  preferences: BrowserPreferences
+}
+
+export type RecipeSort = 'newest' | 'alphabetical' | 'recently_cooked' | 'never_cooked'
+
+export type BrowserPreferences = {
+  text_size: 'standard' | 'large'
+  keep_awake: 'off' | 'on'
+  sort: RecipeSort
+  ai_mode: 'ask' | 'automatic'
 }
 
 export type ThemeToken =
@@ -163,6 +173,7 @@ export type Import = {
   url: string | null
   text_preview: string | null
   status: ImportStatus
+  ai_allowed: boolean
   error: string | null
   recipe_id: number | null
   recipe_title: string | null

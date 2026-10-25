@@ -75,6 +75,18 @@
   letter-spacing: -0.02em;
 }
 
+@media screen {
+  .cooking-view[data-cooking='true'][data-text-size='large'] [data-ingredient-list] button {
+    font-size: 1.25rem;
+    line-height: 1.6;
+  }
+
+  .cooking-view[data-cooking='true'][data-text-size='large'] [data-method-text] {
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+}
+
 .sizzle-logo {
   display: inline-block;
   padding-bottom: 0.03em;

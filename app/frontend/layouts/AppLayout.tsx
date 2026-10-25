@@ -42,6 +42,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Share from your phone
             </Link>
             <Link
+              href="/settings"
+              aria-label="Settings"
+              title="Settings"
+              aria-current={url.startsWith('/settings') ? 'page' : undefined}
+              className="rounded-full p-2 text-graphite hover:text-ink"
+            >
+              <Icon name="settings" className="size-5" />
+            </Link>
+            <Link
               href="/appearance"
               aria-label="Appearance"
               title="Appearance"

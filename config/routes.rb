@@ -16,6 +16,8 @@ Rails.application.routes.draw do
     post :retry, on: :member
   end
   get "share", to: "share#show"
+  resource :settings, only: %i[show update]
+  post "settings/export", to: "cookbook_exports#create", as: :cookbook_export
   resource :appearance, only: %i[show update]
   resources :themes, only: %i[new create edit update destroy]
 

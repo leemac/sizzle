@@ -159,7 +159,7 @@ async function importsFixture(page: Page) {
     app: { ...data.props.app, claude_configured: true },
   })
   data.flash = { notice: 'Import fixture ready' }
-  const requests: { input: string }[] = []
+  const requests: { input: string; allow_ai: boolean; automatic_ai: boolean }[] = []
   await page.route('**/*', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
@@ -208,12 +208,39 @@ for (const width of [390, 1280]) {
     await expect(page.getByText('https://example.com/curry', { exact: true })).toBeVisible()
     await expect(page.getByText('https://example.com/soup', { exact: true })).toBeVisible()
     await expect(input).toHaveValue('')
-    expect(requests).toEqual([{ input: links }])
+    expect(requests).toEqual([{ input: links, allow_ai: false, automatic_ai: false }])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`import-links-${width}.png`), fullPage: true })
     expect(errors).toEqual([])
   })
 }
+
+test('AI permission is explicit and resets after each submission', async ({ page }) => {
+  const { requests, data } = await importsFixture(page)
+  const permission = page.getByRole('checkbox', { name: 'Allow Claude for this import if needed', exact: true })
+  await expect(permission).not.toBeChecked()
+  await page.locator('#input').fill('https://example.com/approved')
+  await permission.check()
+  await expect(page.getByText(/Page text, recipe data and image links/)).toBeVisible()
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.locator('#input')).toHaveValue('')
+  await expect(permission).not.toBeChecked()
+  await page.locator('#input').fill('https://example.com/local-only')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.locator('#input')).toHaveValue('')
+  expect(requests).toEqual([
+    { input: 'https://example.com/approved', allow_ai: true, automatic_ai: false },
+    { input: 'https://example.com/local-only', allow_ai: false, automatic_ai: false },
+  ])
+  data.props.preferences.ai_mode = 'automatic'
+  await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
+  await expect(permission).toHaveCount(0)
+  await expect(page.getByText(/Claude will be used if local extraction needs help/)).toBeVisible()
+  await page.locator('#input').fill('https://example.com/automatic')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.locator('#input')).toHaveValue('')
+  expect(requests.at(-1)).toEqual({ input: 'https://example.com/automatic', allow_ai: false, automatic_ai: true })
+})
 
 test('a bad link rejects the batch, names the link and keeps the text', async ({ page }) => {
   await page.goto('/imports')
