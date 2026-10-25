@@ -11,11 +11,14 @@ class RecipeDraft
   MAX_SERVINGS = 10_000
   MAX_MINUTES = StructuredRecipeExtractor::MAX_MINUTES
   MAX_QUANTITY = 100_000
+  MAX_VIDEO_SECONDS = 7.days.to_i
+  MAX_VIDEO_CHAPTERS = 50
 
-  def initialize(data, images: [])
+  def initialize(data, images: [], video: nil)
     @data = data.is_a?(Hash) ? data : {}
     @images_by_id = images.index_by(&:id)
     @image_urls = images.map(&:url)
+    @video = video.is_a?(Hash) ? video : {}
   end
 
   def recipe?
@@ -43,8 +46,28 @@ class RecipeDraft
       tags: strings(@data["tags"], 40).map(&:downcase).uniq.first(MAX_TAGS),
       ingredients: ingredients,
       steps: steps,
-      tips: strings(@data["tips"], 1000).first(MAX_TIPS)
+      tips: strings(@data["tips"], 1000).first(MAX_TIPS),
+      video_metadata:
     }
+  end
+
+  def video_metadata
+    id = @video["id"]
+    return {} unless id.is_a?(String) && id.match?(YoutubeVideo::ID_PATTERN)
+
+    duration = integer(@video["duration_seconds"], 1..MAX_VIDEO_SECONDS)
+    last_start = -1
+    chapters = hashes(@video["chapters"]).filter_map do |chapter|
+      start = integer(chapter["start_seconds"], 0..MAX_VIDEO_SECONDS)
+      title = text(RecipeText.plain(chapter["title"]).squish, 200)
+      next unless start && title && start > last_start && (!duration || start < duration)
+
+      last_start = start
+      { "start_seconds" => start, "title" => title }
+    end.first(MAX_VIDEO_CHAPTERS)
+
+    { "id" => id, "duration_seconds" => duration, "chapters" => chapters,
+      "written_recipe_url" => web_url(@video["written_recipe_url"]) }
   end
 
   # The hero image Claude chose, then every other candidate as a fallback.
@@ -57,6 +80,15 @@ class RecipeDraft
   end
 
   private
+
+  def web_url(value)
+    return unless value.is_a?(String) && value.length <= 2048
+
+    uri = URI.parse(value.strip)
+    uri.to_s if uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.nil?
+  rescue URI::InvalidURIError
+    nil
+  end
 
   def ingredients
     hashes(@data["ingredients"]).filter_map do |line|

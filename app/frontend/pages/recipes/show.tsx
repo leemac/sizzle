@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
+import RecipeVideo from '@/components/RecipeVideo'
 import AppLayout from '@/layouts/AppLayout'
 import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
@@ -272,6 +273,7 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
 
   return (
     <section>
+      <RecipeVideo recipe={recipe} />
       <h2 className="font-display text-2xl font-semibold">Method</h2>
       {groupBySection(indexed).map(([section, steps]) => (
         <div key={section ?? ''} className="mt-6">
