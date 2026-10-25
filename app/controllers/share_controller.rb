@@ -5,8 +5,21 @@ class ShareController < InertiaController
     render inertia: "share/show", props: {
       endpoint: api_imports_url,
       shortcut_endpoints:,
-      token_required: Sizzle.api_token.present?
+      token_required: Sizzle.api_token.present?,
+      shortcut_pairing: Sizzle.shortcut_pairing? ? {
+        download_url: share_shortcut_path,
+        connections: ShortcutConnection.visible.order(created_at: :desc).map { |connection|
+          { id: connection.id, name: connection.name, connected: connection.connected_at.present? }
+        }
+      } : nil
     }
+  end
+
+  def shortcut
+    return head :not_found unless Sizzle.shortcut_pairing?
+
+    send_file Rails.root.join("config/shortcuts/save-to-sizzle.shortcut"),
+      filename: "Save to Sizzle.shortcut", type: "application/x-shortcut"
   end
 
   private

@@ -16,11 +16,15 @@ Rails.application.routes.draw do
     post :retry, on: :member
   end
   get "share", to: "share#show"
+  get "share/shortcut", to: "share#shortcut"
+  resources :shortcut_connections, path: "share/connections", only: %i[create destroy]
   resource :appearance, only: %i[show update]
   resources :themes, only: %i[new create edit update destroy]
 
   namespace :api do
     resources :imports, only: %i[create show]
+    resources :shortcut_pairings, only: :create
+    resources :shortcut_imports, only: :create
   end
 
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest

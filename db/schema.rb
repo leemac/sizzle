@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_040000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_130000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -111,6 +111,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_040000) do
     t.index ["main_ingredient"], name: "index_recipes_on_main_ingredient"
     t.index ["source_url"], name: "index_recipes_on_source_url", unique: true
     t.index ["total_minutes"], name: "index_recipes_on_total_minutes"
+  end
+
+  create_table "shortcut_connections", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "pairing_digest"
+    t.datetime "pairing_expires_at", null: false
+    t.string "credential_digest"
+    t.datetime "connected_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["credential_digest"], name: "index_shortcut_connections_on_credential_digest", unique: true
+    t.index ["pairing_digest"], name: "index_shortcut_connections_on_pairing_digest", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
