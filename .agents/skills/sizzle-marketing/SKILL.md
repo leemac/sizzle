@@ -16,7 +16,7 @@ Read the checkout's `AGENTS.md`, `README.md`, and relevant UI before making prod
 - YouTube support reads descriptions and linked recipe pages; it does not transcribe audio.
 - Retain the early-development notice. Verify login and network-exposure guidance in the current README. Never imply public hosting is safe by default, everything works offline, all sites import, or extraction is perfect.
 - No invented adoption numbers, testimonials, benchmarks, comparisons, or roadmap promises. Describe previews as previews.
-- Use Sizzle's existing fonts and porcelain, ink, graphite, hairline, and yolk tokens. Use sentence case and plain verbs: save, find, cook, favorite.
+- Use Sizzle's existing fonts and colour roles (porcelain, ink, graphite, hairline, action, active, mark; see `docs/themes.md`). Use sentence case and plain verbs: save, find, cook, favorite.
 
 ## Turn a change into marketing
 

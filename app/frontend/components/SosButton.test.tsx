@@ -34,7 +34,7 @@ const button = () => container.querySelector('button')!
 it('shows recipes for the meal at this hour and this season', () => {
   act(() => root.render(<SosButton filters={{ q: 'soup', course: 'main' }} inGallery />))
 
-  expect(button().textContent).toBe('Lunch?What’s for lunch?')
+  expect(button().textContent).toBe('What’s for lunch?')
   expect(button().getAttribute('aria-label')).toBe('What’s for lunch? Show lunch recipes for autumn')
   expect(button().getAttribute('aria-pressed')).toBe('false')
   act(() => button().click())

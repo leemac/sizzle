@@ -110,7 +110,7 @@ export default function ImportsIndex({
             key={value}
             href={value === 'manual' ? '/imports?mode=manual' : '/imports'}
             aria-current={mode === value ? 'page' : undefined}
-            className={`rounded-full px-4 py-2 text-sm ${mode === value ? 'bg-yolk font-semibold text-[#18181b]' : 'ring-1 ring-hairline hover:ring-ink/30'}`}
+            className={`rounded-full px-4 py-2 text-sm ${mode === value ? 'bg-active font-semibold text-on-active' : 'ring-1 ring-hairline hover:ring-ink/30'}`}
           >
             {label}
           </Link>
@@ -180,7 +180,7 @@ export default function ImportsIndex({
               type="submit"
               hidden={!!review}
               disabled={form.processing || form.data.input.trim() === ''}
-              className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+              className="rounded-full bg-action px-6 py-3 font-semibold text-on-action hover:brightness-95 disabled:opacity-50"
             >
               {form.processing ? 'Adding…' : 'Import'}
             </button>
@@ -253,7 +253,7 @@ function ImportRow({ item, fresh = false, index = 0 }: { item: Import; fresh?: b
         fresh && (
           <span
             aria-hidden="true"
-            className={`flex size-14 shrink-0 items-center justify-center rounded-photo ${item.status === 'failed' ? 'bg-porcelain text-danger' : 'bg-yolk-soft text-ink'}`}
+            className={`flex size-14 shrink-0 items-center justify-center rounded-photo ${item.status === 'failed' ? 'bg-porcelain text-danger' : 'bg-mark text-ink'}`}
           >
             {item.status === 'done' ? (
               <Icon key="saved" name="check" className="import-saved size-5" />
@@ -319,7 +319,7 @@ function ImportPhoto({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false)
   return (
     <span
-      className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-photo bg-yolk-soft"
+      className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-photo bg-mark"
       aria-hidden="true"
     >
       <Icon name="check" className="size-5" />

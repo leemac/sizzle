@@ -148,7 +148,7 @@ function EmptyCookbook() {
               href={href}
               className="flex h-full items-center gap-4 rounded-photo bg-paper p-4 ring-1 ring-hairline hover:ring-ink/30 sm:flex-col sm:items-start sm:p-5"
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-yolk-soft">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mark">
                 <Icon name={icon} className="size-5" />
               </span>
               <span>

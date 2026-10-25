@@ -48,6 +48,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_180000) do
     t.index ["recipe_id"], name: "index_cooks_on_recipe_id"
   end
 
+  create_table "custom_themes", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "description"
+    t.json "light", null: false
+    t.json "dark", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "imports", force: :cascade do |t|
     t.string "kind", null: false
     t.string "origin", null: false

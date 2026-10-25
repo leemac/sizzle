@@ -305,7 +305,7 @@ function Step({ number, title, children }: { number: number; title: string; chil
     <li className="grid grid-cols-[1.75rem_1fr] gap-x-4">
       <span
         aria-hidden="true"
-        className="flex size-7 items-center justify-center rounded-full bg-yolk-soft text-xs font-semibold"
+        className="flex size-7 items-center justify-center rounded-full bg-mark text-xs font-semibold"
       >
         {number}
       </span>
@@ -367,7 +367,7 @@ function Status({ done, children }: { done: boolean; children: ReactNode }) {
   return (
     <p role="status" className="mt-4 flex items-center gap-3 rounded-2xl bg-porcelain p-4 text-sm font-medium">
       <span
-        className={`flex size-7 shrink-0 items-center justify-center rounded-full ${done ? 'bg-yolk text-[#18181b]' : 'ring-1 ring-hairline'}`}
+        className={`flex size-7 shrink-0 items-center justify-center rounded-full ${done ? 'bg-active text-on-active' : 'ring-1 ring-hairline'}`}
       >
         {done ? <Icon name="check" className="size-4" /> : '—'}
       </span>
@@ -403,7 +403,7 @@ function CopyButton({ value, className = '' }: { value: string; className?: stri
       onClick={() => {
         void copyText(value).then((copied) => setState(copied ? 'copied' : 'failed'))
       }}
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full bg-yolk px-4 py-2 text-sm font-semibold text-[#18181b] hover:brightness-95 ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full bg-action px-4 py-2 text-sm font-semibold text-on-action hover:brightness-95 ${className}`}
     >
       {state === 'copied' && <Icon name="check" className="size-4" />}
       <span aria-live="polite">{{ idle: 'Copy', copied: 'Copied', failed: 'Copy failed' }[state]}</span>

@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
 import SosButton from '@/components/SosButton'
+import { applyCustomThemes, rememberLook } from '@/lib/theme'
 import type { RecipeFilters } from '@/types'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -13,6 +14,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   // Every new flash shows again, even one with the same text as the last.
   useEffect(() => router.on('flash', () => setDismissed(false)), [])
+
+  // The server renders the saved look on first load. Later server responses keep it in
+  // step; history restores don't fire "success", so an old page can't bring back an old look.
+  useEffect(
+    () =>
+      router.on('success', (event) => {
+        applyCustomThemes(event.detail.page.props.theme_css)
+        rememberLook(event.detail.page.props.appearance)
+      }),
+    [],
+  )
 
   return (
     <div className="flex min-h-dvh flex-col pb-[env(safe-area-inset-bottom)]">
@@ -32,10 +44,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             >
               Share from your phone
             </Link>
+            <Link
+              href="/appearance"
+              aria-label="Appearance"
+              title="Appearance"
+              aria-current={url.startsWith('/appearance') ? 'page' : undefined}
+              className={`rounded-full p-2 hover:text-ink ${url.startsWith('/appearance') ? 'text-ink' : 'text-graphite'}`}
+            >
+              <Icon name="appearance" className="size-5" />
+            </Link>
             <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
             <Link
               href="/imports"
-              className="inline-flex items-center gap-1.5 rounded-full bg-yolk px-4 py-2 text-sm font-semibold text-[#18181b] hover:brightness-95"
+              className="inline-flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-sm font-semibold text-on-action hover:brightness-95"
             >
               <Icon name="plus" className="size-4" />
               Add recipe

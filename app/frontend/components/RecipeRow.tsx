@@ -28,7 +28,7 @@ export default function RecipeRow({ recipe }: { recipe: RecipeCard }) {
           </span>
         )}
         {recipe.favorite && (
-          <span className="text-yolk">
+          <span className="text-accent">
             <Icon name="heart" filled className="size-4" />
             <span className="sr-only">Favorite</span>
           </span>

@@ -17,7 +17,7 @@ export default function RecipeTile({ recipe }: { recipe: RecipeCard }) {
     >
       <RecipePhoto recipe={recipe} />
       {recipe.favorite && (
-        <span className={`${PILL} left-2.5 w-7 justify-center text-yolk`}>
+        <span className={`${PILL} left-2.5 w-7 justify-center text-white`}>
           <Icon name="heart" filled className="size-3.5" />
           <span className="sr-only">Favorite</span>
         </span>

@@ -44,7 +44,7 @@ export default function ChoiceChips<T extends string>({
               onChange={(event) => toggle(option, event.target.checked)}
               className="peer sr-only"
             />
-            <span className="block rounded-full bg-paper px-3.5 py-1.5 text-sm ring-1 ring-hairline transition-colors first-letter:uppercase peer-checked:bg-yolk peer-checked:font-medium peer-checked:text-[#18181b] peer-checked:ring-yolk peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink hover:ring-ink/30">
+            <span className="block rounded-full bg-paper px-3.5 py-1.5 text-sm ring-1 ring-hairline transition-colors first-letter:uppercase peer-checked:bg-active peer-checked:font-medium peer-checked:text-on-active peer-checked:ring-active peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink hover:ring-ink/30">
               {option}
             </span>
           </label>

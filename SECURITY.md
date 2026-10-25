@@ -32,6 +32,7 @@ What Sizzle does defend against, because it processes content from the open web 
 | **Cross-site requests from your own browser** (CSRF) | The UI uses Rails CSRF tokens. The share API accepts only `application/json`, which browsers can't send cross-site without a CORS preflight that Sizzle never approves. |
 | **DNS rebinding** against the UI | Rails host authorization answers only to IP addresses, bare hostnames, private suffixes (`.local`, `.lan`, `.home.arpa`, `.ts.net`, …) and anything listed in `SIZZLE_HOSTS`. |
 | **Abuse of the import endpoint** | Rate limited, and imports cost you Claude credits, so `SIZZLE_API_TOKEN` is strongly recommended. |
+| **Changing someone else's theme** | Each browser's theme choice is a cookie that only accepts known themes. The theme editor, which writes themes everyone shares, is off unless you set `SIZZLE_THEME_EDITOR=true`; with no login, anyone who can reach Sizzle can then change them. Theme colours must be `#rrggbb` before they reach the page's stylesheet, and edits are CSRF-protected, rate limited and capped at 50 themes. |
 | **Container escape and tampering** | The image runs as a non-root user. The compose file sets a read-only root filesystem and `no-new-privileges`. |
 
 ## For contributors and agents

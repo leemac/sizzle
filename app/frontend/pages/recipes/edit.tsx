@@ -175,7 +175,7 @@ export default function RecipeEdit({ recipe }: { recipe: RecipeEditForm }) {
           <button
             type="submit"
             disabled={form.processing}
-            className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+            className="rounded-full bg-action px-6 py-3 font-semibold text-on-action hover:brightness-95 disabled:opacity-50"
           >
             {form.processing ? 'Saving…' : 'Save changes'}
           </button>

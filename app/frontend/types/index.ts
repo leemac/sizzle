@@ -6,8 +6,58 @@ export type FlashData = {
   alert?: string
 }
 
+export type ThemeMode = 'light' | 'dark' | 'auto'
+
+export type Appearance = {
+  theme: string
+  mode: ThemeMode
+  chosen: boolean
+  /** The theme's page background in light and dark, for the browser bar. */
+  colors: { light: string; dark: string }
+}
+
 export type SharedProps = {
-  app: { claude_configured: boolean; version: string }
+  /** theme_editor: whether SIZZLE_THEME_EDITOR turns on the theme editor. */
+  app: { claude_configured: boolean; version: string; theme_editor: boolean }
+  appearance: Appearance
+  /** CSS for custom themes (see Theme.custom_stylesheet). */
+  theme_css: string
+}
+
+export type ThemeToken =
+  | 'porcelain'
+  | 'paper'
+  | 'ink'
+  | 'graphite'
+  | 'hairline'
+  | 'action'
+  | 'on-action'
+  | 'active'
+  | 'on-active'
+  | 'mark'
+  | 'accent'
+  | 'danger'
+  | 'on-danger'
+
+export type ThemeColors = Record<ThemeToken, string>
+
+export type ThemeOption = {
+  id: string
+  name: string
+  description: string
+  light: ThemeColors
+  dark: ThemeColors
+  /** Set for themes made in the editor; built-in themes can't be edited. */
+  custom_id: number | null
+}
+
+/** What the theme editor edits: a saved custom theme (id set) or a new one. */
+export type ThemeDraft = {
+  id: number | null
+  name: string
+  description: string
+  light: ThemeColors
+  dark: ThemeColors
 }
 
 export type MealTime = 'breakfast' | 'lunch' | 'dinner' | 'snack'
