@@ -97,6 +97,11 @@ export function formatTimestamp(iso: string): string {
   return new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+/** "Oct 3, 2026" — always absolute, for paper, where "Yesterday" soon stops being true. */
+export function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { dateStyle: 'medium' })
+}
+
 /** "Today", "Yesterday", "Oct 3", or "Oct 3, 2025" outside the current year — in the viewer's time zone. */
 export function formatDay(iso: string, now: Date = new Date()): string {
   const date = new Date(iso)
