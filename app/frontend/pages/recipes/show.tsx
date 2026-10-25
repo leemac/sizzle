@@ -128,7 +128,7 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
                 aria-pressed={scale === multiplier}
                 disabled={!!recipe.servings && recipe.servings * multiplier > 10000}
                 onClick={() => multiply(multiplier)}
-                className={`min-h-11 min-w-14 rounded-full px-4 py-2 text-sm tabular-nums disabled:opacity-50 ${scale === multiplier ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
+                className={`min-h-11 min-w-14 rounded-full px-4 py-2 text-sm tabular-nums disabled:opacity-50 ${scale === multiplier ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
               >
                 {label}
               </button>
@@ -290,7 +290,7 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
                   onClick={() => setActive(active === step.index ? null : step.index)}
                   aria-current={active === step.index ? 'step' : undefined}
                   className={`grid w-full grid-cols-[2.5rem_1fr] gap-2 rounded-2xl p-3 -mx-3 text-left transition-colors ${
-                    active === step.index ? 'bg-yolk-soft' : 'hover:bg-paper'
+                    active === step.index ? 'bg-mark' : 'hover:bg-paper'
                   }`}
                 >
                   <span className="font-display text-2xl leading-7 font-semibold text-graphite tabular-nums">
@@ -307,7 +307,7 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
       {recipe.tips.length > 0 && (
         <div className="mt-12 rounded-photo bg-paper p-6 ring-1 ring-hairline">
           <h2 className="font-display text-xl font-semibold">Good to know</h2>
-          <ul className="mt-3 list-disc space-y-2 pl-5 text-graphite marker:text-yolk">
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-graphite marker:text-accent">
             {recipe.tips.map((tip) => (
               <li key={tip}>{tip}</li>
             ))}
@@ -341,7 +341,7 @@ function FavoriteButton({ recipe }: { recipe: RecipeDetail }) {
       disabled={processing}
       onClick={() => (recipe.favorite ? router.delete(url, options) : router.post(url, {}, options))}
       className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors disabled:opacity-60 ${
-        recipe.favorite ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'
+        recipe.favorite ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'
       }`}
     >
       <Icon name="heart" filled={recipe.favorite} className="size-4" />
@@ -365,7 +365,7 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
       <span className="inline-flex items-center">
         <span
           role="status"
-          className="inline-flex items-center gap-2 rounded-full bg-yolk px-4 py-2 text-sm font-medium text-[#18181b]"
+          className="inline-flex items-center gap-2 rounded-full bg-active px-4 py-2 text-sm font-medium text-on-active"
         >
           <Icon name="check" className="size-4" />
           Made today
@@ -454,7 +454,7 @@ function RecipeActions({ recipe }: { recipe: RecipeDetail }) {
           <button
             type="button"
             onClick={() => router.delete(`/recipes/${recipe.id}`)}
-            className="rounded-full bg-danger px-4 py-1.5 font-medium text-white"
+            className="rounded-full bg-danger px-4 py-1.5 font-medium text-on-danger"
           >
             Delete recipe
           </button>

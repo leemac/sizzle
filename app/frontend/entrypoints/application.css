@@ -5,9 +5,20 @@
 @plugin '@tailwindcss/forms';
 
 /*
- * Sizzle design tokens. Minimal and photo-first: a cool porcelain base, ink
- * type, and one bold accent — yolk — used like a highlighter for "this is
- * active / this is done". Keep new UI inside this palette.
+ * Sizzle design tokens. Minimal and photo-first. Colours are roles, not hues:
+ * the values below are only fallbacks (the "Sunny side up" dark theme, the default), and
+ * config/themes.json sets the real ones per theme and mode at runtime.
+ *
+ *   porcelain / paper     page and card backgrounds
+ *   ink / graphite        primary and secondary text
+ *   hairline              borders and rings
+ *   action, on-action     the main button on a page and its label
+ *   active, on-active     selected, toggled on or done, and its label
+ *   mark                  highlighter and the active step
+ *   accent                accent as an icon on a card (favorite heart, bullets)
+ *   danger, on-danger     destructive actions and errors
+ *
+ * Keep new UI inside these roles.
  */
 @theme {
   --color-porcelain: #141416;
@@ -15,9 +26,14 @@
   --color-ink: #f2f2ee;
   --color-graphite: #9d9da3;
   --color-hairline: #2e2e33;
-  --color-yolk: #ffc21a;
-  --color-yolk-soft: #4a3a0c;
+  --color-action: #ffc21a;
+  --color-on-action: #18181b;
+  --color-active: #ffc21a;
+  --color-on-active: #18181b;
+  --color-mark: #4a3a0c;
+  --color-accent: #ffc21a;
   --color-danger: #f08072;
+  --color-on-danger: #18181b;
 
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -26,6 +42,7 @@
 }
 
 @layer base {
+  /* Matches the fallback tokens; each theme sets its own color-scheme. */
   :root {
     color-scheme: dark;
   }
@@ -97,13 +114,13 @@
   z-index: -1;
   inset: -3px -5px;
   border-radius: 4px;
-  background: var(--color-yolk-soft);
+  background: var(--color-mark);
   opacity: 0;
 }
 
 .footer-link:is(:hover, :focus-visible) {
   color: var(--color-ink);
-  text-decoration-color: var(--color-yolk);
+  text-decoration-color: var(--color-active);
 }
 
 .footer-link:is(:hover, :focus-visible)::before {
@@ -133,12 +150,12 @@
     left: 50%;
     width: 3px;
     height: 3px;
-    background: var(--color-yolk);
+    background: var(--color-active);
     box-shadow:
-      -18px -3px var(--color-yolk),
-      -9px -12px var(--color-yolk),
-      8px -9px var(--color-yolk),
-      19px 0 var(--color-yolk);
+      -18px -3px var(--color-active),
+      -9px -12px var(--color-active),
+      8px -9px var(--color-active),
+      19px 0 var(--color-active);
     pointer-events: none;
     animation: footer-sparks 560ms ease-out both;
   }
@@ -172,7 +189,7 @@
 
 /* Highlighter mark used for checked ingredients and the active step. */
 @utility highlight {
-  background-image: linear-gradient(transparent 55%, var(--color-yolk-soft) 55%);
+  background-image: linear-gradient(transparent 55%, var(--color-mark) 55%);
 }
 
 /* The photo supplies its own colors; the mask turns it into a quiet wash. */
@@ -195,9 +212,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.26;
-  filter: blur(72px) saturate(1.8) brightness(0.55);
+  opacity: var(--atmosphere-opacity, 0.26);
+  filter: var(--atmosphere-filter, blur(72px) saturate(1.8) brightness(0.55));
   transform: scale(1.3) rotate(-18deg);
+}
+
+/* Darkening suits dark surfaces but turns grey on light ones, so light gets a brighter tint. */
+:root[data-mode='light'] {
+  --atmosphere-opacity: 0.3;
+  --atmosphere-filter: blur(72px) saturate(1.6) brightness(1.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-mode='auto'] {
+    --atmosphere-opacity: 0.3;
+    --atmosphere-filter: blur(72px) saturate(1.6) brightness(1.2);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -10,7 +10,8 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'RAILS_ENV=test bin/rails server -b 127.0.0.1 -p 3211',
+    // The theme editor is opt-in; the browser tests cover it switched on.
+    command: 'RAILS_ENV=test SIZZLE_THEME_EDITOR=true bin/rails server -b 127.0.0.1 -p 3211',
     url: 'http://127.0.0.1:3211/up',
     reuseExistingServer: false,
     timeout: 120_000,

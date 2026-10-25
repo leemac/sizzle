@@ -1,0 +1,116 @@
+import { useSyncExternalStore, type CSSProperties } from 'react'
+import type { ThemeMode, ThemeToken } from '@/types'
+
+export const MODES: { value: ThemeMode; label: string; hint: string }[] = [
+  { value: 'light', label: 'Light', hint: 'Always light' },
+  { value: 'dark', label: 'Dark', hint: 'Always dark' },
+  { value: 'auto', label: 'Auto', hint: 'Matches this device' },
+]
+
+/** Sets a theme's colours on one element, so Tailwind classes inside it (bg-paper, text-ink…) use that theme. */
+export function themeStyle(tokens: Record<ThemeToken, string>): CSSProperties {
+  return Object.fromEntries(Object.entries(tokens).map(([token, value]) => [`--color-${token}`, value]))
+}
+
+export function schemeFor(mode: ThemeMode, prefersDark: boolean): 'light' | 'dark' {
+  if (mode === 'auto') return prefersDark ? 'dark' : 'light'
+  return mode
+}
+
+/** A theme's page background in light and dark, for the browser bar. */
+export type BarColors = { light: string; dark: string }
+
+/**
+ * Shows a theme on the whole page. The server renders every theme's colours keyed
+ * by these attributes (see Theme#css), so switching them restyles the page.
+ */
+export function applyAppearance(root: HTMLElement, theme: string, mode: ThemeMode, colors?: BarColors) {
+  root.dataset.theme = theme
+  root.dataset.mode = mode
+  if (colors) applyBarColors(root.ownerDocument, mode, colors)
+}
+
+/**
+ * Rebuilds <meta name="theme-color"> for a mode: one colour when it's fixed, and a
+ * light and a dark one for auto, so the browser bar follows the device as it changes.
+ */
+export function applyBarColors(doc: Document, mode: ThemeMode, colors: BarColors) {
+  doc.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove())
+  const tags: [string | null, string][] =
+    mode === 'auto'
+      ? [
+          ['(prefers-color-scheme: light)', colors.light],
+          ['(prefers-color-scheme: dark)', colors.dark],
+        ]
+      : [[null, colors[mode]]]
+  for (const [media, color] of tags) {
+    const meta = doc.createElement('meta')
+    meta.setAttribute('name', 'theme-color')
+    meta.setAttribute('content', color)
+    if (media) meta.setAttribute('media', media)
+    doc.head.append(meta)
+  }
+}
+
+/** The bar colours the server rendered, read back so they can be restored later. */
+function renderedBarColors(doc: Document): BarColors | undefined {
+  const metas = [...doc.querySelectorAll('meta[name="theme-color"]')]
+  if (metas.length === 0) return undefined
+  const pick = (scheme: string) =>
+    (metas.find((meta) => meta.getAttribute('media')?.includes(scheme)) ?? metas[0]).getAttribute('content') ?? ''
+  return { light: pick('light'), dark: pick('dark') }
+}
+
+type Look = { theme: string; mode: ThemeMode; colors?: BarColors }
+let saved: Look | null = null
+
+/**
+ * The look this browser has saved. It starts from what the server rendered and then
+ * follows server responses only: pages restored from history carry the props they had
+ * back then, which may name an older look.
+ */
+export function savedLook(root: HTMLElement = document.documentElement): Look {
+  saved ??= {
+    theme: root.dataset.theme ?? '',
+    mode: (root.dataset.mode as ThemeMode | undefined) ?? 'dark',
+    colors: renderedBarColors(root.ownerDocument),
+  }
+  return saved
+}
+
+/** Records a look the server just confirmed and shows it. */
+export function rememberLook({ theme, mode, colors }: Look, root: HTMLElement = document.documentElement) {
+  saved = { theme, mode, colors }
+  applyAppearance(root, theme, mode, colors)
+}
+
+/**
+ * Swaps in the CSS for custom themes. The server renders it into <head> on the first
+ * load; a theme saved later only reaches the page through this.
+ */
+export function applyCustomThemes(css: string, doc: Document = document) {
+  let style = doc.getElementById('sizzle-custom-themes')
+  if (!style) {
+    style = doc.createElement('style')
+    style.id = 'sizzle-custom-themes'
+    doc.head.append(style)
+  }
+  if (style.textContent !== css) style.textContent = css
+}
+
+const darkQuery = '(prefers-color-scheme: dark)'
+
+function subscribe(onChange: () => void) {
+  const media = window.matchMedia(darkQuery)
+  media.addEventListener('change', onChange)
+  return () => media.removeEventListener('change', onChange)
+}
+
+/** Whether this device currently prefers dark, kept up to date. */
+export function usePrefersDark() {
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(darkQuery).matches,
+    () => false,
+  )
+}

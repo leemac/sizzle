@@ -43,7 +43,7 @@ export default function Tabs({ label, tabs, initial }: { label: string; tabs: Ta
             tabIndex={tab.id === selected ? 0 : -1}
             onClick={() => setSelected(tab.id)}
             onKeyDown={onKeyDown}
-            className={`rounded-full px-3 py-2.5 text-sm whitespace-nowrap sm:px-5 ${tab.id === selected ? 'bg-yolk font-semibold text-[#18181b]' : 'text-graphite hover:text-ink'}`}
+            className={`rounded-full px-3 py-2.5 text-sm whitespace-nowrap sm:px-5 ${tab.id === selected ? 'bg-active font-semibold text-on-active' : 'text-graphite hover:text-ink'}`}
           >
             {tab.label}
           </button>

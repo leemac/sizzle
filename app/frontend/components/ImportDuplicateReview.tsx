@@ -100,7 +100,7 @@ export default function ImportDuplicateReview({
           <button
             type="submit"
             disabled={processing}
-            className="rounded-full bg-yolk px-5 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+            className="rounded-full bg-action px-5 py-3 font-semibold text-on-action hover:brightness-95 disabled:opacity-50"
           >
             {label ? label[0].toUpperCase() + label.slice(1) : 'Done — skip these links'}
           </button>

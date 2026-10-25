@@ -43,7 +43,21 @@
   cuisine, diet, main ingredient and time.
 - **Remember what you cook.** Save favorites and use “I made this” to track when and how often
   you cook each recipe.
+- **Make it look like yours.** Six themes, each in light and dark, or let it follow your device.
+  Everyone in the house can pick their own, or make a new one in the theme editor.
 - **Yours.** One small container with SQLite on your own server. No accounts, no tracking.
+
+## Themes
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/themes-dark.svg">
+  <img src="docs/images/themes-light.svg" alt="Sizzle's six themes, each shown in light and dark: Sunny side up, Squid ink, Hot sauce, Pesto, Beet it and Blue plate special">
+</picture>
+
+Sizzle starts in the dark Sunny side up theme. Pick another look, or light, dark or auto, any time
+from the Appearance button in the header. Want something else? Set `SIZZLE_THEME_EDITOR=true` to turn on the theme editor, then
+**Customize** any theme and save it as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
+[docs/themes.md](docs/themes.md) to add one.
 
 ## Install
 
