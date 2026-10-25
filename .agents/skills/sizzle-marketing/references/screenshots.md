@@ -2,7 +2,7 @@
 
 Run from a Sizzle checkout with its Ruby and Node dependencies, Playwright Chromium, and `cwebp` installed. Use the bundled, licensed seed photos; do not import third-party recipes or expose private cookbook contents for a marketing capture.
 
-The light/dark pairs in `site/images` were captured from app revision `450836948943daa7ae9f1e6f5a60d313f6d3151f`, which follows the system appearance. Later app revisions force dark mode. To reproduce these pairs, serve that app revision in a separate disposable checkout and run the current capture helpers against it. Both helpers check the rendered palette before saving; do not override app CSS or label a dark capture as light. The marketing page's system preference is independent of the app's current default.
+The light/dark pairs in `site/images` were captured from app revision `450836948943daa7ae9f1e6f5a60d313f6d3151f`, which follows the system appearance. Later app revisions force dark mode. To reproduce these pairs, serve that app revision in a separate disposable checkout and run the current capture helpers against it. The cooking captures also include the current `highlight` utility fix: a mark from 20% to 85% of each line box, repeated at `1lh`, using that revision’s `--color-yolk-soft` role. Apply that source change when reproducing the cooking captures. Both helpers check the rendered palette before saving; do not override app CSS or label a dark capture as light. The marketing page's system preference is independent of the app's current default.
 
 Create a separate database instead of altering the maintainer's cookbook:
 

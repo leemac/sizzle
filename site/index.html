@@ -71,7 +71,7 @@
             steps and the best photo. The ads, pop-ups and life story stay behind.
           </p>
           <div class="actions">
-            <a class="button primary" href="https://github.com/leemac/sizzle#install">Install Sizzle</a>
+            <a class="button primary" href="#install">Install Sizzle</a>
             <a class="button" href="https://github.com/leemac/sizzle"
               ><svg class="icon" aria-hidden="true"><use href="#github-mark" /></svg>View the source</a
             >
@@ -467,19 +467,19 @@
           <picture>
             <source
               media="(max-width: 480px) and (prefers-color-scheme: dark)"
-              srcset="/images/cooking-390@2x-dark.webp?v=2"
+              srcset="/images/cooking-390@2x-dark.webp?v=3"
               width="358"
               height="713"
             />
-            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=2" width="358" height="713" />
+            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=3" width="358" height="713" />
             <source
               media="(prefers-color-scheme: dark)"
-              srcset="/images/cooking-1280@2x-dark.webp?v=2"
+              srcset="/images/cooking-1280@2x-dark.webp?v=3"
               width="1232"
               height="753"
             />
             <img
-              src="/images/cooking-1280@2x.webp?v=2"
+              src="/images/cooking-1280@2x.webp?v=3"
               alt="A close-up of the real Ingredients and Method sections: neutral oil is checked off and the first step is highlighted in yellow."
               width="1232"
               height="753"
@@ -637,9 +637,9 @@
         </div>
       </section>
 
-      <section class="selfhost">
+      <section class="selfhost" id="install" aria-labelledby="install-heading">
         <div>
-          <h2>Yours, on your own server</h2>
+          <h2 id="install-heading">Yours, on your own server</h2>
           <p>
             Run Sizzle in one Docker container on a home server, NAS or Raspberry Pi. Your recipes and photos stay on
             your server, with no tracking or Sizzle subscription.
@@ -648,9 +648,18 @@
             Sizzle has no login yet. Keep it on your home network, or use Tailscale to reach it away from home. Optional
             Claude extraction uses your own API key and is billed by Anthropic.
           </p>
+          <h3 class="specs-heading">Tech specs</h3>
+          <ul class="tech-specs">
+            <li>One Docker container</li>
+            <li>SQLite · no external database</li>
+            <li>amd64 and arm64</li>
+            <li>No AI required</li>
+          </ul>
         </div>
         <div class="install">
-          <pre><code><span class="dim"># with Docker and Compose installed</span>
+          <div class="code-block">
+            <button class="copy-code" type="button" hidden aria-label="Copy installation commands">Copy</button>
+            <pre tabindex="0"><code><span class="dim"># with Docker and Compose installed</span>
 mkdir sizzle &amp;&amp; cd sizzle
 url=https://github.com/leemac/sizzle/releases/latest/download
 curl -fsSLO $url/docker-compose.yml
@@ -658,6 +667,8 @@ curl -fsSL $url/env.example -o .env
 <span class="dim"># edit .env: set SIZZLE_API_TOKEN</span>
 docker compose up -d
 <span class="dim"># open http://&lt;your-server&gt;:3000</span></code></pre>
+          </div>
+          <p class="copy-status fineprint" role="status"></p>
           <p class="fineprint"><a href="https://github.com/leemac/sizzle#install">Full installation guide</a></p>
         </div>
       </section>

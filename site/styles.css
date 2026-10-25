@@ -674,7 +674,7 @@ main h2 {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
   gap: 56px;
-  align-items: center;
+  align-items: start;
   margin-top: 40px;
 }
 
@@ -868,6 +868,7 @@ main h2 {
   height: 16px;
   border: 1px solid var(--preview-hairline);
   border-radius: 4px;
+  line-height: 1;
 }
 
 .preview-checked .preview-check,
@@ -878,7 +879,8 @@ main h2 {
 }
 
 .preview-checked > span:last-child {
-  background: linear-gradient(transparent 55%, var(--preview-mark) 55%);
+  background: linear-gradient(transparent 20%, var(--preview-mark) 20%, var(--preview-mark) 85%, transparent 85%);
+  background-size: 100% 1lh;
 }
 
 .preview-made {
@@ -1053,4 +1055,60 @@ pre {
     font-size: 0.875rem;
     margin: 16px 0 0;
   }
+}
+
+/* Keep installation on the page and respect reduced-motion preferences. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+#install {
+  scroll-margin-top: 24px;
+}
+.specs-heading {
+  margin-top: 28px;
+  font-size: 1rem;
+}
+.tech-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.tech-specs li {
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.875rem;
+}
+.code-block {
+  position: relative;
+}
+.code-block pre {
+  padding-top: 68px;
+}
+.copy-code {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--porcelain);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.copy-code:hover {
+  border-color: var(--graphite);
+}
+.copy-status {
+  min-height: 1.6em;
+  margin: 8px 0 0;
 }
