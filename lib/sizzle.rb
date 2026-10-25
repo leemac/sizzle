@@ -66,6 +66,15 @@ module Sizzle
     env_bool("SIZZLE_ALLOW_PRIVATE_NETWORK_FETCH")
   end
 
+  # --- Cookbook import ------------------------------------------------------
+
+  # Let people upload a Sizzle cookbook export to add its recipes here. Off by
+  # default: it's a large file upload, and with no login anyone who can reach
+  # Sizzle could add recipes in bulk.
+  def cookbook_import?
+    env_bool("SIZZLE_COOKBOOK_IMPORT")
+  end
+
   # --- Themes --------------------------------------------------------------
 
   # Let people make, change and delete shared custom themes. Off by default:

@@ -43,6 +43,7 @@ class CookbookExportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, manifest["format_version"]
     exported = manifest["recipes"].sole
     assert_equal recipe.title, exported["title"]
+    assert_equal recipe.uid, exported["uid"]
     assert_equal recipe.notes, exported["notes"]
     assert_equal recipe.rating, exported["rating"]
     assert_equal recipe.meal_times, exported["meal_times"]

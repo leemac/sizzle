@@ -99,6 +99,21 @@ class RecipeDraft
     Array(@data["step_image_ids"]).filter_map { |id| @images_by_id[id]&.url }.uniq - cover_urls.first(1)
   end
 
+  def ingredients
+    hashes(@data["ingredients"]).filter_map do |line|
+      item = text(line["item"], RecipeText::MAX_INGREDIENT_LENGTH) or next
+      {
+        "section" => text(line["section"], 300),
+        "quantity" => quantity(line["quantity"]),
+        "quantity_max" => quantity(line["quantity_max"]),
+        "unit" => text(line["unit"], 30),
+        "item" => item,
+        "preparation" => text(line["preparation"], 200),
+        "note" => text(line["note"], 300)
+      }
+    end.first(MAX_INGREDIENTS)
+  end
+
   private
 
   # The source's meal times, or a guess from the course when it gives none.
@@ -114,21 +129,6 @@ class RecipeDraft
     uri.to_s if uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.nil?
   rescue URI::InvalidURIError
     nil
-  end
-
-  def ingredients
-    hashes(@data["ingredients"]).filter_map do |line|
-      item = text(line["item"], RecipeText::MAX_INGREDIENT_LENGTH) or next
-      {
-        "section" => text(line["section"], 300),
-        "quantity" => quantity(line["quantity"]),
-        "quantity_max" => quantity(line["quantity_max"]),
-        "unit" => text(line["unit"], 30),
-        "item" => item,
-        "preparation" => text(line["preparation"], 200),
-        "note" => text(line["note"], 300)
-      }
-    end.first(MAX_INGREDIENTS)
   end
 
   def steps

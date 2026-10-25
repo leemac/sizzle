@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
+import IngredientIcon from '@/components/IngredientIcon'
 import RecipeVideo from '@/components/RecipeVideo'
 import CookingMode from '@/components/CookingMode'
 import RecipePrint from '@/components/RecipePrint'
@@ -17,6 +18,8 @@ import {
 } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 import { scaleIngredient } from '@/lib/scaleIngredient'
+import { groupByType } from '@/lib/ingredientIcons'
+import { useIngredientOrder } from '@/lib/ingredientOrder'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
   const [servingChoice, setServingChoice] = useState<{
@@ -243,8 +246,12 @@ function RecipeAtmosphere({ url }: { url: string }) {
 
 function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale: number; children: React.ReactNode }) {
   const [checked, setChecked] = useState<Set<number>>(new Set())
+  const [order, setOrder] = useIngredientOrder()
   const indexed = recipe.ingredients.map((ingredient, index) => ({ ...scaleIngredient(ingredient, scale), index }))
   const hasAmounts = recipe.ingredients.some((ingredient) => Boolean(formatAmount(ingredient)))
+  const byType = groupByType(indexed)
+  const canGroup = byType.length > 1
+  const groups = canGroup && order === 'type' ? byType : groupBySection(indexed)
 
   const toggle = (index: number) =>
     setChecked((previous) => {
@@ -259,8 +266,28 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
       <h2 className="font-display text-2xl font-semibold">Ingredients</h2>
       {recipe.yield_text && scale === 1 && <p className="mt-1 text-sm text-graphite">{recipe.yield_text}</p>}
       {children}
+      {canGroup && (
+        <div role="group" aria-label="Ingredient order" className="mt-4 flex flex-wrap gap-2">
+          {(
+            [
+              ['recipe', 'Recipe order'],
+              ['type', 'By type'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={order === value}
+              onClick={() => setOrder(value)}
+              className={`min-h-11 rounded-full px-4 py-2 text-sm ${order === value ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {groupBySection(indexed).map(([section, items]) => (
+      {groups.map(([section, items]) => (
         <div key={section ?? ''} className="mt-6">
           {section && <h3 className="mb-2 font-medium">{section}</h3>}
           <ul data-ingredient-list className="divide-y divide-hairline">
@@ -275,6 +302,7 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
                     onClick={() => toggle(ingredient.index)}
                     className={`flex w-full gap-3 py-3 text-left transition-colors ${done ? 'text-graphite' : ''}`}
                   >
+                    <IngredientIcon item={ingredient.item} className="mt-0.5 size-5 shrink-0 text-graphite" />
                     {hasAmounts && <span className="w-20 shrink-0 font-medium tabular-nums">{amount}</span>}
                     <span className={done ? 'highlight' : ''}>
                       {ingredient.item}
