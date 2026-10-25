@@ -32,6 +32,8 @@ For a release or launch batch, use [references/solo-dev-kit.md](references/solo-
 
 ## Finish
 
+After changing `site/*.css` or `site/*.js`, run `node bin/update-marketing-assets.mjs`. It refreshes the content hashes in `site/index.html`; the frontend tests reject stale asset URLs. Fresh-browser visual QA alone does not cover returning visitors with cached assets.
+
 Check the changed page at 390px and 1280px: no horizontal overflow, readable crops, images loaded, visible keyboard focus, working links and theme controls, reduced motion, and no console errors. Inspect screenshots visually. Run relevant existing checks; run `bin/ci` and the Sizzle pre-PR review before opening a PR as required by the repo.
 
 Return the preview URL, changed assets, useful next invocation, and exact verification limits. Distinguish local previews, drafts, and live publication.
