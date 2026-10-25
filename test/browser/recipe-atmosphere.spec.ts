@@ -52,7 +52,6 @@ async function recipeFixture(page: Page) {
     has_more: false,
     filters: {},
     pending_imports: [],
-    failed_imports: [],
   })
   data.flash = { notice: 'Recipe preview ready' }
   const detail = {

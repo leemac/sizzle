@@ -34,12 +34,17 @@ export default function ImportsIndex({
   const example = useRotatingPlaceholder(app.claude_configured ? LINK_OR_TEXT_EXAMPLES : RECIPE_LINK_EXAMPLES, {
     paused: focused,
   })
-  const { start, stop } = usePoll(2000, { only: ['imports'] }, { autoStart: false })
+  const { start, stop } = usePoll(2000, { only: ['imports', 'failed_import_count'] }, { autoStart: false })
   const pending = imports.some((item) => item.status !== 'done' && item.status !== 'failed')
   const submitted = submittedIds
     .map((id) => imports.find((item) => item.id === id))
     .filter((item) => item !== undefined)
-  const recent = imports.filter((item) => !submittedIds.includes(item.id)).slice(0, 3)
+  const needsAttention = imports.filter(
+    (item) => item.status === 'failed' && !item.dismissed && !submittedIds.includes(item.id),
+  )
+  const recent = imports.filter((item) => !submittedIds.includes(item.id) && !needsAttention.includes(item)).slice(0, 3)
+  // A retried failure moves up to "Your imports", where its progress shows.
+  const track = (id: number) => setSubmittedIds((previous) => [id, ...previous.filter((other) => other !== id)])
   const importingCount = submitted.filter((item) => item.status !== 'done' && item.status !== 'failed').length
   const savedCount = submitted.filter((item) => item.status === 'done').length
   const failedCount = submitted.filter((item) => item.status === 'failed').length
@@ -229,6 +234,22 @@ export default function ImportsIndex({
         </section>
       )}
 
+      {mode === 'import' && needsAttention.length > 0 && (
+        <section id="needs-attention" aria-labelledby="attention-heading" className="mt-12 scroll-mt-24">
+          <h2 id="attention-heading" className="font-display text-2xl font-semibold">
+            Needs attention
+          </h2>
+          <p className="mt-1 text-sm text-graphite">
+            Try these again, write them yourself, or dismiss them to clear the alert.
+          </p>
+          <ul className="mt-4 divide-y divide-hairline">
+            {needsAttention.map((item) => (
+              <ImportRow key={item.id} item={item} onRetry={() => track(item.id)} />
+            ))}
+          </ul>
+        </section>
+      )}
+
       {recent.length > 0 && (
         <section aria-labelledby="recent-heading" className="mt-12">
           <h2 id="recent-heading" className="font-display text-2xl font-semibold">
@@ -247,7 +268,17 @@ export default function ImportsIndex({
 
 ImportsIndex.layout = AppLayout
 
-function ImportRow({ item, fresh = false, index = 0 }: { item: Import; fresh?: boolean; index?: number }) {
+function ImportRow({
+  item,
+  fresh = false,
+  index = 0,
+  onRetry,
+}: {
+  item: Import
+  fresh?: boolean
+  index?: number
+  onRetry?: () => void
+}) {
   const label = item.recipe_title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
   const [entranceDelay] = useState(() => Math.min(index, 4) * 45)
   const { app, preferences } = usePage().props
@@ -319,13 +350,29 @@ function ImportRow({ item, fresh = false, index = 0 }: { item: Import; fresh?: b
                 router.post(
                   `/imports/${item.id}/retry`,
                   { allow_ai: allowAi, automatic_ai: preferences.ai_mode === 'automatic' },
-                  { preserveScroll: true, onSuccess: () => setAllowAi(false) },
+                  {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                      setAllowAi(false)
+                      onRetry?.()
+                    },
+                  },
                 )
               }
               className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
             >
               Try again
             </button>
+            {!item.dismissed && (
+              <button
+                type="button"
+                aria-label={`Dismiss failed import ${label}`}
+                onClick={() => router.post(`/imports/${item.id}/dismiss`, {}, { preserveScroll: true })}
+                className="shrink-0 rounded-full px-4 py-1.5 text-sm text-graphite ring-1 ring-hairline hover:text-ink hover:ring-ink/30"
+              >
+                Dismiss
+              </button>
+            )}
           </div>
         )}
         {item.status === 'failed' && app.claude_configured && (

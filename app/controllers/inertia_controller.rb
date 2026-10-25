@@ -8,6 +8,8 @@ class InertiaController < ApplicationController
   # CSS for themes made in the editor, so one saved after this page loaded still shows.
   inertia_share theme_css: -> { Theme.custom_stylesheet }
   inertia_share preferences: -> { browser_preferences.as_props }
+  # Failed imports nobody has dismissed yet; the header shows the count.
+  inertia_share failed_import_count: -> { Import.needs_attention.count }
 
   private
 

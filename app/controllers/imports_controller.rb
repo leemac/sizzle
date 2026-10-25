@@ -46,6 +46,11 @@ class ImportsController < InertiaController
     redirect_to imports_path, notice: "Retrying."
   end
 
+  def dismiss
+    Import.find(params[:id]).dismiss!
+    redirect_to imports_path
+  end
+
   private
 
   def ai_allowed?
@@ -71,10 +76,15 @@ class ImportsController < InertiaController
     }
   end
 
+  # The latest imports, plus older ones that still need attention, are running
+  # again after a retry, or just finished one. The header's failure count always
+  # leads somewhere, and a retried import keeps showing until you see its result.
   def recent_imports
-    imports = Import.includes(recipe: { cover_attachment: :blob }).recent.limit(30).to_a
-    current = Import.includes(recipe: { cover_attachment: :blob }).find_by(id: params[:current]) if params[:current].present?
-    current ? [ current, *imports ].uniq : imports
+    scope = Import.includes(recipe: { cover_attachment: :blob }).recent
+    imports = scope.limit(30).to_a + scope.needs_attention.limit(30).to_a + scope.pending.limit(30).to_a +
+      scope.where(finished_at: 1.hour.ago..).reorder(finished_at: :desc).limit(30).to_a
+    current = scope.find_by(id: params[:current]) if params[:current].present?
+    [ current, *imports ].compact.uniq
   end
 
   def create_manual_recipe

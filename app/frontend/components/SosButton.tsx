@@ -37,7 +37,7 @@ export default function SosButton({ filters, inGallery }: { filters: RecipeFilte
       title={question}
       onClick={visit}
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full p-2 text-sm sm:py-2 sm:pr-3.5 sm:pl-3 transition-colors ${
-        active ? 'bg-active font-medium text-on-active' : 'bg-paper text-ink ring-1 ring-hairline hover:ring-ink/30'
+        active ? 'bg-active font-medium text-on-active' : 'text-graphite hover:bg-paper hover:text-ink'
       }`}
     >
       <Icon name="lifebuoy" className="size-5 sm:size-4" />

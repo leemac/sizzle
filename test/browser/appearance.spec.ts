@@ -1,6 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
 
 // The radios are visually hidden inside their cards, so click the card like a person would.
+// The header keeps Appearance inside Settings.
+const openAppearance = async (page: Page) => {
+  await page.getByRole('link', { name: 'Settings', exact: true }).click()
+  await page.getByRole('link', { name: 'Change appearance', exact: true }).click()
+}
+
 const choose = (page: Page, name: RegExp) =>
   page
     .locator('label')
@@ -24,7 +30,7 @@ for (const width of [390, 1280]) {
     page.on('pageerror', (error) => errors.push(error.message))
 
     await page.goto('/')
-    await page.getByRole('link', { name: 'Appearance', exact: true }).click()
+    await openAppearance(page)
     await expect(page.getByRole('heading', { name: 'Appearance', exact: true })).toBeVisible()
     await expect(page.getByRole('radio', { checked: true })).toHaveCount(0)
 
@@ -54,7 +60,7 @@ for (const width of [390, 1280]) {
     await page.getByRole('link', { name: 'Sizzle', exact: true }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'sunny-side-up')
 
-    await page.getByRole('link', { name: 'Appearance', exact: true }).click()
+    await openAppearance(page)
     await choose(page, /Beet it/)
     await choose(page, /Dark/)
     await page.getByRole('button', { name: 'Save appearance', exact: true }).click()
