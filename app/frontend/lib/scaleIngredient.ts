@@ -12,7 +12,7 @@ const FRACTIONS: Record<string, number> = {
   '¾': 3 / 4,
   '⅞': 7 / 8,
 }
-const NUMBER = String.raw`(?:\d+\s+\d+\/\d+|\d+\/\d+|\d*[${Object.keys(FRACTIONS).join('')}]|\d+(?:\.\d+)?|\.\d+)`
+const NUMBER = String.raw`(?:\d+\s+\d+\/\d+|\d+\/\d+|(?:\d+\s*)?[${Object.keys(FRACTIONS).join('')}]|\d+(?:\.\d+)?|\.\d+)`
 const LEADING_AMOUNT = new RegExp(
   `^(${NUMBER})(?:\\s*[–—-]\\s*(${NUMBER}))?(?=\\s|$|(?:kg|mg|g|ml|l|oz|lb|tsp|tbsp)\\b)([\\s\\S]*)$`,
   'i',
