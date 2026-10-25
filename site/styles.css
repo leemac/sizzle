@@ -101,11 +101,19 @@ main > section,
 }
 
 .wordmark {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
   padding-bottom: 0.03em;
   font: 750 1.75rem/1 var(--display);
   letter-spacing: -0.045em;
   text-decoration: none;
+}
+
+.wordmark-icon {
+  flex-shrink: 0;
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .sizzle-logo__letters {

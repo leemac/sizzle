@@ -15,7 +15,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-dvh pb-[env(safe-area-inset-bottom)]">
       <header className="sticky top-0 z-20 border-b border-hairline bg-porcelain/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-[0.3em] font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]"
+          >
+            <img src="/icon.svg" alt="" width={32} height={32} className="size-[1.15em] shrink-0" />
             <SizzleLogo />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
