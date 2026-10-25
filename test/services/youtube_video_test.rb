@@ -95,6 +95,12 @@ class YoutubeVideoTest < ActiveSupport::TestCase
     assert_operator page.text.length, :<=, YoutubeVideo::MAX_DESCRIPTION_CHARS + 400
   end
 
+  test "drops bidi overrides and zero-width characters from the channel name" do
+    stub_watch_page(author: "Emma‮'s​ Goodies")
+
+    assert_equal "Emma's Goodies", fetch.site_name
+  end
+
   test "deeply nested player data fails clearly instead of raising" do
     nested = "#{'{"a":' * 500}1#{'}' * 500}"
     stub_request(:get, WATCH_URL).to_return(body: "<script>var ytInitialPlayerResponse = #{nested};</script>",

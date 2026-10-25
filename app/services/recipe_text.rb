@@ -7,6 +7,13 @@ module RecipeText
   MAX_STEP_LENGTH = 10_000
   HEADING = /\A#+(\s+|\z)/ # "# Sauce", but not "#10 can tomatoes"
   MAX_SECTION_LENGTH = 300
+  # Control characters, zero-width spaces and bidi overrides can hide text or make it read in a different order
+  # than it's stored. Tabs, newlines and the joiners that emoji and some scripts need are kept.
+  INVISIBLE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F​‪-‮⁠⁦-⁩﻿]/
+
+  def visible(value)
+    value.to_s.gsub(INVISIBLE, "")
+  end
 
   def plain(value)
     return "" unless value.is_a?(String)

@@ -5,7 +5,16 @@ import RecipeVideo from '@/components/RecipeVideo'
 import CookingMode from '@/components/CookingMode'
 import RecipePrint from '@/components/RecipePrint'
 import AppLayout from '@/layouts/AppLayout'
-import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
+import {
+  formatAmount,
+  formatDay,
+  formatMinutes,
+  formatTimestamp,
+  groupBySection,
+  isToday,
+  sourceLabel,
+  timeAgo,
+} from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 import { scaleIngredient } from '@/lib/scaleIngredient'
 
@@ -410,7 +419,7 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
 
 /** Where the recipe came from and its history, under the photo. */
 function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
-  const source = recipe.source_name || recipe.source_host
+  const source = sourceLabel(recipe.source_name, recipe.source_host)
   const count = recipe.cooks_count
   const stats: [string, string | null, (string | null)?][] = [
     ['Made', count === 0 ? 'Not yet' : count === 1 ? 'Once' : `${count} times`],

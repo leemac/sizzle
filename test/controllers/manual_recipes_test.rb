@@ -35,6 +35,21 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     original_key ? ENV["ANTHROPIC_API_KEY"] = original_key : ENV.delete("ANTHROPIC_API_KEY")
   end
 
+  test "minimal manual recipe saves with blank optional fields and empty lists" do
+    minimal = fields.merge(description: "", source_url: "", servings: "", prep_minutes: "", cook_minutes: "",
+      meal_times: [], seasons: [], ingredients: "# Sauce\n1 cup yogurt")
+
+    assert_difference "Recipe.count", 1 do
+      post imports_url, params: { manual_recipe: minimal }, as: :json
+    end
+    recipe = Recipe.last
+    assert_redirected_to recipe_url(recipe)
+    assert_equal [ [], [] ], recipe.values_at(:meal_times, :seasons)
+    assert_equal [ nil, nil, nil, nil ], recipe.values_at(:servings, :prep_minutes, :cook_minutes, :total_minutes)
+    follow_redirect!(headers: inertia_headers)
+    assert_equal "Sauce", inertia.props[:recipe]["ingredients"].sole["section"]
+  end
+
   test "manual recipes can say when they're good to cook" do
     post imports_url, params: { manual_recipe: fields.merge(meal_times: %w[lunch], seasons: %w[summer]) }
 
@@ -53,6 +68,19 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert inertia.props[:errors]["title"]
     assert inertia.props[:errors]["ingredients"]
     assert inertia.props[:errors]["steps"]
+  end
+
+  %i[meal_times seasons].each do |field|
+    test "rejects unknown #{field} without creating a recipe" do
+      [ [ "unknown" ], [ ManualRecipe::LIST_FIELDS.fetch(field).first, "unknown" ] ].each do |value|
+        assert_no_difference "Recipe.count", "#{field}: #{value.inspect}" do
+          post imports_url, params: { manual_recipe: fields.merge(field => value) }, as: :json
+        end
+        assert_redirected_to imports_url(mode: "manual")
+        follow_redirect!(headers: inertia_headers)
+        assert inertia.props[:errors][field.to_s], "#{field}: #{value.inspect}"
+      end
+    end
   end
 
   test "ingredient groups are plain bounded headings and a bare hash ends a group" do
