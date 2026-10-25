@@ -32,7 +32,6 @@ async function galleryFixture(page: Page, props: Record<string, unknown> = {}) {
     has_more: false,
     filters: {},
     pending_imports: [],
-    failed_imports: [],
     facets: {
       courses: ['drink', 'main', 'baking', 'breakfast', 'bread', 'dessert', 'salad', 'side', 'soup'].map((value) => ({
         value,
@@ -115,16 +114,16 @@ for (const width of [390, 1280]) {
   })
 }
 
-test('background failures stay visible on the gallery', async ({ page }) => {
+test('a background failure shows a count in the header that leads to the imports page', async ({ page }) => {
   const data = await galleryFixture(page, { pending_imports: [sharedImport] })
   await expect(page.getByText('Reading the page', { exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: /failed import/ })).toHaveCount(0)
 
   data.props.pending_imports = []
-  data.props.failed_imports = [{ ...sharedImport, status: 'failed', error: "That doesn't look like a recipe." }]
-  await expect(page.getByRole('region', { name: 'Failed imports' })).toContainText("That doesn't look like a recipe.", {
-    timeout: 10_000,
-  })
-  await expect(page.getByRole('link', { name: 'View imports and retry' })).toHaveAttribute('href', '/imports')
+  data.props.failed_import_count = 1
+  const indicator = page.getByRole('link', { name: '1 failed import. Review imports' })
+  await expect(indicator).toBeVisible({ timeout: 10_000 })
+  await expect(indicator).toHaveAttribute('href', '/imports#needs-attention')
 })
 
 test('links are imported from the Add recipe page, and server errors keep the link', async ({ page }) => {
@@ -161,7 +160,7 @@ async function importsFixture(page: Page) {
     app: { ...data.props.app, claude_configured: true },
   })
   data.flash = { notice: 'Import fixture ready' }
-  const requests: { input: string; allow_ai: boolean; automatic_ai: boolean }[] = []
+  const requests: { input: string; automatic_ai: boolean }[] = []
   await page.route('**/*', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
@@ -210,38 +209,29 @@ for (const width of [390, 1280]) {
     await expect(page.getByText('https://example.com/curry', { exact: true })).toBeVisible()
     await expect(page.getByText('https://example.com/soup', { exact: true })).toBeVisible()
     await expect(input).toHaveValue('')
-    expect(requests).toEqual([{ input: links, allow_ai: false, automatic_ai: false }])
+    expect(requests).toEqual([{ input: links, automatic_ai: true }])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`import-links-${width}.png`), fullPage: true })
     expect(errors).toEqual([])
   })
 }
 
-test('AI permission is explicit and resets after each submission', async ({ page }) => {
+test('Claude is automatic by default and respects the local-only preference', async ({ page }) => {
   const { requests, data } = await importsFixture(page)
-  const permission = page.getByRole('checkbox', { name: 'Allow Claude for this import if needed', exact: true })
-  await expect(permission).not.toBeChecked()
-  await page.locator('#input').fill('https://example.com/approved')
-  await permission.check()
-  await expect(page.getByText(/Page text, recipe data and image links/)).toBeVisible()
-  await page.getByRole('button', { name: 'Import', exact: true }).click()
-  await expect(page.locator('#input')).toHaveValue('')
-  await expect(permission).not.toBeChecked()
-  await page.locator('#input').fill('https://example.com/local-only')
-  await page.getByRole('button', { name: 'Import', exact: true }).click()
-  await expect(page.locator('#input')).toHaveValue('')
-  expect(requests).toEqual([
-    { input: 'https://example.com/approved', allow_ai: true, automatic_ai: false },
-    { input: 'https://example.com/local-only', allow_ai: false, automatic_ai: false },
-  ])
-  data.props.preferences.ai_mode = 'automatic'
-  await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
-  await expect(permission).toHaveCount(0)
-  await expect(page.getByText(/Claude will be used if local extraction needs help/)).toBeVisible()
+  await expect(page.getByRole('checkbox')).toHaveCount(0)
   await page.locator('#input').fill('https://example.com/automatic')
   await page.getByRole('button', { name: 'Import', exact: true }).click()
   await expect(page.locator('#input')).toHaveValue('')
-  expect(requests.at(-1)).toEqual({ input: 'https://example.com/automatic', allow_ai: false, automatic_ai: true })
+  expect(requests.at(-1)).toEqual({ input: 'https://example.com/automatic', automatic_ai: true })
+  data.props.imports[0].status = 'failed'
+  data.props.preferences.ai_mode = 'ask'
+  await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
+  await expect(page.getByText('Claude is turned off for imports in this browser.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('checkbox')).toHaveCount(0)
+  await page.locator('#input').fill('https://example.com/local-only')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.locator('#input')).toHaveValue('')
+  expect(requests.at(-1)).toEqual({ input: 'https://example.com/local-only', automatic_ai: false })
 })
 
 test('a bad link rejects the batch, names the link and keeps the text', async ({ page }) => {
@@ -382,3 +372,61 @@ test('reduced motion keeps submission and completion feedback without decorative
   await expect(card.locator('.import-saved')).toHaveCSS('animation-name', 'none')
   await expect(page.locator('#input')).toHaveValue('')
 })
+
+for (const width of [390, 1280]) {
+  test(`failed video imports link to the source without AI checkboxes at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    const { data } = await importsFixture(page)
+    const videoUrl = 'https://www.youtube.com/shorts/un5GQ_Hc-Tg'
+    await page.locator('#input').fill(videoUrl)
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
+    Object.assign(data.props.imports[0], {
+      status: 'failed',
+      error: "This video's description doesn't include the recipe. Write the recipe manually instead.",
+    })
+    const source = page.getByRole('link', { name: `${videoUrl} (opens in a new tab)`, exact: true })
+    await expect(source).toHaveAttribute('href', videoUrl, { timeout: 10_000 })
+    await expect(source).toHaveAttribute('target', '_blank')
+    await expect(source).toHaveAttribute('rel', 'noopener noreferrer nofollow')
+    await expect(page.getByRole('checkbox')).toHaveCount(0)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`failed-video-${width}.png`), fullPage: true })
+  })
+}
+
+test('failed imports never expose executable source URLs', async ({ page }) => {
+  const { data } = await importsFixture(page)
+  await page.locator('#input').fill('https://example.com/recipe')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  Object.assign(data.props.imports[0], { status: 'failed', url: 'javascript:alert(1)', error: 'Import failed' })
+  await expect(page.getByText('Import failed', { exact: true })).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0)
+})
+
+for (const width of [390, 1280]) {
+  test(`source metadata survives failed imports and refresh at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    const { data } = await importsFixture(page)
+    await page.locator('#input').fill('https://www.youtube.com/shorts/un5GQ_Hc-Tg')
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
+    Object.assign(data.props.imports[0], {
+      status: 'failed',
+      error: 'No recipe found.',
+      source_metadata: {
+        title: 'Easy coconut rice',
+        site_name: 'The rice kitchen',
+        description: 'A simple rice recipe.',
+      },
+    })
+    const source = page.getByRole('link', { name: 'Easy coconut rice (opens in a new tab)', exact: true })
+    await expect(source).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('The rice kitchen', { exact: true })).toBeVisible()
+    await expect(page.getByText('A simple rice recipe.', { exact: true })).toBeVisible()
+    data.props.submitted_import_ids = []
+    await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
+    await expect(page.getByRole('region', { name: 'Needs attention' })).toContainText('Easy coconut rice')
+    await expect(page.locator('li.border svg')).toHaveCount(2)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`source-metadata-${width}.png`), fullPage: true })
+  })
+}

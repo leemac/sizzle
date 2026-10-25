@@ -19,6 +19,7 @@ class Import < ApplicationRecord
 
   scope :pending, -> { where(status: PENDING_STATUSES) }
   scope :recent, -> { order(created_at: :desc) }
+  scope :needs_attention, -> { where(status: "failed", dismissed_at: nil) }
 
   after_create_commit :enqueue
 
@@ -59,8 +60,14 @@ class Import < ApplicationRecord
   def retry!(ai_allowed: self.ai_allowed)
     return unless status == "failed"
 
-    update!(status: "queued", error: nil, finished_at: nil, ai_allowed:)
+    update!(status: "queued", error: nil, finished_at: nil, dismissed_at: nil, ai_allowed:)
     enqueue
+  end
+
+  # Stops a failure asking for attention. Only failures can be dismissed, so a
+  # running or saved import never disappears from the header count by mistake.
+  def dismiss!
+    update!(dismissed_at: Time.current) if status == "failed" && dismissed_at.nil?
   end
 
   # Solid Queue records a killed worker's execution as failed outside perform,

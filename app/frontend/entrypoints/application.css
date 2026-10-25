@@ -260,7 +260,8 @@ a:is(:hover, :focus-visible) .sizzle-logo__flame {
 
 /* Highlighter mark used for checked ingredients and the active step. */
 @utility highlight {
-  background-image: linear-gradient(transparent 55%, var(--color-mark) 55%);
+  background-image: linear-gradient(transparent 20%, var(--color-mark) 20%, var(--color-mark) 85%, transparent 85%);
+  background-size: 100% 1lh;
 }
 
 /* The photo supplies its own colors; the mask turns it into a quiet wash. */

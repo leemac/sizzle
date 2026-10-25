@@ -26,7 +26,7 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     end
     recipe = Recipe.last
     assert_redirected_to recipe_url(recipe)
-    assert_equal [ "1 cup rice", "1 cup coconut milk" ], recipe.ingredients.map { |line| line["item"] }
+    assert_equal [ "rice", "coconut milk" ], recipe.ingredients.map { |line| line["item"] }
     assert_equal [ "Rinse the rice.", "Simmer for 20 minutes." ], recipe.steps.map { |line| line["text"] }
     assert_equal [ 4, 5, 20, 25 ], recipe.values_at(:servings, :prep_minutes, :cook_minutes, :total_minutes)
     follow_redirect!(headers: inertia_headers)
@@ -94,7 +94,7 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert_equal "Rice", rice["section"]
     assert_equal 300, milk["section"].length
     assert_nil tomatoes["section"]
-    assert_equal [ "1 cup rice", "1 cup coconut milk", "#10 can tomatoes" ], recipe.ingredients.map { |line| line["item"] }
+    assert_equal [ "rice", "coconut milk", "#10 can tomatoes" ], recipe.ingredients.map { |line| line["item"] }
     follow_redirect!(headers: inertia_headers)
     assert_equal "Rice", inertia.props[:recipe]["ingredients"].first["section"]
   end
@@ -125,7 +125,7 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
   end
 
   test "rejects excessive or malformed content and invalid numbers" do
-    [ { title: "x" * 301 }, { ingredients: Array.new(201, "rice").join("\n") },
+    [ { ingredients: "\u200b" }, { title: "x" * 301 }, { ingredients: Array.new(201, "rice").join("\n") },
       { steps: "x" * 10_001 }, { servings: "-1" }, { cook_minutes: "tomorrow" },
       { title: "<script>bad()</script>" } ].each do |invalid|
       assert_no_difference "Recipe.count" do
@@ -144,7 +144,7 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
 
     recipe = Recipe.last
     assert_equal "Rice & beans", recipe.title
-    assert_equal "1 cup rice", recipe.ingredients.sole["item"]
+    assert_equal "rice", recipe.ingredients.sole["item"]
     assert_equal "Simmer.", recipe.steps.sole["text"]
     assert_nil recipe.source_url
     assert_nil recipe.source_name

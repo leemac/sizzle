@@ -28,7 +28,9 @@ class StructuredImportPipelineTest < ActiveSupport::TestCase
     assert_equal "done", import.status
     assert_equal "Weeknight Chickpea Curry", import.recipe.title
     assert_equal URL, import.recipe.source_url
-    assert_equal "1 1/2 cups chickpeas, drained", import.recipe.ingredients.sole["item"]
+    assert_equal "chickpeas", import.recipe.ingredients.sole["item"]
+    assert_equal 1.5, import.recipe.ingredients.sole["quantity"]
+    assert_equal "drained", import.recipe.ingredients.sole["preparation"]
     assert import.recipe.cover.attached?
     assert_equal "image/webp", import.recipe.cover.content_type
   end

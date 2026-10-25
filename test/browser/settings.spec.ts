@@ -35,7 +35,7 @@ for (const width of [390, 1280]) {
     await page.goto('/')
     await page.getByRole('link', { name: 'Settings', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
-    await expect(page.getByLabel('When a web import needs Claude')).toHaveValue('ask')
+    await expect(page.getByLabel('When a web import needs Claude')).toHaveValue('automatic')
     await page.getByLabel('Recipe text in cooking mode').selectOption('large')
     await page.getByLabel('Keep the screen awake while cooking').check()
     await page.getByLabel('Recipe order', { exact: true }).selectOption('alphabetical')

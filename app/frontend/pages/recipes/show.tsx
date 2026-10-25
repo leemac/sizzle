@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
+import IngredientIcon from '@/components/IngredientIcon'
 import RecipeVideo from '@/components/RecipeVideo'
 import CookingMode from '@/components/CookingMode'
 import RecipePrint from '@/components/RecipePrint'
@@ -17,6 +18,8 @@ import {
 } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 import { scaleIngredient } from '@/lib/scaleIngredient'
+import { groupByType } from '@/lib/ingredientIcons'
+import { useIngredientOrder } from '@/lib/ingredientOrder'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
   const [servingChoice, setServingChoice] = useState<{
@@ -243,8 +246,12 @@ function RecipeAtmosphere({ url }: { url: string }) {
 
 function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale: number; children: React.ReactNode }) {
   const [checked, setChecked] = useState<Set<number>>(new Set())
+  const [order, setOrder] = useIngredientOrder()
   const indexed = recipe.ingredients.map((ingredient, index) => ({ ...scaleIngredient(ingredient, scale), index }))
   const hasAmounts = recipe.ingredients.some((ingredient) => Boolean(formatAmount(ingredient)))
+  const byType = groupByType(indexed)
+  const canGroup = byType.length > 1
+  const groups = canGroup && order === 'type' ? byType : groupBySection(indexed)
 
   const toggle = (index: number) =>
     setChecked((previous) => {
@@ -259,8 +266,28 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
       <h2 className="font-display text-2xl font-semibold">Ingredients</h2>
       {recipe.yield_text && scale === 1 && <p className="mt-1 text-sm text-graphite">{recipe.yield_text}</p>}
       {children}
+      {canGroup && (
+        <div role="group" aria-label="Ingredient order" className="mt-4 flex flex-wrap gap-2">
+          {(
+            [
+              ['recipe', 'Recipe order'],
+              ['type', 'By type'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={order === value}
+              onClick={() => setOrder(value)}
+              className={`min-h-11 rounded-full px-4 py-2 text-sm ${order === value ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {groupBySection(indexed).map(([section, items]) => (
+      {groups.map(([section, items]) => (
         <div key={section ?? ''} className="mt-6">
           {section && <h3 className="mb-2 font-medium">{section}</h3>}
           <ul data-ingredient-list className="divide-y divide-hairline">
@@ -275,6 +302,7 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
                     onClick={() => toggle(ingredient.index)}
                     className={`flex w-full gap-3 py-3 text-left transition-colors ${done ? 'text-graphite' : ''}`}
                   >
+                    <IngredientIcon item={ingredient.item} className="mt-0.5 size-5 shrink-0 text-graphite" />
                     {hasAmounts && <span className="w-20 shrink-0 font-medium tabular-nums">{amount}</span>}
                     <span className={done ? 'highlight' : ''}>
                       {ingredient.item}
@@ -419,7 +447,7 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
 
 /** Where the recipe came from and its history, under the photo. */
 function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
-  const source = sourceLabel(recipe.source_name, recipe.source_host)
+  const source = sourceLabel(recipe.source_metadata?.site_name || recipe.source_name, recipe.source_host)
   const count = recipe.cooks_count
   const stats: [string, string | null, (string | null)?][] = [
     ['Made', count === 0 ? 'Not yet' : count === 1 ? 'Once' : `${count} times`],
@@ -448,6 +476,24 @@ function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: st
             </>
           )}
         </p>
+      )}
+      {recipe.source_url && recipe.source_metadata?.title && (
+        <div className="mb-4 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline">
+          <p className="mb-1 text-graphite">Original source</p>
+          <a
+            href={recipe.source_url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-start gap-2 font-medium hover:underline"
+          >
+            <Icon name={recipe.youtube_url ? 'youtube' : 'link'} className="mt-0.5 size-4 shrink-0" />
+            <span className="min-w-0 flex-1 break-words">{recipe.source_metadata.title}</span>
+            <Icon name="external" className="mt-0.5 size-4 shrink-0" />
+          </a>
+          {recipe.source_metadata.description && (
+            <p className="mt-2 line-clamp-3 text-graphite">{recipe.source_metadata.description}</p>
+          )}
+        </div>
       )}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline sm:grid-cols-4 lg:grid-cols-2">
         {stats.map(

@@ -33,6 +33,7 @@ module RecipeSerializer
       author: recipe.author,
       source_url: recipe.source_url,
       source_name: recipe.source_name,
+      source_metadata: recipe.source_metadata,
       youtube_url: video_id && YoutubeVideo.watch_url(video_id),
       youtube_duration_seconds: video["duration_seconds"],
       youtube_chapters: Array(video["chapters"]).map do |chapter|

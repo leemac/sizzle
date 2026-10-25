@@ -40,6 +40,19 @@ may ask permission to use Files and contact the server. Use HTTPS or a trusted p
 network for pairing and imports. An authenticating reverse proxy must also permit the
 shortcut's requests; pairing does not bypass proxy authentication.
 
+### Optional cookbook import
+
+`SIZZLE_COOKBOOK_IMPORT=true` lets anyone who can reach the web UI upload a Sizzle cookbook
+export (Settings → Your data) and add its recipes, photos, notes and cooking history. It is
+off by default: with no login, it would let anyone add recipes in bulk. The upload is a
+CSRF-protected, rate-limited POST of a gzip file up to 64 MB, and only one import runs at a
+time. The file is treated as hostile: it's never extracted to disk, archive entry names are
+only matched against a fixed allowlist, entry count and expanded size are capped, and only
+regular files are read. Every recipe field goes through the same validation and length limits
+as other imported content, links must be http(s), and photos are checked and re-encoded like
+downloaded images. The upload is deleted once the import finishes. A recipe that's already
+in the cookbook (same uid, source page, or title and ingredients) is skipped, never changed.
+
 What Sizzle does defend against, because it processes content from the open web and email:
 
 | Risk | Defence |
@@ -47,7 +60,7 @@ What Sizzle does defend against, because it processes content from the open web 
 | **SSRF**: a shared link (or a redirect, or a DNS answer) that points at your router, NAS, or cloud metadata service | `SafeHttp` allows only http/https on ports 80/443, resolves every hostname and rejects private, loopback, link-local and CGNAT addresses, pins the connection to the vetted IP (defeating DNS rebinding), ignores proxy environment variables (a proxy would re-resolve the hostname), and re-checks every redirect. A 30-second monotonic deadline covers DNS, headers, reads and redirects. Private-network fetches are off unless you set `SIZZLE_ALLOW_PRIVATE_NETWORK_FETCH=true`. |
 | **Prompt injection** from hostile pages | The extraction call gives Claude no tools and constrains output to a JSON schema. Page content is labelled as untrusted data. Model output is validated: enums are enforced, and images can only be chosen from candidates the scraper found. |
 | **Stored XSS** from imported content | Imported content is stored and rendered as plain text. React escapes everything; there is no HTML rendering of imports. A strict Content-Security-Policy (`default-src 'self'`) backs this up. |
-| **Malicious images** | Downloads are capped at 15 MB and checked against image magic bytes. Images exceeding 16,000 pixels on either edge or 40 million total pixels are rejected before resizing. libvips runs under `VIPS_BLOCK_UNTRUSTED=1` in every runtime. Accepted images are re-encoded to WebP, stripping metadata; browser upload routes are disabled. |
+| **Malicious images** | Downloads are capped at 15 MB and checked against image magic bytes. Images exceeding 16,000 pixels on either edge or 40 million total pixels are rejected before resizing. libvips runs under `VIPS_BLOCK_UNTRUSTED=1` in every runtime. Accepted images are re-encoded to WebP, stripping metadata. Cookbook import, a browser upload, is off unless you set `SIZZLE_COOKBOOK_IMPORT=true`, and its photos go through the same checks. Uploaded screenshots are covered below. |
 | **Uploaded screenshots** | Write a recipe can send screenshots to Claude to fill in its fields, only when `ANTHROPIC_API_KEY` is set. Up to 4 per request (a larger request body is refused before it's parsed), each capped at 5 MB and accepted only if its magic bytes are PNG, JPEG, WebP or GIF (the browser's content type is ignored). They are sent to Claude and discarded: never stored, decoded or resized by Sizzle. Claude's answer goes through the same validation as any extraction and only fills in the form; nothing is saved until you press Save. The endpoint is CSRF-protected, rate limited and charges the import budget. |
 | **Cross-site requests from your own browser** (CSRF) | The UI uses Rails CSRF tokens. The share API accepts only `application/json`, which browsers can't send cross-site without a CORS preflight that Sizzle never approves. |
 | **DNS rebinding** against the UI | Rails host authorization answers only to IP addresses, bare hostnames, private suffixes (`.local`, `.lan`, `.home.arpa`, `.ts.net`, …) and anything listed in `SIZZLE_HOSTS`. |

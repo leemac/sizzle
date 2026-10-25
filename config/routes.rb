@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   end
   resources :imports, only: %i[index create] do
     post :retry, on: :member
+    post :dismiss, on: :member
   end
   resources :recipe_screenshots, path: "imports/screenshots", only: :create
   get "share", to: "share#show"
@@ -21,6 +22,7 @@ Rails.application.routes.draw do
   resources :shortcut_connections, path: "share/connections", only: %i[create destroy]
   resource :settings, only: %i[show update]
   post "settings/export", to: "cookbook_exports#create", as: :cookbook_export
+  post "settings/import", to: "cookbook_imports#create", as: :cookbook_import
   resource :appearance, only: %i[show update]
   resources :themes, only: %i[new create edit update destroy]
 

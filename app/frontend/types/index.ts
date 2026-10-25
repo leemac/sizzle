@@ -23,6 +23,8 @@ export type SharedProps = {
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string
   preferences: BrowserPreferences
+  /** Failed imports that haven't been dismissed. */
+  failed_import_count: number
 }
 
 export type RecipeSort = 'newest' | 'alphabetical' | 'recently_cooked' | 'never_cooked'
@@ -113,11 +115,18 @@ export type Step = {
   text: string
 }
 
+export type SourceMetadata = {
+  title?: string
+  site_name?: string
+  description?: string
+}
+
 export type RecipeDetail = RecipeCard & {
   description: string | null
   author: string | null
   source_url: string | null
   source_name: string | null
+  source_metadata: SourceMetadata
   youtube_url: string | null
   youtube_duration_seconds: number | null
   youtube_chapters: VideoChapter[]
@@ -178,11 +187,14 @@ export type Import = {
   id: number
   kind: 'url' | 'text'
   origin: 'web' | 'share' | 'email'
+  source_metadata: SourceMetadata
   url: string | null
   text_preview: string | null
   status: ImportStatus
   ai_allowed: boolean
   error: string | null
+  /** A dismissed failure no longer counts in the header. */
+  dismissed: boolean
   recipe_id: number | null
   recipe_title: string | null
   recipe_image_url: string | null
@@ -231,4 +243,23 @@ export type RecipeFilters = {
   max_minutes?: string
   meal?: string
   season?: string
+}
+
+export type CookbookImportStatus = {
+  status: 'queued' | 'running' | 'done' | 'failed'
+  in_progress: boolean
+  /** Queued or running, but no progress for an hour: the worker likely stopped. */
+  stalled: boolean
+  imported_count: number
+  skipped_count: number
+  rejected_count: number
+  error: string | null
+  finished_at: string | null
+}
+
+/** Settings → Your data. enabled mirrors SIZZLE_COOKBOOK_IMPORT. */
+export type CookbookImportSettings = {
+  enabled: boolean
+  max_mib: number
+  latest: CookbookImportStatus | null
 }

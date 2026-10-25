@@ -44,6 +44,7 @@ class YoutubeVideoTest < ActiveSupport::TestCase
 
     assert_equal WATCH_URL, page.canonical_url
     assert_equal "No-Knead Focaccia", page.title
+    assert_includes page.description, "No-knead focaccia"
     assert_equal "Emma's Goodies", page.site_name
     assert_includes page.text, "- 560g bread flour"
     assert_includes page.text, "Video description:"

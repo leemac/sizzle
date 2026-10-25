@@ -9,7 +9,7 @@ class BrowserPreferences
     "sort" => %w[newest alphabetical recently_cooked never_cooked],
     "ai_mode" => %w[ask automatic]
   }.freeze
-  DEFAULTS = { "text_size" => "standard", "keep_awake" => "off", "sort" => "newest", "ai_mode" => "ask" }.freeze
+  DEFAULTS = { "text_size" => "standard", "keep_awake" => "off", "sort" => "newest", "ai_mode" => "automatic" }.freeze
 
   attr_accessor(*CHOICES.keys)
   CHOICES.each do |name, values|

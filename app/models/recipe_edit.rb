@@ -66,13 +66,13 @@ class RecipeEdit < ManualRecipe
 
     whole = value.floor
     fraction = value - whole
-    return whole.to_s if fraction < 0.02
-    return (whole + 1).to_s if fraction > 0.98
+    return whole.to_s if fraction.zero?
 
-    glyph = FRACTIONS.find { |amount, _| (amount - fraction).abs < 0.02 }&.last
+    # Exact equality is intentional: the edit text must reproduce the stored float.
+    glyph = FRACTIONS.find { |amount, _| whole + amount.to_f == value }&.last # rubocop:disable Lint/FloatComparison
     return whole.zero? ? glyph : "#{whole}#{glyph}" if glyph
 
-    value.round(2).to_s
+    BigDecimal(value.to_s).to_s("F")
   end
 
   def self.pluralize_unit(unit, amount)
@@ -130,9 +130,9 @@ class RecipeEdit < ManualRecipe
 
   def parsed_ingredients
     unchanged = Array(recipe.ingredients).group_by { |ingredient| RecipeText.plain(self.class.ingredient_line(ingredient)) }
-    sectioned_lines(ingredients).map do |section, line|
+    sectioned_lines(ingredients).filter_map do |section, line|
       original = unchanged[line]&.shift || RecipeText.ingredient(line)
-      original.merge("section" => section)
+      original&.merge("section" => section)
     end
   end
 

@@ -21,6 +21,23 @@ class RecipeDraft
     @video = video.is_a?(Hash) ? video : {}
   end
 
+  # Page metadata is hostile too. Store bounded plain text, never imported HTML.
+  def self.source_metadata(page)
+    { "title" => [ page.title, 300 ], "site_name" => [ page.site_name, 200 ],
+      "description" => [ page.description, 500 ] }.filter_map do |key, (value, limit)|
+      next unless value.is_a?(String)
+
+      fragment = Nokogiri::HTML5.fragment(value)
+      fragment.css("script, style").remove
+      text = fragment.text.squish.truncate(limit)
+      [ key, text ] if text.present?
+    rescue ArgumentError
+      # HTML5 limits can reject hostile markup inside a meta attribute. Metadata
+      # is optional: skip that field rather than failing the recipe import.
+      nil
+    end.to_h
+  end
+
   def recipe?
     @data["is_recipe"] == true && title.present?
   end
@@ -82,6 +99,21 @@ class RecipeDraft
     Array(@data["step_image_ids"]).filter_map { |id| @images_by_id[id]&.url }.uniq - cover_urls.first(1)
   end
 
+  def ingredients
+    hashes(@data["ingredients"]).filter_map do |line|
+      item = text(line["item"], RecipeText::MAX_INGREDIENT_LENGTH) or next
+      {
+        "section" => text(line["section"], 300),
+        "quantity" => quantity(line["quantity"]),
+        "quantity_max" => quantity(line["quantity_max"]),
+        "unit" => text(line["unit"], 30),
+        "item" => item,
+        "preparation" => text(line["preparation"], 200),
+        "note" => text(line["note"], 300)
+      }
+    end.first(MAX_INGREDIENTS)
+  end
+
   private
 
   # The source's meal times, or a guess from the course when it gives none.
@@ -97,21 +129,6 @@ class RecipeDraft
     uri.to_s if uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.nil?
   rescue URI::InvalidURIError
     nil
-  end
-
-  def ingredients
-    hashes(@data["ingredients"]).filter_map do |line|
-      item = text(line["item"], RecipeText::MAX_INGREDIENT_LENGTH) or next
-      {
-        "section" => text(line["section"], 300),
-        "quantity" => quantity(line["quantity"]),
-        "quantity_max" => quantity(line["quantity_max"]),
-        "unit" => text(line["unit"], 30),
-        "item" => item,
-        "preparation" => text(line["preparation"], 200),
-        "note" => text(line["note"], 300)
-      }
-    end.first(MAX_INGREDIENTS)
   end
 
   def steps

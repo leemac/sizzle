@@ -38,6 +38,11 @@ try {
     await context.route('**/*', (route) =>
       new URL(route.request().url()).origin === base.origin ? route.continue() : route.abort(),
     )
+    // Select supported app preferences; do not override rendered theme CSS.
+    await context.addCookies([
+      { name: 'sizzle_theme', value: 'sunny-side-up', url: base.href },
+      { name: 'sizzle_mode', value: colorScheme, url: base.href },
+    ])
     const page = await context.newPage()
     const errors = []
     page.on('pageerror', (error) => errors.push(error.message))
@@ -47,7 +52,7 @@ try {
     const expected = colorScheme === 'dark' ? 'rgb(20, 20, 22)' : 'rgb(246, 246, 243)'
     if (background !== expected) {
       throw new Error(
-        `Demo does not render ${colorScheme} mode. Use the capture revision in references/screenshots.md.`,
+        `Demo does not render ${colorScheme} mode. Check the appearance preferences and current theme palette.`,
       )
     }
     const links = await page

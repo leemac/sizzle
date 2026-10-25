@@ -38,7 +38,7 @@ class ManualRecipe
     cook = cook_minutes.present? ? cook_minutes.to_i : nil
     @recipe = Recipe.create!(
       title: RecipeText.plain(title), description: RecipeText.plain(description).presence,
-      ingredients: RecipeText.sectioned_lines(ingredients).map { |section, line| RecipeText.ingredient(line).merge("section" => section) },
+      ingredients: RecipeText.sectioned_lines(ingredients).filter_map { |section, line| RecipeText.ingredient(line)&.merge("section" => section) },
       steps: parsed_steps,
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
       total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence,
@@ -87,7 +87,7 @@ class ManualRecipe
   def usable_sections
     return if errors.any?
 
-    errors.add(:ingredients, "needs at least one ingredient, not only headings") if RecipeText.sectioned_lines(ingredients).empty?
+    errors.add(:ingredients, "needs at least one ingredient, not only headings") if RecipeText.sectioned_lines(ingredients).none? { |_, line| RecipeText.visible(line).present? }
     errors.add(:steps, "needs at least one step, not only headings") if RecipeText.sectioned_lines(steps).empty?
   end
 

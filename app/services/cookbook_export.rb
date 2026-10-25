@@ -21,7 +21,7 @@ class CookbookExport
   MAX_IMAGE_BYTES = 16.megabytes
   DOWNLOAD_SECONDS = 30
   LIMIT_MESSAGE = "This cookbook exceeds the export's size or item limits. Use a server backup for larger collections."
-  FIELDS = %w[id title description author source_url source_name source_host servings yield_text
+  FIELDS = %w[id uid title description author source_url source_name source_host servings yield_text
               prep_minutes cook_minutes total_minutes cuisine course main_ingredient diets tags
               ingredients steps tips notes rating created_at updated_at edited_at archived_at
               favorited_at video_metadata meal_times seasons].freeze
@@ -78,7 +78,8 @@ class CookbookExport
       add_text(tar, "README.txt", "Sizzle cookbook export, format version 1.\n" \
         "cookbook.json contains saved and archived recipes, notes, favorites, ratings and cooking history.\n" \
         "Image paths are relative to this archive. Extract with any tar.gz archive tool.\n" \
-        "This is a portable export, not a server backup. Sizzle does not yet restore these exports.\n" \
+        "This is a portable export, not a server backup. Another Sizzle server can import it from\n" \
+        "Settings when SIZZLE_COOKBOOK_IMPORT is on; recipes it already has are skipped.\n" \
         "For backup and restore, follow docs/self-hosting.md in the Sizzle repository.\n")
     end
     gzip.finish

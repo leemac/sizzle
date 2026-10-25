@@ -55,3 +55,24 @@ if (!motion.matches && 'IntersectionObserver' in window) {
     observer.disconnect()
   })
 }
+
+const copyButton = document.querySelector('.copy-code')
+if (copyButton) {
+  copyButton.hidden = false
+  copyButton.addEventListener('click', async () => {
+    const code = document.querySelector('.install code')
+    const status = document.querySelector('.copy-status')
+    try {
+      await navigator.clipboard.writeText(code.textContent)
+      status.textContent = 'Installation commands copied.'
+    } catch {
+      const selection = window.getSelection()
+      const range = document.createRange()
+      range.selectNodeContents(code)
+      selection.removeAllRanges()
+      selection.addRange(range)
+      code.closest('pre').focus()
+      status.textContent = 'Copy unavailable. Commands selected; use your browser’s Copy command.'
+    }
+  })
+}

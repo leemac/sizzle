@@ -43,7 +43,7 @@ class StructuredRecipeExtractor
       "meal_times" => meal_times(data["recipeCategory"]),
       "seasons" => Recipe.seasons_from([ *Array(data["recipeCategory"]), *keywords(data["keywords"]) ]),
       "tags" => [], "main_ingredient" => nil, "tips" => [],
-      "ingredients" => ingredients.map { |line| RecipeText.ingredient(line) }, "steps" => steps,
+      "ingredients" => ingredients, "steps" => steps,
       "hero_image_id" => page.images.first&.id, "step_image_ids" => []
     }
   rescue InvalidRecipe
@@ -73,10 +73,10 @@ class StructuredRecipeExtractor
 
     values.flat_map do |entry|
       text = required_text(entry, maximum: Import::MAX_TEXT_LENGTH)
-      text.lines.map(&:strip).reject(&:empty?).map do |line|
+      text.lines.map(&:strip).reject(&:empty?).filter_map do |line|
         raise InvalidRecipe if line.length > RecipeText::MAX_INGREDIENT_LENGTH
 
-        line
+        RecipeText.ingredient(line)
       end
     end
   end

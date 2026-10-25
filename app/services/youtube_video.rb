@@ -85,7 +85,7 @@ class YoutubeVideo
       canonical_url: @url,
       title:,
       site_name: text(details["author"], PageScraper::MAX_SITE_NAME_CHARS)&.squish,
-      description: nil,
+      description:,
       structured_recipe: linked&.structured_recipe,
       text: truncated ? page_text[0, PageScraper::MAX_TEXT_CHARS] : page_text,
       images: images(linked),

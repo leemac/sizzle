@@ -40,7 +40,7 @@ for (const width of [390, 1280]) {
     await servings.fill('8')
     await expect(page.getByRole('button', { name: '3 cups rice', exact: true })).toHaveAttribute('aria-pressed', 'true')
     await expect(page.getByRole('button', { name: '2–4 tbsp curry paste', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: '2 (400 g) can coconut milk', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '2 cans coconut milk 400 g', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'salt to taste', exact: true })).toBeVisible()
     await expect(page.getByText('Simmer the sauce for 20 minutes.', { exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -74,7 +74,7 @@ for (const width of [390, 1280]) {
 
     await page.getByRole('link', { name: 'Edit recipe', exact: true }).first().click()
     await expect(page.getByLabel('Ingredients', { exact: true })).toHaveValue(
-      '# Rice\n1½ cups rice\n# Sauce\n1–2 tbsp curry paste\n1 (400 g) can coconut milk\n#\nsalt to taste',
+      '# Rice\n1½ cups rice\n# Sauce\n1–2 tbsp curry paste\n1 can coconut milk (400 g)\n#\nsalt to taste',
     )
     await page.getByLabel('Servings', { exact: true }).fill('6')
     await page.getByRole('button', { name: 'Save changes', exact: true }).click()
@@ -100,7 +100,7 @@ test('multiplier controls work without a saved serving count', async ({ page }) 
   await page.getByRole('button', { name: 'Half quantities', exact: true }).click()
   await expect(page.getByRole('button', { name: '¼ cup milk', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Original quantities', exact: true }).click()
-  await expect(page.getByRole('button', { name: '1/2 cup milk', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: '½ cup milk', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
   await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
   await expect(page.getByRole('link', { name: 'Sauce without servings', exact: true })).toHaveCount(0)
