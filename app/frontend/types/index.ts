@@ -12,10 +12,13 @@ export type Appearance = {
   theme: string
   mode: ThemeMode
   chosen: boolean
+  /** The theme's page background in light and dark, for the browser bar. */
+  colors: { light: string; dark: string }
 }
 
 export type SharedProps = {
-  app: { claude_configured: boolean; version: string }
+  /** theme_editor: whether SIZZLE_THEME_EDITOR turns on the theme editor. */
+  app: { claude_configured: boolean; version: string; theme_editor: boolean }
   appearance: Appearance
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string

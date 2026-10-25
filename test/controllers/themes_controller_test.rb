@@ -1,6 +1,47 @@
 require "test_helper"
 
 class ThemesControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @original_setting = ENV["SIZZLE_THEME_EDITOR"]
+    ENV["SIZZLE_THEME_EDITOR"] = "true"
+  end
+
+  teardown do
+    ENV["SIZZLE_THEME_EDITOR"] = @original_setting
+  end
+
+  test "the editor is off unless SIZZLE_THEME_EDITOR is set, and saved themes stay pickable" do
+    custom = CustomTheme.create!(theme_params)
+    ENV.delete("SIZZLE_THEME_EDITOR")
+
+    assert_no_changes -> { [ CustomTheme.count, custom.reload.attributes ] } do
+      get new_theme_url
+      assert_response :not_found
+      get edit_theme_url(custom)
+      assert_response :not_found
+      post themes_url, params: { theme: theme_params(name: "Another") }
+      assert_response :not_found
+      patch theme_url(custom), params: { theme: theme_params(name: "Changed") }
+      assert_response :not_found
+      delete theme_url(custom)
+      assert_response :not_found
+    end
+
+    get appearance_url
+    assert_equal false, inertia.props[:app][:theme_editor]
+    assert_includes inertia.props[:themes].map { |theme| theme["id"] }, custom.theme_id
+    patch appearance_url, params: { theme: custom.theme_id, mode: "light" }
+    assert_redirected_to appearance_url
+    get root_url
+    assert_equal custom.theme_id, inertia.props[:appearance]["theme"]
+  end
+
+  test "the shared props say when the editor is on" do
+    get appearance_url
+
+    assert_equal true, inertia.props[:app][:theme_editor]
+  end
+
   def theme_params(**overrides)
     { name: "Midnight snack", description: "For late cooking.", light: Theme.default.light, dark: Theme.find("pesto").dark }.merge(overrides)
   end
@@ -40,7 +81,7 @@ class ThemesControllerTest < ActionDispatch::IntegrationTest
     custom = CustomTheme.last
     assert_redirected_to appearance_url
     get root_url
-    assert_equal({ "theme" => custom.theme_id, "mode" => "dark", "chosen" => true }, inertia.props[:appearance])
+    assert_equal({ "theme" => custom.theme_id, "mode" => "dark", "chosen" => true }, inertia.props[:appearance].except("colors"))
     assert_select "html[data-theme=#{custom.theme_id}]"
     assert_includes css_block, ":root[data-theme=#{custom.theme_id}]{--color-porcelain:#{Theme.default.light['porcelain']};"
     # Pages reached without a full reload get the new theme's CSS from this prop.
@@ -90,7 +131,7 @@ class ThemesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to appearance_url
     assert_not CustomTheme.exists?(custom.id)
     get root_url
-    assert_equal({ "theme" => "sunny-side-up", "mode" => "light", "chosen" => false }, inertia.props[:appearance])
+    assert_equal({ "theme" => "sunny-side-up", "mode" => "light", "chosen" => false }, inertia.props[:appearance].except("colors"))
   end
 
   test "built-in themes can't be edited or deleted" do

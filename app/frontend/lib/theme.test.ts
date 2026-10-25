@@ -2,6 +2,12 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { applyAppearance, applyCustomThemes, rememberLook, savedLook, schemeFor, themeStyle } from './theme'
 
+const barTags = () =>
+  [...document.querySelectorAll('meta[name="theme-color"]')].map((meta) => [
+    meta.getAttribute('media') ?? '',
+    meta.getAttribute('content'),
+  ])
+
 describe('applyCustomThemes', () => {
   afterEach(() => {
     document.head.innerHTML = ''
@@ -55,13 +61,40 @@ describe('applyAppearance', () => {
     expect(document.documentElement.dataset.mode).toBe('dark')
   })
 
-  it("matches the browser bar to the theme's background", () => {
-    document.head.innerHTML =
-      '<style>:root[data-theme=pesto]{--color-porcelain:#f4f5f1}</style><meta name="theme-color" content="#000000">'
+  const pesto = { light: '#f4f5f1', dark: '#111613' }
 
-    applyAppearance(document.documentElement, 'pesto', 'light')
+  it('gives a fixed mode one browser-bar colour', () => {
+    document.head.innerHTML = '<meta name="theme-color" content="#000000">'
 
-    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#f4f5f1')
+    applyAppearance(document.documentElement, 'pesto', 'light', pesto)
+
+    expect(barTags()).toEqual([['', '#f4f5f1']])
+  })
+
+  it('keeps a light and a dark browser-bar colour in auto, so the bar follows the device', () => {
+    document.head.innerHTML = '<meta name="theme-color" content="#000000">'
+
+    applyAppearance(document.documentElement, 'pesto', 'auto', pesto)
+
+    expect(barTags()).toEqual([
+      ['(prefers-color-scheme: light)', '#f4f5f1'],
+      ['(prefers-color-scheme: dark)', '#111613'],
+    ])
+  })
+
+  it('rebuilds the tags when switching from auto to a fixed mode', () => {
+    applyAppearance(document.documentElement, 'pesto', 'auto', pesto)
+    applyAppearance(document.documentElement, 'pesto', 'dark', pesto)
+
+    expect(barTags()).toEqual([['', '#111613']])
+  })
+
+  it('leaves the browser bar alone when no colours are given', () => {
+    document.head.innerHTML = '<meta name="theme-color" content="#123456">'
+
+    applyAppearance(document.documentElement, 'pesto', 'auto')
+
+    expect(barTags()).toEqual([['', '#123456']])
   })
 })
 
@@ -71,17 +104,18 @@ describe('savedLook', () => {
     root.dataset.theme = 'squid-ink'
     root.dataset.mode = 'light'
 
-    expect(savedLook(root)).toEqual({ theme: 'squid-ink', mode: 'light' })
+    expect(savedLook(root)).toMatchObject({ theme: 'squid-ink', mode: 'light' })
     applyAppearance(root, 'pesto', 'dark')
-    expect(savedLook(root)).toEqual({ theme: 'squid-ink', mode: 'light' })
+    expect(savedLook(root)).toMatchObject({ theme: 'squid-ink', mode: 'light' })
   })
 
-  it('follows looks the server confirms', () => {
+  it('follows looks the server confirms, bar colours included', () => {
     const root = document.createElement('html')
+    const colors = { light: '#f7f5f5', dark: '#151013' }
 
-    rememberLook({ theme: 'beet-it', mode: 'auto' }, root)
+    rememberLook({ theme: 'beet-it', mode: 'auto', colors }, root)
 
-    expect(savedLook(root)).toEqual({ theme: 'beet-it', mode: 'auto' })
+    expect(savedLook(root)).toEqual({ theme: 'beet-it', mode: 'auto', colors })
     expect(root.dataset.theme).toBe('beet-it')
   })
 })

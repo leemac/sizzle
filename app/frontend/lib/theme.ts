@@ -17,37 +17,71 @@ export function schemeFor(mode: ThemeMode, prefersDark: boolean): 'light' | 'dar
   return mode
 }
 
+/** A theme's page background in light and dark, for the browser bar. */
+export type BarColors = { light: string; dark: string }
+
 /**
  * Shows a theme on the whole page. The server renders every theme's colours keyed
  * by these attributes (see Theme#css), so switching them restyles the page.
  */
-export function applyAppearance(root: HTMLElement, theme: string, mode: ThemeMode) {
+export function applyAppearance(root: HTMLElement, theme: string, mode: ThemeMode, colors?: BarColors) {
   root.dataset.theme = theme
   root.dataset.mode = mode
-  const background = getComputedStyle(root).getPropertyValue('--color-porcelain').trim()
-  if (!background) return
-  root.ownerDocument.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-    meta.setAttribute('content', background)
-  })
+  if (colors) applyBarColors(root.ownerDocument, mode, colors)
 }
 
-type Look = { theme: string; mode: ThemeMode }
+/**
+ * Rebuilds <meta name="theme-color"> for a mode: one colour when it's fixed, and a
+ * light and a dark one for auto, so the browser bar follows the device as it changes.
+ */
+export function applyBarColors(doc: Document, mode: ThemeMode, colors: BarColors) {
+  doc.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove())
+  const tags: [string | null, string][] =
+    mode === 'auto'
+      ? [
+          ['(prefers-color-scheme: light)', colors.light],
+          ['(prefers-color-scheme: dark)', colors.dark],
+        ]
+      : [[null, colors[mode]]]
+  for (const [media, color] of tags) {
+    const meta = doc.createElement('meta')
+    meta.setAttribute('name', 'theme-color')
+    meta.setAttribute('content', color)
+    if (media) meta.setAttribute('media', media)
+    doc.head.append(meta)
+  }
+}
+
+/** The bar colours the server rendered, read back so they can be restored later. */
+function renderedBarColors(doc: Document): BarColors | undefined {
+  const metas = [...doc.querySelectorAll('meta[name="theme-color"]')]
+  if (metas.length === 0) return undefined
+  const pick = (scheme: string) =>
+    (metas.find((meta) => meta.getAttribute('media')?.includes(scheme)) ?? metas[0]).getAttribute('content') ?? ''
+  return { light: pick('light'), dark: pick('dark') }
+}
+
+type Look = { theme: string; mode: ThemeMode; colors?: BarColors }
 let saved: Look | null = null
 
 /**
- * The look this browser has saved. It starts from the attributes the server rendered
- * and then follows server responses only: pages restored from history carry the props
- * they had back then, which may name an older look.
+ * The look this browser has saved. It starts from what the server rendered and then
+ * follows server responses only: pages restored from history carry the props they had
+ * back then, which may name an older look.
  */
 export function savedLook(root: HTMLElement = document.documentElement): Look {
-  saved ??= { theme: root.dataset.theme ?? '', mode: (root.dataset.mode as ThemeMode | undefined) ?? 'auto' }
+  saved ??= {
+    theme: root.dataset.theme ?? '',
+    mode: (root.dataset.mode as ThemeMode | undefined) ?? 'dark',
+    colors: renderedBarColors(root.ownerDocument),
+  }
   return saved
 }
 
 /** Records a look the server just confirmed and shows it. */
-export function rememberLook({ theme, mode }: Look, root: HTMLElement = document.documentElement) {
-  saved = { theme, mode }
-  applyAppearance(root, theme, mode)
+export function rememberLook({ theme, mode, colors }: Look, root: HTMLElement = document.documentElement) {
+  saved = { theme, mode, colors }
+  applyAppearance(root, theme, mode, colors)
 }
 
 /**

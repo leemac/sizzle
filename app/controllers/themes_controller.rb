@@ -2,6 +2,8 @@
 # custom theme from a copy of one. Saving a theme also switches this browser to it.
 class ThemesController < InertiaController
   rate_limit to: 20, within: 1.minute, only: %i[create update destroy]
+  # Off unless SIZZLE_THEME_EDITOR is set (see SECURITY.md). Saved themes stay pickable either way.
+  before_action -> { head :not_found unless Sizzle.theme_editor? }
 
   def new
     base = Theme.find(params[:from]) || helpers.appearance.theme

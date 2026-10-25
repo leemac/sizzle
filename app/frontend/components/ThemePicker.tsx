@@ -16,7 +16,7 @@ type Props = {
  * previews the choice live and goes back to the saved look if you leave without saving.
  */
 export default function ThemePicker({ themes, submitLabel }: Props) {
-  const { appearance } = usePage().props
+  const { appearance, app } = usePage().props
   const form = useForm<{ theme: string; mode: ThemeMode | '' }>({
     theme: appearance.chosen ? appearance.theme : '',
     mode: appearance.chosen ? appearance.mode : '',
@@ -28,12 +28,14 @@ export default function ThemePicker({ themes, submitLabel }: Props) {
 
   useEffect(() => {
     const look = savedLook()
-    applyAppearance(document.documentElement, form.data.theme || look.theme, form.data.mode || look.mode)
-  }, [form.data.theme, form.data.mode])
+    const previewed = themes.find((theme) => theme.id === form.data.theme)
+    const colors = previewed ? { light: previewed.light.porcelain, dark: previewed.dark.porcelain } : look.colors
+    applyAppearance(document.documentElement, form.data.theme || look.theme, form.data.mode || look.mode, colors)
+  }, [themes, form.data.theme, form.data.mode])
   useEffect(
     () => () => {
       const look = savedLook()
-      applyAppearance(document.documentElement, look.theme, look.mode)
+      applyAppearance(document.documentElement, look.theme, look.mode, look.colors)
     },
     [],
   )
@@ -110,7 +112,7 @@ export default function ThemePicker({ themes, submitLabel }: Props) {
           })}
         </div>
         <FieldError name="theme" error={form.errors.theme} />
-        {current && (
+        {app.theme_editor && current && (
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href={`/themes/new?from=${encodeURIComponent(current.id)}`}

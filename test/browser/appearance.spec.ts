@@ -38,6 +38,15 @@ for (const width of [390, 1280]) {
     await choose(page, /Auto/)
     await page.emulateMedia({ colorScheme: 'dark' })
     expect(await page.evaluate(background)).toBe('#10131a')
+    // The browser bar keeps a colour for each scheme, so it follows the device too.
+    await expect(page.locator('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')).toHaveAttribute(
+      'content',
+      '#f5f6f8',
+    )
+    await expect(page.locator('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')).toHaveAttribute(
+      'content',
+      '#10131a',
+    )
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`appearance-${width}.png`), fullPage: true })
 

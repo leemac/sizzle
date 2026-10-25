@@ -61,4 +61,12 @@ module Sizzle
   def allow_private_network_fetch?
     env_bool("SIZZLE_ALLOW_PRIVATE_NETWORK_FETCH")
   end
+
+  # --- Themes --------------------------------------------------------------
+
+  # Let people make, change and delete shared custom themes. Off by default:
+  # with no login, anyone who can reach Sizzle could change someone else's.
+  def theme_editor?
+    env_bool("SIZZLE_THEME_EDITOR")
+  end
 end

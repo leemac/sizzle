@@ -4,7 +4,10 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
   test "a new browser gets the default theme in dark, and hasn't chosen yet" do
     get root_url
 
-    assert_equal({ "theme" => "sunny-side-up", "mode" => "dark", "chosen" => false }, inertia.props[:appearance])
+    assert_equal({ "theme" => "sunny-side-up", "mode" => "dark", "chosen" => false }, inertia.props[:appearance].except("colors"))
+    # Both schemes' colours, so the page can rebuild the browser-bar tags for auto.
+    assert_equal({ "light" => Theme.default.light["porcelain"], "dark" => Theme.default.dark["porcelain"] },
+                 inertia.props[:appearance]["colors"])
     assert_select "html[data-theme=sunny-side-up][data-mode=dark]"
     assert_select "meta[name=color-scheme][content=dark]"
     assert_select "meta[name=apple-mobile-web-app-status-bar-style][content=black]"
@@ -33,7 +36,7 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/sizzle_mode=dark;.*samesite=lax/i, cookie_headers)
 
     get root_url
-    assert_equal({ "theme" => "pesto", "mode" => "dark", "chosen" => true }, inertia.props[:appearance])
+    assert_equal({ "theme" => "pesto", "mode" => "dark", "chosen" => true }, inertia.props[:appearance].except("colors"))
     assert_select "html[data-theme=pesto][data-mode=dark]"
     dark = Theme.find("pesto").dark.fetch("porcelain")
     assert_select "meta[name=theme-color][content='#{dark}']", count: 1

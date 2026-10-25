@@ -52,7 +52,8 @@ class Appearance
   end
 
   def as_props
-    { theme: theme.id, mode: effective_mode, chosen: chosen? }
+    { theme: theme.id, mode: effective_mode, chosen: chosen?,
+      colors: { light: theme.light.fetch("porcelain"), dark: theme.dark.fetch("porcelain") } }
   end
 
   private

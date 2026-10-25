@@ -55,8 +55,8 @@
 </picture>
 
 Sizzle starts in the dark Sunny side up theme. Pick another look, or light, dark or auto, any time
-from the Appearance button in the header. Want something else? **Customize** any theme in the built-in theme editor and save it
-as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
+from the Appearance button in the header. Want something else? Set `SIZZLE_THEME_EDITOR=true` to turn on the theme editor, then
+**Customize** any theme and save it as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
 [docs/themes.md](docs/themes.md) to add one.
 
 ## Install

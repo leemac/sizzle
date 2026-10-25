@@ -33,8 +33,13 @@ Name a component's colours by role (`bg-action text-on-action`), never by hue or
 
 ## Making a theme in the app
 
-Anyone using Sizzle can open Appearance, pick a theme and choose **Customize** to start a copy of
-it in the theme editor. The editor has a colour picker and a hex box for every role in light and
+The theme editor is off by default. Turn it on with `SIZZLE_THEME_EDITOR=true` (see
+`.env.example` and `SECURITY.md`): Sizzle has no login, so once it's on, anyone who can reach
+your server can change or delete the themes everyone shares. Themes already made stay pickable
+when it's off.
+
+With it on, anyone using Sizzle can open Appearance, pick a theme and choose **Customize** to start
+a copy of it in the theme editor. The editor has a colour picker and a hex box for every role in light and
 dark, a live preview, and readability warnings for the same pairs the tests check. Saving switches
 that browser to the new theme, and everyone else using the server can pick it too. Custom themes
 can be edited or deleted later; anyone using a deleted one goes back to the default.
