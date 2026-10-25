@@ -244,3 +244,22 @@ export type RecipeFilters = {
   meal?: string
   season?: string
 }
+
+export type CookbookImportStatus = {
+  status: 'queued' | 'running' | 'done' | 'failed'
+  in_progress: boolean
+  /** Queued or running, but no progress for an hour: the worker likely stopped. */
+  stalled: boolean
+  imported_count: number
+  skipped_count: number
+  rejected_count: number
+  error: string | null
+  finished_at: string | null
+}
+
+/** Settings → Your data. enabled mirrors SIZZLE_COOKBOOK_IMPORT. */
+export type CookbookImportSettings = {
+  enabled: boolean
+  max_mib: number
+  latest: CookbookImportStatus | null
+}
