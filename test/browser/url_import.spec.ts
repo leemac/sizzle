@@ -43,7 +43,7 @@ async function galleryFixture(page: Page, props: Record<string, unknown> = {}) {
       diets: [{ value: 'vegan', count: 1 }],
       max_minutes: [30, 60, 120],
     },
-    app: { claude_configured: true },
+    app: { ...data.props.app, claude_configured: true },
     ...props,
   })
   data.flash = { notice: 'Ready' }
@@ -156,7 +156,7 @@ async function importsFixture(page: Page) {
     mode: 'import',
     source_url: null,
     submitted_import_ids: [],
-    app: { claude_configured: true },
+    app: { ...data.props.app, claude_configured: true },
   })
   data.flash = { notice: 'Import fixture ready' }
   const requests: { input: string }[] = []
