@@ -7,9 +7,14 @@
     <meta name="apple-mobile-web-app-title" content="Sizzle">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="<%= appearance.theme_colors[:light] %>" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="<%= appearance.theme_colors[:dark] %>" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-status-bar-style" content="<%= appearance.effective_mode == "dark" ? "black" : "default" %>">
+    <meta name="color-scheme" content="<%= appearance.color_scheme %>">
+    <% if appearance.effective_mode == "auto" %>
+      <meta name="theme-color" content="<%= appearance.theme_colors[:light] %>" media="(prefers-color-scheme: light)">
+      <meta name="theme-color" content="<%= appearance.theme_colors[:dark] %>" media="(prefers-color-scheme: dark)">
+    <% else %>
+      <meta name="theme-color" content="<%= appearance.theme_colors[:light] %>">
+    <% end %>
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

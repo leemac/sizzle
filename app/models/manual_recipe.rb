@@ -11,7 +11,7 @@ class ManualRecipe
   attribute :prep_minutes, :string
   attribute :cook_minutes, :string
   attribute :source_url, :string
-  attr_reader :recipe
+  attr_reader :recipe, :duplicate_recipe
 
   validates :title, presence: true, length: { maximum: 300 }
   validates :description, length: { maximum: 2000 }
@@ -22,6 +22,7 @@ class ManualRecipe
             allow_blank: true
   validates :source_url, length: { maximum: 2048 }
   validate :usable_content
+  validate :usable_sections
   validate :source_url_is_new_web_link, if: -> { source_url.present? }
 
   def save
@@ -31,7 +32,7 @@ class ManualRecipe
     cook = cook_minutes.present? ? cook_minutes.to_i : nil
     @recipe = Recipe.create!(
       title: RecipeText.plain(title), description: RecipeText.plain(description).presence,
-      ingredients: RecipeText.lines(ingredients).map { |line| RecipeText.ingredient(line) },
+      ingredients: RecipeText.sectioned_lines(ingredients).map { |section, line| RecipeText.ingredient(line).merge("section" => section) },
       steps: RecipeText.lines(steps).map { |line| { "section" => nil, "text" => line } },
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
       total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence
@@ -53,6 +54,12 @@ class ManualRecipe
     end
   end
 
+  def usable_sections
+    return if errors.any?
+
+    errors.add(:ingredients, "needs at least one ingredient, not only headings") if RecipeText.sectioned_lines(ingredients).empty?
+  end
+
   # The source is only shown as a link, never fetched, but it must be a web link
   # (no javascript: or data:) and can't duplicate a recipe already saved from it.
   def source_url_is_new_web_link
@@ -61,7 +68,8 @@ class ManualRecipe
     uri = URI.parse(source_url.strip)
     return errors.add(:source_url, "must be a link starting with http:// or https://") unless uri.is_a?(URI::HTTP) && uri.host.present?
 
-    errors.add(:source_url, "is already in your cookbook") if other_recipes.exists?(source_url: Recipe.normalize_url(source_url))
+    @duplicate_recipe = other_recipes.find_by(source_url: Recipe.normalize_url(source_url))
+    errors.add(:source_url, "is already in your cookbook") if duplicate_recipe
   rescue URI::InvalidURIError
     errors.add(:source_url, "isn't a valid link")
   end

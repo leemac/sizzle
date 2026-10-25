@@ -15,7 +15,7 @@ export type Appearance = {
 }
 
 export type SharedProps = {
-  app: { claude_configured: boolean }
+  app: { claude_configured: boolean; version: string }
   appearance: Appearance
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string
@@ -104,6 +104,10 @@ export type RecipeDetail = RecipeCard & {
   author: string | null
   source_url: string | null
   source_name: string | null
+  youtube_url: string | null
+  youtube_duration_seconds: number | null
+  youtube_chapters: VideoChapter[]
+  written_recipe_url: string | null
   servings: number | null
   yield_text: string | null
   prep_minutes: number | null
@@ -128,6 +132,12 @@ export type RecipeDetail = RecipeCard & {
 export type Cook = {
   id: number
   cooked_at: string
+}
+
+export type VideoChapter = {
+  title: string
+  start_seconds: number
+  url: string
 }
 
 export type RecipeEditInput = ManualRecipeInput & {
@@ -158,7 +168,27 @@ export type Import = {
   error: string | null
   recipe_id: number | null
   recipe_title: string | null
+  recipe_image_url: string | null
   created_at: string
+}
+
+export type ImportReview = {
+  token: string
+  entries: {
+    key: string
+    url: string
+    occurrences: number
+    recipe_id: number | null
+    recipe_title: string | null
+    archived: boolean
+    pending_id: number | null
+  }[]
+}
+
+export type SourceDuplicate = {
+  id: number
+  title: string
+  archived: boolean
 }
 
 export type FacetCount = { value: string; count: number }

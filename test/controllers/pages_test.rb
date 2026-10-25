@@ -15,10 +15,21 @@ class PagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "recipes/index", inertia.component
+    assert_equal "dev", inertia.props[:app]["version"]
     card = inertia.props[:recipes].sole
     assert_equal "Chickpea Curry", card[:title]
     assert_match %r{\A/rails/active_storage/}, card[:image_url]
     assert_equal [ { "value" => "main", "count" => 1 } ], inertia.props[:facets]["courses"]
+  end
+
+  test "the browser and installed app start in the default dark palette" do
+    get root_url
+    assert_select 'meta[name="color-scheme"][content="dark"]', count: 1
+    assert_select 'meta[name="theme-color"][content="#141416"]', count: 1
+
+    get pwa_manifest_url(format: :json)
+    assert_equal "#141416", response.parsed_body["theme_color"]
+    assert_equal "#141416", response.parsed_body["background_color"]
   end
 
   test "gallery filters and search" do

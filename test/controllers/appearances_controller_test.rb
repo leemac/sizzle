@@ -1,11 +1,14 @@
 require "test_helper"
 
 class AppearancesControllerTest < ActionDispatch::IntegrationTest
-  test "a new browser gets the default theme following the device, and hasn't chosen yet" do
+  test "a new browser gets the default theme in dark, and hasn't chosen yet" do
     get root_url
 
-    assert_equal({ "theme" => "sunny-side-up", "mode" => "auto", "chosen" => false }, inertia.props[:appearance])
-    assert_select "html[data-theme=sunny-side-up][data-mode=auto]"
+    assert_equal({ "theme" => "sunny-side-up", "mode" => "dark", "chosen" => false }, inertia.props[:appearance])
+    assert_select "html[data-theme=sunny-side-up][data-mode=dark]"
+    assert_select "meta[name=color-scheme][content=dark]"
+    assert_select "meta[name=apple-mobile-web-app-status-bar-style][content=black]"
+    assert_select "meta[name=theme-color][content='#{Theme.default.dark['porcelain']}']", count: 1
     assert_select "head style:not([id])", text: Theme.builtin_stylesheet
     assert_select "head style#sizzle-custom-themes", text: ""
     assert_equal "", inertia.props[:theme_css]
@@ -33,7 +36,18 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "theme" => "pesto", "mode" => "dark", "chosen" => true }, inertia.props[:appearance])
     assert_select "html[data-theme=pesto][data-mode=dark]"
     dark = Theme.find("pesto").dark.fetch("porcelain")
-    assert_select "meta[name=theme-color][content='#{dark}']", count: 2
+    assert_select "meta[name=theme-color][content='#{dark}']", count: 1
+  end
+
+  test "auto gives the browser bar a colour for each device scheme" do
+    patch appearance_url, params: { theme: "pesto", mode: "auto" }
+
+    get root_url
+
+    pesto = Theme.find("pesto")
+    assert_select "meta[name=color-scheme][content='light dark']"
+    assert_select "meta[name=theme-color][media='(prefers-color-scheme: light)'][content='#{pesto.light['porcelain']}']"
+    assert_select "meta[name=theme-color][media='(prefers-color-scheme: dark)'][content='#{pesto.dark['porcelain']}']"
   end
 
   test "saving during setup moves on to the next setup step" do
@@ -67,7 +81,7 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
 
     get root_url
 
-    assert_select "html[data-theme=sunny-side-up][data-mode=auto]"
+    assert_select "html[data-theme=sunny-side-up][data-mode=dark]"
     assert_not_includes response.body, "<script>alert(1)"
     assert_not_includes response.body, "onload=\"alert"
     assert_equal false, inertia.props[:appearance]["chosen"]

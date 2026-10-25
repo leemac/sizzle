@@ -1,8 +1,14 @@
-import { useForm } from '@inertiajs/react'
+import { Link, useForm } from '@inertiajs/react'
 import FieldError, { inputClass } from '@/components/FieldError'
-import type { ManualRecipeInput } from '@/types'
+import type { ManualRecipeInput, SourceDuplicate } from '@/types'
 
-export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | null }) {
+export default function ManualRecipeForm({
+  sourceUrl,
+  duplicate,
+}: {
+  sourceUrl?: string | null
+  duplicate?: SourceDuplicate | null
+}) {
   const form = useForm<ManualRecipeInput>({
     title: '',
     description: '',
@@ -68,12 +74,48 @@ export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | n
           maxLength={2048}
           placeholder="https://…"
           value={form.data.source_url}
-          onChange={(event) => form.setData('source_url', event.target.value)}
+          onChange={(event) => {
+            form.setData('source_url', event.target.value)
+            form.clearErrors('source_url')
+          }}
           className={`${inputClass} placeholder:text-graphite`}
           aria-invalid={!!form.errors.source_url}
           aria-describedby={form.errors.source_url ? 'source_url-error' : undefined}
         />
         <FieldError name="source_url" error={form.errors.source_url} />
+        {duplicate && form.errors.source_url && (
+          <div
+            className="mt-3 rounded-photo border border-hairline p-4 text-sm"
+            role="region"
+            aria-label="Saved recipe"
+          >
+            <p className="font-medium [overflow-wrap:anywhere]">
+              {duplicate.title}
+              {duplicate.archived ? ' · Archived' : ''}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+              <Link href={`/recipes/${duplicate.id}`} className="underline underline-offset-4">
+                Open saved recipe
+              </Link>
+              <Link href={`/recipes/${duplicate.id}/edit`} className="underline underline-offset-4">
+                Edit saved recipe
+              </Link>
+              <button
+                type="button"
+                className="underline underline-offset-4"
+                onClick={() => {
+                  form.setData('source_url', '')
+                  form.clearErrors('source_url')
+                }}
+              >
+                Remove source link
+              </button>
+            </div>
+            <p className="mt-2 text-graphite">
+              To save your version as a separate recipe, remove its source link. Your other fields will stay here.
+            </p>
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-3 gap-3">
         {(
@@ -109,7 +151,8 @@ export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | n
           Ingredients
         </label>
         <p id="ingredients-hint" className="mt-1 text-sm text-graphite">
-          One ingredient per line, including quantities.
+          One ingredient per line, including quantities. Add a group with a heading like # Sauce. Use # alone to end a
+          group.
         </p>
         <textarea
           id="recipe-ingredients"

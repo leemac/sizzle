@@ -29,6 +29,9 @@ for (const width of [390, 1280]) {
     await page.goto('/appearance')
     await choose(page, /^Pesto/)
     await choose(page, /Light/)
+    // Saving a new theme keeps this browser's mode, so save light first (Sizzle starts in dark).
+    await page.getByRole('button', { name: 'Save appearance', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('Appearance saved.')
     await page.getByRole('link', { name: 'Customize Pesto', exact: true }).click()
 
     await expect(page.getByRole('heading', { name: 'New theme', exact: true })).toBeVisible()

@@ -6,7 +6,7 @@
     <title>Sizzle — every recipe you love, minus the life story</title>
     <meta
       name="description"
-      content="Sizzle is a free, open-source, self-hosted cookbook. Share any recipe page from your phone and keep a clean copy: ingredients, steps and the best photo, without the ads."
+      content="Sizzle is a free, open-source cookbook you host yourself. Save recipes from the web and YouTube, browse by photo, and remember what you cooked. AI is optional."
     />
     <meta property="og:title" content="Sizzle" />
     <meta property="og:description" content="Every recipe you love, minus the life story. A self-hosted cookbook." />
@@ -16,8 +16,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Bump ?v= whenever these files change: GitHub Pages caches them for hours. -->
-    <link rel="stylesheet" href="/styles.css?v=3" />
+    <link rel="stylesheet" href="/styles.css?v=8" />
+    <link rel="stylesheet" href="/theme-palettes.css?v=1" />
     <script type="module" src="/sizzle-logo.js?v=2"></script>
+    <script type="module" src="/marketing.js?v=1"></script>
   </head>
   <body>
     <!-- GitHub mark (Primer Octicons, MIT), drawn in the current text colour. -->
@@ -35,7 +37,9 @@
     </svg>
 
     <aside class="notice" aria-label="Project status">
-      <span class="notice-icon"><svg class="icon" aria-hidden="true"><use href="#beaker" /></svg></span>
+      <span class="notice-icon"
+        ><svg class="icon" aria-hidden="true"><use href="#beaker" /></svg
+      ></span>
       <p>
         <strong>Sizzle is in early development.</strong> It works, but expect rough edges and breaking changes between
         versions. <a href="https://github.com/leemac/sizzle/issues">Follow progress on GitHub</a>
@@ -44,7 +48,7 @@
 
     <header class="bar">
       <a href="/" class="wordmark" aria-label="Sizzle"
-        ><span aria-hidden="true"
+        ><img class="wordmark-icon" src="/icon.svg" alt="" width="32" height="32" /><span aria-hidden="true"
           >Si<span class="sizzle-logo__letters"
             >zz<svg class="sizzle-logo__particles" viewBox="0 0 32 32" aria-hidden="true"></svg></span
           >le</span
@@ -60,8 +64,8 @@
         <div class="hero-copy">
           <h1>Every recipe you love, minus the life story.</h1>
           <p class="lede">
-            Sizzle is a cookbook you run yourself. Share a recipe page from your phone and it keeps the ingredients,
-            the steps and the best photo. The ads, pop-ups and 2,000 words about somebody’s grandmother stay behind.
+            Sizzle is a cookbook you run yourself. Share a recipe page from your phone and it keeps the ingredients, the
+            steps and the best photo. The ads, pop-ups and life story stay behind.
           </p>
           <div class="actions">
             <a class="button primary" href="https://github.com/leemac/sizzle#install">Install Sizzle</a>
@@ -72,41 +76,17 @@
           <p class="fineprint">Free and open source under the AGPL. Runs in one small Docker container.</p>
         </div>
 
-        <figure class="strip" aria-label="A cluttered recipe page reduced to a clean recipe card">
-          <div class="page" aria-hidden="true">
-            <div class="page-ad">Advertisement</div>
-            <div class="page-text"><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="page-popup">Join 40,000 home cooks!</div>
-            <div class="page-text"><span></span><span></span><span></span><span></span></div>
-            <div class="page-ad tall">Advertisement</div>
-            <div class="page-text"><span></span><span></span><span></span></div>
-            <div class="page-keep">
-              <b>Ingredients</b>
-              <span></span><span></span><span></span>
-              <b>Method</b>
-              <span></span><span></span>
-            </div>
-            <div class="page-text"><span></span><span></span><span></span></div>
-            <div class="page-ad">Advertisement</div>
+        <figure class="hero-screen">
+          <div class="phone-screen">
+            <img
+              src="/images/recipe-390@2x.webp?v=1"
+              alt="Coconut vegetable korma in Sizzle, with a recipe photo, favorite button and Made today status."
+              width="390"
+              height="1000"
+              fetchpriority="high"
+            />
           </div>
-
-          <article class="card">
-            <div class="card-photo"></div>
-            <h2>Weeknight Chickpea Curry</h2>
-            <dl>
-              <div><dt>Total</dt><dd>30 min</dd></div>
-              <div><dt>Serves</dt><dd>4</dd></div>
-            </dl>
-            <ul>
-              <li><span>1½ cups</span> chickpeas, drained</li>
-              <li><span>1 can</span> coconut milk</li>
-              <li><span>2 tbsp</span> curry paste</li>
-            </ul>
-            <ol>
-              <li>Soften the onion in oil, about 8 minutes.</li>
-              <li>Add everything else and simmer for 20 minutes.</li>
-            </ol>
-          </article>
+          <figcaption>From your collection. Ready for your kitchen.</figcaption>
         </figure>
       </section>
 
@@ -116,53 +96,294 @@
           <li>
             <h3>Share</h3>
             <p>
-              On any recipe page, tap Share, then Save to Sizzle. Pasting a link or the recipe text works too, and
-              forwarding recipes by email is coming soon.
+              Save a recipe from your phone’s share sheet, or paste several links at once. Sharing guides cover iPhone,
+              Android and computers.
             </p>
           </li>
           <li>
             <h3>Sizzle cleans it up</h3>
             <p>
-              Claude reads the page and writes up the recipe: exact quantities, tidy steps, sensible tags. Nothing gets
-              invented, and the junk is dropped.
+              Sizzle reads a page’s recipe data without AI. You can also write recipes yourself, or enable Claude to
+              handle pasted text and pages without recipe data.
             </p>
           </li>
           <li>
             <h3>Cook from your collection</h3>
             <p>
-              Browse a fast, photo-first gallery. Search by ingredient, or filter by course, cuisine, diet and time.
+              Browse a photo grid or a compact list. Search by ingredient, or filter by course, cuisine, diet and time.
+              “I made this” keeps track of when and how often you cook each recipe.
             </p>
           </li>
         </ol>
+        <p class="video-note">
+          <strong>YouTube works too.</strong> Sizzle reads recipes from video descriptions or the recipe pages they link
+          to. Recipes that are only spoken in the video aren’t supported yet.
+        </p>
+      </section>
+
+      <section class="feature" aria-labelledby="import-heading">
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Save it while you’re thinking of it</p>
+          <h2 id="import-heading">A good recipe deserves more than an open tab.</h2>
+          <p>
+            Paste a link, or add up to 20 at once. Sizzle reads the recipe data and brings the ingredients, method and
+            photo into your cookbook.
+          </p>
+          <p>On your phone? Send a page from the share sheet. Have a family favorite? Write it in yourself.</p>
+          <p class="feature-note">
+            No AI needed for pages with recipe data or recipes you write yourself. Claude is an optional fallback.
+          </p>
+        </div>
+        <figure data-reveal class="feature-shot padded-shot">
+          <img
+            src="/images/import-1280@2x.webp?v=1"
+            alt="The real Add a recipe form with two example links, the Write a recipe tab, and the Import button."
+            width="672"
+            height="496"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>Two example links, ready to import. One link per line.</figcaption>
+        </figure>
+      </section>
+
+      <section class="collection" aria-labelledby="collection-heading">
+        <div class="section-heading" data-reveal>
+          <div>
+            <p class="eyebrow">Find something you actually want to cook</p>
+            <h2 id="collection-heading">Your recipes. All in one place.</h2>
+          </div>
+          <p>Browse by photo, search for an ingredient, or narrow things down by course, cuisine, diet and time.</p>
+        </div>
+        <figure data-reveal class="feature-shot wide-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/gallery-390@2x.webp?v=1" width="390" height="575" />
+            <img
+              src="/images/gallery-1280@2x.webp?v=1"
+              alt="Sizzle’s photo grid, with recipe search, Favorites, course filters, time filters and recipe photos."
+              width="1280"
+              height="740"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>The real cookbook, populated with Sizzle’s bundled sample recipes.</figcaption>
+        </figure>
+        <div class="feature list-feature">
+          <div class="feature-copy" data-reveal>
+            <h3>More recipes, less scrolling.</h3>
+            <p>
+              Switch to a compact list when you know what you’re looking for. Photos, cooking times and favorites stay
+              in view.
+            </p>
+          </div>
+          <figure data-reveal class="feature-shot list-shot">
+            <picture>
+              <source media="(max-width: 480px)" srcset="/images/list-390@2x.webp?v=1" width="390" height="1000" />
+              <img
+                src="/images/list-1280@2x.webp?v=1"
+                alt="Compact list view showing recipe thumbnails, names, cuisines, cooking times and favorite markers."
+                width="1280"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+            <figcaption>Same collection. A little more compact.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="cooking" aria-labelledby="cooking-heading">
+        <div class="section-heading" data-reveal>
+          <div>
+            <p class="eyebrow">Made for the kitchen counter</p>
+            <h2 id="cooking-heading">Keep your place.<br />Get dinner made.</h2>
+          </div>
+          <p>
+            Tap ingredients as you add them. Highlight the step you’re on. The recipe stays easy to follow, even when
+            your hands are full.
+          </p>
+        </div>
+        <figure data-reveal class="feature-shot wide-shot padded-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=1" width="358" height="713" />
+            <img
+              src="/images/cooking-1280@2x.webp?v=1"
+              alt="A close-up of the real Ingredients and Method sections: neutral oil is checked off and the first step is highlighted in yellow."
+              width="1232"
+              height="753"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>A closer look at ingredient check-offs and the active cooking step.</figcaption>
+        </figure>
+        <p class="mobile-detail">On a phone, ingredients and method stack into one easy-to-read page.</p>
+      </section>
+
+      <section class="feature remember" aria-labelledby="remember-heading">
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Build a collection you come back to</p>
+          <h2 id="remember-heading">Remember the keepers.</h2>
+          <p>
+            Favorite the recipes worth making again. Tap “I made this” after cooking, and Sizzle remembers when and how
+            often you’ve made each one.
+          </p>
+          <p>Next time someone asks what you cooked last week, it’s right there.</p>
+        </div>
+        <figure data-reveal class="feature-shot history-shot padded-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/history-390@2x.webp?v=1" width="358" height="165" />
+            <img
+              src="/images/history-1280@2x.webp?v=1"
+              alt="Recipe history for the sample Coconut vegetable korma: Made once, last made today, with the recipe’s author and added date."
+              width="500"
+              height="164"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>A sample recipe’s history, after marking it as made.</figcaption>
+        </figure>
+      </section>
+
+      <section class="themes" id="themes" aria-labelledby="themes-heading">
+        <h2 id="themes-heading">Preview upcoming themes</h2>
+        <p class="section-intro">
+          Six themes are in development, with light and dark modes that can follow your device. Try a preview below.
+        </p>
+        <div class="theme-explorer">
+          <div class="theme-controls">
+            <fieldset class="theme-options">
+              <legend>Try a theme</legend>
+              <div class="theme-choices">
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="sunny-side-up" checked />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #ffc21a; --swatch-dark: #ffc21a"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Sunny side up</span>
+                </label>
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="squid-ink" />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #1c1a16; --swatch-dark: #f3f0e8"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Squid ink</span>
+                </label>
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="hot-sauce" />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #d63a22; --swatch-dark: #f0573c"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Hot sauce</span>
+                </label>
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="pesto" />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #1f6b47; --swatch-dark: #6fcf97"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Pesto</span>
+                </label>
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="beet-it" />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #8e2453; --swatch-dark: #f07aab"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Beet it</span>
+                </label>
+                <label class="theme-choice">
+                  <input type="radio" name="preview-theme" value="blue-plate-special" />
+                  <span
+                    class="theme-swatch"
+                    style="--swatch-light: #2a4fc9; --swatch-dark: #7c9cff"
+                    aria-hidden="true"
+                  ></span>
+                  <span>Blue plate special</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="theme-modes">
+              <legend>Preview in</legend>
+              <div class="mode-choices">
+                <label><input type="radio" name="preview-mode" value="light" checked />Light</label>
+                <label><input type="radio" name="preview-mode" value="dark" />Dark</label>
+              </div>
+            </fieldset>
+            <p class="fineprint">Planned: each browser will remember its own look.</p>
+          </div>
+          <figure class="theme-demo">
+            <div
+              class="theme-preview"
+              role="img"
+              aria-label="Coconut vegetable korma recipe preview with ingredients and an I made this button, in the selected theme and mode"
+            >
+              <div class="preview-bar" aria-hidden="true">
+                <span class="preview-logo">Sizzle</span>
+                <span class="preview-action">+ Add recipe</span>
+              </div>
+              <div class="preview-recipe" aria-hidden="true">
+                <img src="/images/vegetable-korma.webp" alt="" width="1200" height="1600" loading="lazy" />
+                <div class="preview-details">
+                  <h3>Coconut vegetable korma</h3>
+                  <p class="preview-meta">40 min · Serves 4</p>
+                  <div class="preview-tags"><span>Main</span><span>Vegan</span></div>
+                  <h4>Ingredients</h4>
+                  <ul class="preview-ingredients">
+                    <li class="preview-checked"><span class="preview-check">✓</span><span>1 tbsp neutral oil</span></li>
+                    <li><span class="preview-check"></span><span>1 onion, finely chopped</span></li>
+                    <li><span class="preview-check"></span><span>400 ml coconut milk</span></li>
+                  </ul>
+                  <span class="preview-made">✓ I made this</span>
+                </div>
+              </div>
+            </div>
+            <figcaption>Theme preview</figcaption>
+          </figure>
+        </div>
       </section>
 
       <section class="selfhost">
         <div>
           <h2>Yours, on your own server</h2>
           <p>
-            Sizzle stores everything in SQLite on your own machine: a home server, a NAS, a Raspberry Pi. There are no
-            accounts, no tracking and no subscription. The only outside service it calls is the Claude API, with your
-            own key.
+            Run Sizzle in one Docker container on a home server, NAS or Raspberry Pi. Your recipes and photos stay on
+            your server, with no tracking or Sizzle subscription.
           </p>
           <p>
-            It’s built to be safe to run at home. Every link it fetches is checked so it can’t be turned against your
-            own network, imported content is never rendered as HTML, and the container runs read-only.
+            Sizzle has no login yet. Keep it on your home network, or use Tailscale to reach it away from home. Optional
+            Claude extraction uses your own API key and is billed by Anthropic.
           </p>
         </div>
-        <pre><code><span class="dim"># with Docker installed</span>
+        <div class="install">
+          <pre><code><span class="dim"># with Docker and Compose installed</span>
 mkdir sizzle &amp;&amp; cd sizzle
 url=https://github.com/leemac/sizzle/releases/latest/download
 curl -fsSLO $url/docker-compose.yml
-curl -fsSL $url/env.example -o .env  <span class="dim"># add your token</span>
-docker compose up -d  <span class="dim"># then open http://&lt;your-server&gt;:3000</span></code></pre>
+curl -fsSL $url/env.example -o .env
+<span class="dim"># edit .env: set SIZZLE_API_TOKEN</span>
+docker compose up -d
+<span class="dim"># open http://&lt;your-server&gt;:3000</span></code></pre>
+          <p class="fineprint"><a href="https://github.com/leemac/sizzle#install">Full installation guide</a></p>
+        </div>
       </section>
 
       <section class="open">
         <h2>Built in the open</h2>
         <p>
-          Sizzle is developed in public as a small software factory: people write the specs, AI coding agents do much
-          of the building, and every change is reviewed by a human before it ships. The issues, the agent playbook and
-          the security model are all on GitHub.
+          Sizzle is free to run, modify and share. The code, roadmap and security model are on GitHub, and bug reports
+          and ideas are welcome.
         </p>
         <a class="button" href="https://github.com/leemac/sizzle/issues">See what’s being built</a>
       </section>

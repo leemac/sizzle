@@ -8,7 +8,9 @@ test.beforeEach(async ({ context }) => {
 })
 
 for (const width of [390, 1280]) {
-  test(`the particle wordmark stays accessible in both themes at ${width}px`, async ({ page }, testInfo) => {
+  test(`the wordmark stays accessible with a dark default under either system theme at ${width}px`, async ({
+    page,
+  }, testInfo) => {
     await page.setViewportSize({ width, height: 900 })
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
@@ -17,6 +19,10 @@ for (const width of [390, 1280]) {
     await expect(logo).toHaveText('Sizzle')
     const particles = logo.locator('rect')
     await expect(particles).toHaveCount(60)
+    const icon = logo.locator('img')
+    await expect(icon).toHaveAttribute('src', '/icon.svg')
+    await expect(icon).toHaveAttribute('alt', '')
+    expect(await icon.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true)
     const positions = () => particles.evaluateAll((pixels) => pixels.map((pixel) => pixel.getAttribute('y')))
     const initial = await positions()
     await expect.poll(positions).not.toEqual(initial)
@@ -31,10 +37,9 @@ for (const width of [390, 1280]) {
     for (const colorScheme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme })
       await page.evaluate(() => document.fonts.ready)
-      await expect(particles.first()).toHaveCSS(
-        'fill',
-        colorScheme === 'dark' ? 'rgb(242, 242, 238)' : 'rgb(24, 24, 27)',
-      )
+      await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
+      await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(20, 20, 22)')
+      await expect(particles.first()).toHaveCSS('fill', 'rgb(242, 242, 238)')
       await logo.focus()
       await expect(logo).toBeFocused()
       expect(await logo.evaluate((link) => getComputedStyle(link).outlineStyle)).toBe('solid')

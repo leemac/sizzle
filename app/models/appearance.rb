@@ -21,7 +21,12 @@ class Appearance
 
   # The chosen theme, built-in or custom. A deleted or unknown one falls back to the default.
   def theme = chosen_theme || Theme.default
-  def effective_mode = MODES.include?(mode) ? mode : "auto"
+  # Sizzle is dark until a browser chooses otherwise.
+  DEFAULT_MODE = "dark"
+  def effective_mode = MODES.include?(mode) ? mode : DEFAULT_MODE
+
+  # For <meta name="color-scheme">, so form controls and scrollbars match before CSS loads.
+  def color_scheme = { "light" => "light", "dark" => "dark" }.fetch(effective_mode, "light dark")
 
   # True once this browser has picked both a theme and a mode.
   def chosen? = valid?
