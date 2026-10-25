@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Sizzle marketing'
+  short_description: 'Turn real Sizzle workflows into useful marketing'
+  default_prompt: 'Use $sizzle-marketing to turn a shipped Sizzle feature into screenshots, landing-page copy, and a concise launch draft.'

@@ -16,9 +16,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Bump ?v= whenever these files change: GitHub Pages caches them for hours. -->
-    <link rel="stylesheet" href="/styles.css?v=5" />
+    <link rel="stylesheet" href="/styles.css?v=8" />
     <link rel="stylesheet" href="/theme-palettes.css?v=1" />
     <script type="module" src="/sizzle-logo.js?v=2"></script>
+    <script type="module" src="/marketing.js?v=1"></script>
   </head>
   <body>
     <!-- GitHub mark (Primer Octicons, MIT), drawn in the current text colour. -->
@@ -75,47 +76,17 @@
           <p class="fineprint">Free and open source under the AGPL. Runs in one small Docker container.</p>
         </div>
 
-        <figure class="strip" aria-label="A cluttered recipe page reduced to a clean recipe card">
-          <div class="page" aria-hidden="true">
-            <div class="page-ad">Advertisement</div>
-            <div class="page-text"><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="page-popup">Join 40,000 home cooks!</div>
-            <div class="page-text"><span></span><span></span><span></span><span></span></div>
-            <div class="page-ad tall">Advertisement</div>
-            <div class="page-text"><span></span><span></span><span></span></div>
-            <div class="page-keep">
-              <b>Ingredients</b>
-              <span></span><span></span><span></span>
-              <b>Method</b>
-              <span></span><span></span>
-            </div>
-            <div class="page-text"><span></span><span></span><span></span></div>
-            <div class="page-ad">Advertisement</div>
+        <figure class="hero-screen">
+          <div class="phone-screen">
+            <img
+              src="/images/recipe-390@2x.webp?v=1"
+              alt="Coconut vegetable korma in Sizzle, with a recipe photo, favorite button and Made today status."
+              width="390"
+              height="1000"
+              fetchpriority="high"
+            />
           </div>
-
-          <article class="card">
-            <div class="card-photo"></div>
-            <h2>Weeknight Chickpea Curry</h2>
-            <dl>
-              <div>
-                <dt>Total</dt>
-                <dd>30 min</dd>
-              </div>
-              <div>
-                <dt>Serves</dt>
-                <dd>4</dd>
-              </div>
-            </dl>
-            <ul>
-              <li><span>1½ cups</span> chickpeas, drained</li>
-              <li><span>1 can</span> coconut milk</li>
-              <li><span>2 tbsp</span> curry paste</li>
-            </ul>
-            <ol>
-              <li>Soften the onion in oil, about 8 minutes.</li>
-              <li>Add everything else and simmer for 20 minutes.</li>
-            </ol>
-          </article>
+          <figcaption>From your collection. Ready for your kitchen.</figcaption>
         </figure>
       </section>
 
@@ -148,19 +119,132 @@
           <strong>YouTube works too.</strong> Sizzle reads recipes from video descriptions or the recipe pages they link
           to. Recipes that are only spoken in the video aren’t supported yet.
         </p>
-        <figure class="cookbook">
-          <picture class="cookbook-screen">
-            <source media="(max-width: 480px)" srcset="/images/cookbook-phone.jpg?v=2" width="390" height="1064" />
+      </section>
+
+      <section class="feature" aria-labelledby="import-heading">
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Save it while you’re thinking of it</p>
+          <h2 id="import-heading">A good recipe deserves more than an open tab.</h2>
+          <p>
+            Paste a link, or add up to 20 at once. Sizzle reads the recipe data and brings the ingredients, method and
+            photo into your cookbook.
+          </p>
+          <p>On your phone? Send a page from the share sheet. Have a family favorite? Write it in yourself.</p>
+          <p class="feature-note">
+            No AI needed for pages with recipe data or recipes you write yourself. Claude is an optional fallback.
+          </p>
+        </div>
+        <figure data-reveal class="feature-shot padded-shot">
+          <img
+            src="/images/import-1280@2x.webp?v=1"
+            alt="The real Add a recipe form with two example links, the Write a recipe tab, and the Import button."
+            width="672"
+            height="496"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>Two example links, ready to import. One link per line.</figcaption>
+        </figure>
+      </section>
+
+      <section class="collection" aria-labelledby="collection-heading">
+        <div class="section-heading" data-reveal>
+          <div>
+            <p class="eyebrow">Find something you actually want to cook</p>
+            <h2 id="collection-heading">Your recipes. All in one place.</h2>
+          </div>
+          <p>Browse by photo, search for an ingredient, or narrow things down by course, cuisine, diet and time.</p>
+        </div>
+        <figure data-reveal class="feature-shot wide-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/gallery-390@2x.webp?v=1" width="390" height="575" />
             <img
-              src="/images/cookbook.jpg?v=2"
-              alt="Sizzle’s cookbook with a recipe search, course filters and a photo gallery of drinks."
+              src="/images/gallery-1280@2x.webp?v=1"
+              alt="Sizzle’s photo grid, with recipe search, Favorites, course filters, time filters and recipe photos."
               width="1280"
-              height="1160"
+              height="740"
               loading="lazy"
               decoding="async"
             />
           </picture>
-          <figcaption>A Sizzle cookbook, filtered to drinks.</figcaption>
+          <figcaption>The real cookbook, populated with Sizzle’s bundled sample recipes.</figcaption>
+        </figure>
+        <div class="feature list-feature">
+          <div class="feature-copy" data-reveal>
+            <h3>More recipes, less scrolling.</h3>
+            <p>
+              Switch to a compact list when you know what you’re looking for. Photos, cooking times and favorites stay
+              in view.
+            </p>
+          </div>
+          <figure data-reveal class="feature-shot list-shot">
+            <picture>
+              <source media="(max-width: 480px)" srcset="/images/list-390@2x.webp?v=1" width="390" height="1000" />
+              <img
+                src="/images/list-1280@2x.webp?v=1"
+                alt="Compact list view showing recipe thumbnails, names, cuisines, cooking times and favorite markers."
+                width="1280"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+            <figcaption>Same collection. A little more compact.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="cooking" aria-labelledby="cooking-heading">
+        <div class="section-heading" data-reveal>
+          <div>
+            <p class="eyebrow">Made for the kitchen counter</p>
+            <h2 id="cooking-heading">Keep your place.<br />Get dinner made.</h2>
+          </div>
+          <p>
+            Tap ingredients as you add them. Highlight the step you’re on. The recipe stays easy to follow, even when
+            your hands are full.
+          </p>
+        </div>
+        <figure data-reveal class="feature-shot wide-shot padded-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=1" width="358" height="713" />
+            <img
+              src="/images/cooking-1280@2x.webp?v=1"
+              alt="A close-up of the real Ingredients and Method sections: neutral oil is checked off and the first step is highlighted in yellow."
+              width="1232"
+              height="753"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>A closer look at ingredient check-offs and the active cooking step.</figcaption>
+        </figure>
+        <p class="mobile-detail">On a phone, ingredients and method stack into one easy-to-read page.</p>
+      </section>
+
+      <section class="feature remember" aria-labelledby="remember-heading">
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Build a collection you come back to</p>
+          <h2 id="remember-heading">Remember the keepers.</h2>
+          <p>
+            Favorite the recipes worth making again. Tap “I made this” after cooking, and Sizzle remembers when and how
+            often you’ve made each one.
+          </p>
+          <p>Next time someone asks what you cooked last week, it’s right there.</p>
+        </div>
+        <figure data-reveal class="feature-shot history-shot padded-shot">
+          <picture>
+            <source media="(max-width: 480px)" srcset="/images/history-390@2x.webp?v=1" width="358" height="165" />
+            <img
+              src="/images/history-1280@2x.webp?v=1"
+              alt="Recipe history for the sample Coconut vegetable korma: Made once, last made today, with the recipe’s author and added date."
+              width="500"
+              height="164"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>A sample recipe’s history, after marking it as made.</figcaption>
         </figure>
       </section>
 
@@ -243,23 +327,23 @@
             <div
               class="theme-preview"
               role="img"
-              aria-label="Ginger lime spritz recipe preview with ingredients and an I made this button, in the selected theme and mode"
+              aria-label="Coconut vegetable korma recipe preview with ingredients and an I made this button, in the selected theme and mode"
             >
               <div class="preview-bar" aria-hidden="true">
                 <span class="preview-logo">Sizzle</span>
                 <span class="preview-action">+ Add recipe</span>
               </div>
               <div class="preview-recipe" aria-hidden="true">
-                <img src="/images/ginger-lime-spritz.webp" alt="" width="1200" height="1162" loading="lazy" />
+                <img src="/images/vegetable-korma.webp" alt="" width="1200" height="1600" loading="lazy" />
                 <div class="preview-details">
-                  <h3>Ginger lime spritz</h3>
-                  <p class="preview-meta">35 min · Makes 4 glasses</p>
-                  <div class="preview-tags"><span>Drink</span><span>Vegan</span></div>
-                  <h4>Ginger syrup</h4>
+                  <h3>Coconut vegetable korma</h3>
+                  <p class="preview-meta">40 min · Serves 4</p>
+                  <div class="preview-tags"><span>Main</span><span>Vegan</span></div>
+                  <h4>Ingredients</h4>
                   <ul class="preview-ingredients">
-                    <li class="preview-checked"><span class="preview-check">✓</span><span>40 g fresh ginger</span></li>
-                    <li><span class="preview-check"></span><span>60 g caster sugar</span></li>
-                    <li><span class="preview-check"></span><span>100 ml water</span></li>
+                    <li class="preview-checked"><span class="preview-check">✓</span><span>1 tbsp neutral oil</span></li>
+                    <li><span class="preview-check"></span><span>1 onion, finely chopped</span></li>
+                    <li><span class="preview-check"></span><span>400 ml coconut milk</span></li>
                   </ul>
                   <span class="preview-made">✓ I made this</span>
                 </div>
