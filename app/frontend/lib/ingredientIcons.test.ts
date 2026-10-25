@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { INGREDIENT_ICONS, ingredientIcon, type IngredientIconName } from './ingredientIcons'
+import { INGREDIENT_ICONS, groupByType, ingredientIcon, type IngredientIconName } from './ingredientIcons'
 
 describe('ingredientIcon', () => {
   it.each<[string, IngredientIconName]>([
@@ -16,6 +16,9 @@ describe('ingredientIcon', () => {
     ['2 tbsp peanut butter', 'nut'],
     ['1 tin coconut milk', 'tin'],
     ['2 cups chicken stock', 'stock'],
+    ['500 ml cold water', 'water'],
+    ['ice cubes, for serving', 'ice'],
+    ['2 scoops vanilla ice cream', 'yogurt'],
   ])('matches %s', (item, icon) => {
     expect(ingredientIcon(item)).toBe(icon)
   })
@@ -58,6 +61,38 @@ describe('ingredientIcon', () => {
     ingredientIcon(`${'('.repeat(2000)}salt ${'a '.repeat(2000)}`)
     ingredientIcon('salt '.repeat(2000))
     expect(performance.now() - started).toBeLessThan(500)
+  })
+})
+
+const lines = (...items: string[]) => items.map((item, index) => ({ item, index }))
+
+describe('groupByType', () => {
+  it('puts ingredients under their kind, kinds in a fixed order, recipe order within each', () => {
+    const groups = groupByType(
+      lines(
+        '4 cups curly kale',
+        '2 TBSP fresh lemon juice',
+        '2 TBSP extra virgin olive oil',
+        '1/4 tsp fresh minced garlic',
+        '1/4 tsp salt',
+        '1/8 tsp black pepper (or to taste)',
+        '1/2 cup croutons',
+        '1/4 cup freshly grated Parmesan cheese',
+        'dried culinary hibiscus',
+      ),
+    )
+    expect(groups.map(([name, items]) => [name, items.map((line) => line.index)])).toEqual([
+      ['Fruit and veg', [0, 1, 3]],
+      ['Dairy', [7]],
+      ['Herbs and spices', [4, 5]],
+      ['Pantry', [6]],
+      ['Oils, sauces and liquids', [2]],
+      ['Other', [8]],
+    ])
+  })
+
+  it('returns nothing for an empty list', () => {
+    expect(groupByType([])).toEqual([])
   })
 })
 
