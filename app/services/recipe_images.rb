@@ -55,7 +55,7 @@ class RecipeImages
     response = @http.get(url, max_bytes: MAX_DOWNLOAD_BYTES, accept: "image/", deadline:)
     to_webp(response.body)
   rescue SafeHttp::Error => e
-    Rails.logger.info("[RecipeImages] skipped #{url}: #{e.message}")
+    Rails.logger.info("[RecipeImages] skipped image (#{e.class.name})")
     nil
   end
 
@@ -70,7 +70,7 @@ class RecipeImages
     Vips::Image.thumbnail_buffer(bytes, MAX_EDGE, height: MAX_EDGE, size: :down)
       .webpsave_buffer(Q: 82, strip: true)
   rescue Vips::Error => e
-    Rails.logger.info("[RecipeImages] could not decode image: #{e.message.lines.first}")
+    Rails.logger.info("[RecipeImages] could not decode image (#{e.class.name})")
     nil
   end
 
