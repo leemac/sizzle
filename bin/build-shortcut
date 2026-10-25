@@ -119,7 +119,7 @@ end(accepted)
 stop("Sizzle did not accept this recipe. Check your connection and reconnect from Sizzle if needed.")
 
 workflow = {
-    "WFWorkflowName": "Save to Sizzle",
+    "WFWorkflowName": "SavetoSizzle",
     "WFWorkflowClientVersion": "2600.0.0",
     "WFWorkflowMinimumClientVersion": 900,
     "WFWorkflowMinimumClientVersionString": "900",
@@ -139,7 +139,7 @@ destination.mkdir(parents=True, exist_ok=True)
 source = destination / "save-to-sizzle.plist"
 source.write_bytes(plistlib.dumps(workflow, sort_keys=False))
 with tempfile.TemporaryDirectory(prefix="sizzle-shortcut-") as scratch:
-    unsigned = pathlib.Path(scratch) / "Save to Sizzle.shortcut"
+    unsigned = pathlib.Path(scratch) / "SavetoSizzle.shortcut"
     signed = pathlib.Path(scratch) / "signed.shortcut"
     unsigned.write_bytes(source.read_bytes())
     subprocess.run(["shortcuts", "sign", "--mode", "anyone", "--input", str(unsigned),

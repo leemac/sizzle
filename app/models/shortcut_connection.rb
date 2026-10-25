@@ -3,6 +3,7 @@ require "digest"
 # Only digests reach the database. The pairing code is single-use; the resulting
 # credential can only submit imports through Api::ShortcutImportsController.
 class ShortcutConnection < ApplicationRecord
+  SHORTCUT_NAME = "SavetoSizzle".freeze
   PAIRING_LIFETIME = 5.minutes
   MAX_CONNECTIONS = 50
 

@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react'
 
 export type ShortcutPairing = {
   download_url: string
+  shortcut_name: string
   connections: { id: number; name: string; connected: boolean }[]
 }
 
 const button =
   'inline-flex min-h-11 items-center justify-center rounded-full px-5 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink'
 
-export default function ShortcutSetup({ download_url, connections }: ShortcutPairing) {
+export default function ShortcutSetup({ download_url, shortcut_name, connections }: ShortcutPairing) {
   const [name, setName] = useState('My iPhone')
   const [busy, setBusy] = useState(false)
   const [connectUrl, setConnectUrl] = useState<string | null>(null)
@@ -62,10 +63,11 @@ export default function ShortcutSetup({ download_url, connections }: ShortcutPai
         <li>
           <h3 className="text-lg font-semibold">1. Add the shortcut</h3>
           <p className="mt-2 text-sm text-graphite">
-            Open this page on your iPhone or iPad. Install the shortcut, then return here to connect it.
+            Save the download, open it in Files and add <strong className="text-ink">{shortcut_name}</strong> in
+            Shortcuts. Then return here to connect it.
           </p>
           <a href={download_url} className={`${button} mt-4 bg-action text-on-action`}>
-            Add “Save to Sizzle”
+            Download shortcut
           </a>
         </li>
         <li>
@@ -108,7 +110,7 @@ export default function ShortcutSetup({ download_url, connections }: ShortcutPai
         </li>
       </ol>
       <p className="mt-7 border-t border-hairline pt-5 text-sm text-graphite">
-        Then open a recipe, tap Share and choose Save to Sizzle. “Sent to Sizzle” means the import was accepted;
+        Then open a recipe, tap Share and choose {shortcut_name}. “Sent to Sizzle” means the import was accepted;
         processing continues in your cookbook.
       </p>
       <div className="mt-7 border-t border-hairline pt-5">

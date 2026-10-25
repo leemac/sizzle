@@ -22,14 +22,24 @@ for (const width of [390, 1280]) {
     const name = `Test phone ${width} ${Date.now()}`
     await page.getByLabel('Connection name').fill(name)
     const downloadPromise = page.waitForEvent('download')
-    await page.getByRole('link', { name: 'Add “Save to Sizzle”' }).click()
-    expect((await downloadPromise).suggestedFilename()).toBe('Save to Sizzle.shortcut')
+    await page.getByRole('link', { name: 'Download shortcut', exact: true }).click()
+    const filename = (await downloadPromise).suggestedFilename()
+    expect(filename).toBe('SavetoSizzle.shortcut')
     await page.getByRole('button', { name: 'Connect shortcut', exact: true }).click()
     const open = page.getByRole('link', { name: 'Open Shortcuts to connect' })
     await expect(open).toBeVisible()
     const url = new URL((await open.getAttribute('href'))!)
     expect(url.protocol).toBe('shortcuts:')
-    const setup = JSON.parse(url.searchParams.get('text')!)
+    // A native URL consumer does not apply HTML form decoding of + characters.
+    const nativeQuery = Object.fromEntries(
+      url.search
+        .slice(1)
+        .split('&')
+        .map((part) => part.split('=').map(decodeURIComponent)),
+    )
+    expect(nativeQuery.name).toBe(filename.replace(/\.shortcut$/, ''))
+    expect(url.search).not.toContain('+')
+    const setup = JSON.parse(nativeQuery.text)
     // The local HTTP request emulates only the shortcut's transport, not iOS.
     const pairing = await context.request.post(localUrl(setup.pairing_url), {
       data: { pairing_token: setup.pairing_token },

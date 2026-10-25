@@ -155,7 +155,8 @@ building the Shortcut in the Shortcuts app.
 
 For the prebuilt shortcut, set `SIZZLE_SHORTCUT_PAIRING=true` and restart Sizzle. Open
 **Share from your phone** on your iPhone using the server's home-network or Tailscale address,
-tap **Add “Save to Sizzle”**, then return and choose **Connect shortcut**. Open the connection
+tap **Download shortcut**, save the file, then open it in Files and add **SavetoSizzle** in
+Shortcuts. Return and choose **Connect shortcut**. Open the connection
 link within five minutes and approve the connection in Shortcuts. You do not need to copy
 `SIZZLE_API_TOKEN`. The original token-protected API remains available for scripts.
 

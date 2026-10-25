@@ -35,8 +35,8 @@ class ShortcutConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "no-store", response.headers["Cache-Control"]
     url = URI(response.parsed_body.fetch("connect_url"))
     assert_equal "shortcuts", url.scheme
-    query = Rack::Utils.parse_query(url.query)
-    assert_equal "Save to Sizzle", query["name"]
+    query = shortcuts_query(url.query)
+    assert_equal "SavetoSizzle", query["name"]
     setup = JSON.parse(query.fetch("text"))
     assert_equal 1, setup["sizzle_pairing"]
     assert_equal api_shortcut_pairings_url, setup["pairing_url"]
@@ -46,6 +46,17 @@ class ShortcutConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { "id" => ShortcutConnection.last.id, "name" => "Kitchen phone", "connected" => true } ], props["connections"]
     assert_not_includes response.body, setup["pairing_token"]
     assert_not_includes response.body, "credential_digest"
+  end
+
+  test "shortcut links percent encode spaces and literal plus signs" do
+    stub_const(ShortcutConnection, :SHORTCUT_NAME, "Save to Sizzle + kitchen") do
+      post shortcut_connections_url, params: { name: "Phone" }, as: :json
+      assert_response :success
+      url = URI(response.parsed_body.fetch("connect_url"))
+      assert_includes url.query, "name=Save%20to%20Sizzle%20%2B%20kitchen"
+      assert_not_includes url.query, "+"
+      assert_equal "Save to Sizzle + kitchen", shortcuts_query(url.query)["name"]
+    end
   end
 
   test "pairing creation and revocation require CSRF protection" do
@@ -103,7 +114,23 @@ class ShortcutConnectionsControllerTest < ActionDispatch::IntegrationTest
     get share_shortcut_url
     assert_response :success
     assert_equal "application/x-shortcut", response.media_type
-    assert_includes response.headers["Content-Disposition"], "Save to Sizzle.shortcut"
+    assert_includes response.headers["Content-Disposition"], 'filename="SavetoSizzle.shortcut"'
+    assert_includes response.headers["Content-Disposition"], "filename*=UTF-8''SavetoSizzle.shortcut"
+    template_name = Rails.root.join("config/shortcuts/save-to-sizzle.plist").read[/<key>WFWorkflowName<\/key>\s*<string>([^<]+)<\/string>/, 1]
+    assert_equal ShortcutConnection::SHORTCUT_NAME, template_name
     assert response.body.bytesize > 1000
+    get share_url
+    assert_equal ShortcutConnection::SHORTCUT_NAME, inertia.props[:shortcut_pairing]["shortcut_name"]
+  end
+
+  private
+
+  # Match Shortcuts' percent-only decoding. HTML form decoders would conceal
+  # the native-app bug by silently converting a literal + back into a space.
+  def shortcuts_query(query)
+    query.split("&").to_h do |part|
+      key, value = part.split("=", 2)
+      [ key, URI::DEFAULT_PARSER.unescape(value) ]
+    end
   end
 end

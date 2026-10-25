@@ -8,6 +8,7 @@ class ShareController < InertiaController
       token_required: Sizzle.api_token.present?,
       shortcut_pairing: Sizzle.shortcut_pairing? ? {
         download_url: share_shortcut_path,
+        shortcut_name: ShortcutConnection::SHORTCUT_NAME,
         connections: ShortcutConnection.visible.order(created_at: :desc).map { |connection|
           { id: connection.id, name: connection.name, connected: connection.connected_at.present? }
         }
@@ -19,7 +20,7 @@ class ShareController < InertiaController
     return head :not_found unless Sizzle.shortcut_pairing?
 
     send_file Rails.root.join("config/shortcuts/save-to-sizzle.shortcut"),
-      filename: "Save to Sizzle.shortcut", type: "application/x-shortcut"
+      filename: "#{ShortcutConnection::SHORTCUT_NAME}.shortcut", type: "application/x-shortcut"
   end
 
   private

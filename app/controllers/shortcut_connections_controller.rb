@@ -6,7 +6,11 @@ class ShortcutConnectionsController < ApplicationController
   def create
     connection, pairing_token = ShortcutConnection.issue!(name: params[:name].to_s.strip)
     setup = { sizzle_pairing: 1, pairing_url: api_shortcut_pairings_url, pairing_token: }
-    query = { name: "Save to Sizzle", input: "text", text: setup.to_json }.to_query
+    # Shortcuts treats + literally; its custom URL scheme needs percent encoding,
+    # rather than HTML form encoding (which represents a space as +).
+    query = { name: ShortcutConnection::SHORTCUT_NAME, input: "text", text: setup.to_json }.map { |key, value|
+      "#{ERB::Util.url_encode(key.to_s)}=#{ERB::Util.url_encode(value)}"
+    }.join("&")
     response.headers["Cache-Control"] = "no-store"
     render json: { connect_url: "shortcuts://run-shortcut?#{query}", expires_at: connection.pairing_expires_at.iso8601 }
   rescue ActiveRecord::RecordInvalid, ArgumentError => e
