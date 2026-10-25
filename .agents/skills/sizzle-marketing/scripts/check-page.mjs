@@ -29,7 +29,10 @@ try {
       page.on('response', (response) => {
         if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`)
       })
+      // Keep summer uncached for the delayed-image check, regardless of today's season.
+      await page.clock.setFixedTime(new Date(2026, 9, 15, 12))
       assert.equal((await page.goto(base.href)).status(), 200)
+      await expect(page.locator('input[name="hero-season"]:checked')).toHaveValue('autumn')
       const background = colorScheme === 'dark' ? 'rgb(20, 20, 22)' : 'rgb(246, 246, 243)'
       const suffix = colorScheme === 'dark' ? '-dark' : ''
       assert(await page.getByLabel('System', { exact: true }).isChecked())
@@ -57,21 +60,18 @@ try {
 
       // Hold an uncached card back: the old stack must stay intact, even with rapid selections.
       let releaseImage
-      let imageRequested
+      let imageRequested = false
       const imageGate = new Promise((resolve) => {
         releaseImage = resolve
       })
-      const requested = new Promise((resolve) => {
-        imageRequested = resolve
-      })
       const delayedImage = '**/images/hero-berry-tarts*'
       await page.route(delayedImage, async (route) => {
-        imageRequested()
+        imageRequested = true
         await imageGate
         await route.continue()
       })
       await page.locator('input[name="hero-season"][value="summer"]').check()
-      await requested
+      await expect.poll(() => imageRequested, { message: 'An uncached summer card must be requested' }).toBe(true)
       await expect(activeSeason).toHaveAttribute('data-season', 'autumn')
       await page.locator('input[name="hero-season"][value="winter"]').check()
       await expect(activeSeason).toHaveAttribute('data-season', 'winter')
