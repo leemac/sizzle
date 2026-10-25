@@ -7,6 +7,71 @@
 - Optional: an [Anthropic API key](https://console.anthropic.com/settings/keys) for pages without
   usable recipe data and for unstructured pasted text.
 
+## Try on your computer
+
+Start Docker, then run this in a terminal. No Compose file, account or AI key is needed.
+The trial is available only on this computer at **http://localhost:3001**, and uses a separate
+container and storage volume from a Compose installation.
+
+```sh
+docker run -d --name sizzle-try \
+  -p 127.0.0.1:3001:80 \
+  --read-only --security-opt no-new-privileges:true \
+  --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 \
+  --tmpfs /tmp:mode=1777 \
+  -v sizzle-try-storage:/rails/storage \
+  ghcr.io/leemac/sizzle:latest
+```
+
+Allow a moment for the first start, then open the address above. If it does not open, check
+`docker logs --tail 50 sizzle-try`; see [troubleshooting](#troubleshooting) below.
+
+You can write your own recipe, import a link with structured recipe data, or optionally load
+21 bundled sample recipes and photos:
+
+```sh
+docker exec -e SEED_ANYWAY=1 sizzle-try ./bin/docker-entrypoint ./bin/rails db:seed
+```
+
+Run this after the app opens. Samples need no network access or AI key and are labelled
+**Sizzle sample kitchen**. Their stock photos illustrate the dishes. Repeating the command
+preserves existing recipes and edits. Refresh the cookbook, open a recipe, try cooking mode,
+then try **Settings → Your data → Download cookbook** to see the portable archive.
+An export is not a complete server backup; see [Back up](#back-up) before relying on this trial
+for your own collection.
+
+### Stop, resume or remove the trial
+
+Stop it while keeping all recipes and photos:
+
+```sh
+docker stop sizzle-try
+```
+
+Resume the same cookbook:
+
+```sh
+docker start sizzle-try
+```
+
+To remove the trial container, while still keeping its data:
+
+```sh
+docker stop sizzle-try
+docker rm sizzle-try
+```
+
+The original `docker run` command reconnects to that saved data. Only if you also want to
+**permanently delete every recipe and photo in the trial**, remove its volume after removing
+the container:
+
+```sh
+docker volume rm sizzle-try-storage
+```
+
+The trial cannot be reached from your phone. For a household cookbook, use the server
+installation below. Its storage is separate; it does not automatically copy trial recipes.
+
 ## Install
 
 No clone or build needed. Download the compose file and settings from the latest release:
@@ -15,13 +80,61 @@ No clone or build needed. Download the compose file and settings from the latest
 mkdir sizzle && cd sizzle
 curl -fsSLO https://github.com/leemac/sizzle/releases/latest/download/docker-compose.yml
 curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
-# edit .env: set SIZZLE_API_TOKEN (openssl rand -hex 32), and ANTHROPIC_API_KEY if you want AI
-docker compose up -d
 ```
+
+Generate a share API token:
+
+```sh
+openssl rand -hex 32
+```
+
+Open `.env` in a text editor, paste the generated value after `SIZZLE_API_TOKEN=`, and save.
+Leave `ANTHROPIC_API_KEY` empty to use structured imports and manual recipes without AI.
+The share token does not password-protect the web UI: keep Sizzle on your trusted home or
+private network, as described in [SECURITY.md](../SECURITY.md).
+
+Then start Sizzle and wait for its health check:
+
+```sh
+docker compose up -d --wait
+```
+
+When the command succeeds, open **http://localhost:3000** on the server, or
+**http://<server-ip>:3000** from another device on your home network. Write a recipe or import
+a recipe link first; phone sharing can be set up afterwards.
 
 Sizzle listens on port 3000 (change it with `SIZZLE_PORT`). Everything it stores lives in the
 `sizzle-storage` Docker volume: SQLite databases, recipe photos, and a generated secret key.
 The footer in Sizzle shows which version you're running.
+
+### Apply settings changes
+
+After editing `.env`, recreate the container to load the new values. Your storage volume is kept:
+
+```sh
+docker compose up -d --force-recreate --wait
+```
+
+`docker compose restart` restarts the process with its previous environment; it does not reload `.env`.
+
+### Troubleshooting
+
+- **Cannot connect to the Docker daemon:** start Docker Desktop or your server's Docker service,
+  then retry the command.
+- **Port already in use:** set `SIZZLE_PORT=3002` in `.env` for Compose, then recreate the container
+  and open port 3002. For the trial, change `127.0.0.1:3001:80` to `127.0.0.1:3002:80` before starting it.
+- **The trial name already exists:** use `docker start sizzle-try` to resume it, or follow the
+  [removal steps](#stop-resume-or-remove-the-trial) before creating another trial.
+- **Startup fails or the page does not open:** run `docker compose ps` and
+  `docker compose logs --tail 50` (for the trial, `docker logs --tail 50 sizzle-try`).
+  Check that you used the correct server address and port. A message saying Claude is not
+  configured is informational; it does not prevent structured imports or manual recipes.
+- **A recipe link will not import:** some sites block requests or have no usable recipe data.
+  Try **Write a recipe**; optional Claude extraction can help with pages that have readable
+  recipe text but no structured data.
+
+For help, [open an issue](https://github.com/leemac/sizzle/issues) with your Sizzle version,
+platform and error message. Remove tokens, keys and private recipe content from anything you share.
 
 ## Versions
 
@@ -140,7 +253,7 @@ tailscale serve --bg 3000
 ```
 
 Your app is now at `https://<server-name>.<tailnet>.ts.net`. Set `SIZZLE_ASSUME_SSL=true` in
-`.env` and restart.
+`.env`, then run `docker compose up -d --force-recreate --wait` to apply it.
 
 ## Behind a reverse proxy
 
@@ -153,7 +266,8 @@ reachable from the internet, put authentication in front of it (see [SECURITY.md
 Open **Share from your phone** in Sizzle. It shows the exact URL to use and walks through
 building the Shortcut in the Shortcuts app.
 
-For the prebuilt shortcut, set `SIZZLE_SHORTCUT_PAIRING=true` and restart Sizzle. Open
+For the prebuilt shortcut, set `SIZZLE_SHORTCUT_PAIRING=true`, then run
+`docker compose up -d --force-recreate --wait`. Open
 **Share from your phone** on your iPhone using the server's home-network or Tailscale address,
 tap **Download shortcut**, save the file, then open it in Files and add **SavetoSizzle** in
 Shortcuts. Return and choose **Connect shortcut**. Open the connection

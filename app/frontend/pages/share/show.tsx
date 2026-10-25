@@ -90,7 +90,7 @@ export default function ShareShow({ endpoint, shortcut_endpoints, token_required
               ? 'Only connect devices you trust. Anyone who can use this page can connect or disconnect a shortcut.'
               : token_required
                 ? 'Each method below sends the token with every share. Requests without it are refused.'
-                : 'That’s fine on a home network you trust. To require a token, set SIZZLE_API_TOKEN in your server’s .env file and restart Sizzle.'}{' '}
+                : 'That’s fine on a home network you trust. To require a token, set SIZZLE_API_TOKEN in your server’s .env file, then run docker compose up -d --force-recreate --wait to apply it.'}{' '}
             Don’t put Sizzle on the open internet: it has no login yet.
           </p>
         </section>

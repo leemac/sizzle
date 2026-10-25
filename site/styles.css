@@ -908,6 +908,19 @@ main h2 {
   min-width: 0;
 }
 
+.install h3 {
+  margin: 28px 0 16px;
+}
+
+.install h3:first-child {
+  margin-top: 0;
+}
+
+.install p {
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+
 .selfhost h2 + p {
   margin-top: 24px;
 }

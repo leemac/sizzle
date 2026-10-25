@@ -11,7 +11,7 @@ if [ -z "${SECRET_KEY_BASE}" ]; then
 fi
 
 if [ -z "${ANTHROPIC_API_KEY}" ]; then
-  echo "WARNING: ANTHROPIC_API_KEY is not set. Sizzle will run, but imports will fail until it is." >&2
+  echo "Claude is not configured. Structured recipe imports and manual recipes work without an API key."
 fi
 
 # If running the rails server then create or migrate existing database

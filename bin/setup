@@ -17,7 +17,7 @@ FileUtils.chdir APP_ROOT do
   system! "npm ci --no-audit --no-fund"
 
   unless File.exist?(".env")
-    puts "\n== Creating .env from .env.example (add your ANTHROPIC_API_KEY) =="
+    puts "\n== Creating .env from .env.example (AI is optional; no API key needed) =="
     FileUtils.cp ".env.example", ".env"
   end
 
