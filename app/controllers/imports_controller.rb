@@ -76,11 +76,13 @@ class ImportsController < InertiaController
     }
   end
 
-  # The latest imports, plus older ones that still need attention or are running
-  # again after a retry, so the header's failure count always leads somewhere.
+  # The latest imports, plus older ones that still need attention, are running
+  # again after a retry, or just finished one. The header's failure count always
+  # leads somewhere, and a retried import keeps showing until you see its result.
   def recent_imports
     scope = Import.includes(recipe: { cover_attachment: :blob }).recent
-    imports = scope.limit(30).to_a + scope.needs_attention.limit(30).to_a + scope.pending.limit(30).to_a
+    imports = scope.limit(30).to_a + scope.needs_attention.limit(30).to_a + scope.pending.limit(30).to_a +
+      scope.where(finished_at: 1.hour.ago..).reorder(finished_at: :desc).limit(30).to_a
     current = scope.find_by(id: params[:current]) if params[:current].present?
     [ current, *imports ].compact.uniq
   end

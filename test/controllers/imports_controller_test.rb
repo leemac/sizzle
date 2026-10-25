@@ -158,6 +158,22 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ failed ], Import.needs_attention.to_a
   end
 
+  test "an old failure stays on the imports page after a retry saves it" do
+    old = Import.create!(kind: "url", url: "https://example.com/old", origin: "web", created_at: 2.days.ago)
+    old.fail!("Could not import")
+    30.times { |index| Import.create!(kind: "url", url: "https://example.com/#{index}", origin: "web").succeed!(Recipe.create!(title: "Recipe #{index}")) }
+
+    post retry_import_url(old)
+    get imports_url
+    assert_includes inertia.props[:imports].map { |item| item[:id] }, old.id, "still shown while it runs"
+
+    old.reload.succeed!(Recipe.create!(title: "Old pie"))
+    get imports_url
+    saved = inertia.props[:imports].find { |item| item[:id] == old.id }
+    assert_equal "done", saved[:status]
+    assert_equal "Old pie", saved[:recipe_title]
+  end
+
   test "the imports page lists failures older than the latest thirty" do
     old = Import.create!(kind: "url", url: "https://example.com/old", origin: "web", created_at: 2.days.ago)
     old.fail!("Could not import")
