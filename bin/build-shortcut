@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Build the credential-free shortcut on macOS; Apple signs the static template.
+
+Connection data is supplied at runtime and is never part of the signed file.
+The plist uses native Shortcuts actions only, with no third-party apps or scripts.
+"""
+import pathlib
+import plistlib
+import subprocess
+import tempfile
+import uuid
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+ACTIONS = []
+
+
+def action(identifier, **parameters):
+    identifier = "is.workflow.actions." + identifier
+    ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"sizzle:{len(ACTIONS)}:{identifier}")).upper()
+    parameters["UUID"] = ident
+    ACTIONS.append({"WFWorkflowActionIdentifier": identifier, "WFWorkflowActionParameters": parameters})
+    return {"Type": "ActionOutput", "OutputUUID": ident, "OutputName": "Result"}
+
+
+def attachment(value):
+    return {"Value": value, "WFSerializationType": "WFTextTokenAttachment"}
+
+
+def text(*parts):
+    value = ""
+    attachments = {}
+    for part in parts:
+        if isinstance(part, dict):
+            attachments[f"{{{len(value)}, 1}}"] = part
+            value += "\ufffc"
+        else:
+            value += part
+    return {"Value": {"string": value, "attachmentsByRange": attachments}, "WFSerializationType": "WFTextTokenString"}
+
+
+def dictionary(**values):
+    return {"Value": {"WFDictionaryFieldValueItems": [
+        {"WFItemType": 0, "WFKey": text(key), "WFValue": value if isinstance(value, dict) and value.get("WFSerializationType") == "WFTextTokenString" else text(value)}
+        for key, value in values.items()
+    ]}, "WFSerializationType": "WFDictionaryFieldValue"}
+
+
+def get(source, key):
+    return action("getvalueforkey", WFInput=attachment(source), WFDictionaryKey=text(key), WFGetDictionaryValueType="Value")
+
+
+def condition(source, code, literal=None):
+    group = str(uuid.uuid5(uuid.NAMESPACE_URL, f"sizzle:condition:{len(ACTIONS)}")).upper()
+    parameters = {"WFControlFlowMode": 0, "GroupingIdentifier": group, "WFCondition": code,
+                  "WFInput": {"Type": "Variable", "Variable": attachment(source)}}
+    if literal is not None:
+        parameters["WFConditionalActionString"] = text(literal)
+    action("conditional", **parameters)
+    return group
+
+
+def end(group):
+    action("conditional", WFControlFlowMode=2, GroupingIdentifier=group)
+
+
+def stop(message):
+    action("alert", WFAlertActionTitle=text("Save to Sizzle"), WFAlertActionMessage=text(message), WFAlertActionCancelButtonShown=False)
+    action("exit")
+
+
+def post(url, body, headers=None):
+    return action("downloadurl", WFURL=text(url), WFHTTPMethod="POST", WFHTTPBodyType="JSON",
+                  WFJSONValues=dictionary(**body), WFHTTPHeaders=dictionary(**(headers or {})))
+
+
+def notify(message):
+    action("notification", WFNotificationActionBody=text(message), WFNotificationActionTitle=text("Sizzle"), WFNotificationActionSound=False)
+
+
+action("comment", WFCommentActionText="Connect from your Sizzle sharing page once. Connection data stays in Shortcuts/sizzle-connection.json in iCloud Drive. Never share that file. This template contains no credentials.")
+shared = action("gettext", WFTextActionText=text({"Type": "ExtensionInput"}))
+empty = condition(shared, 101)
+stop("Open Share from your phone in Sizzle to connect, or share a recipe to this shortcut.")
+end(empty)
+
+setup_branch = condition(shared, 8, '{"sizzle_pairing":1,')
+setup = action("detect.dictionary", WFInput=attachment(shared))
+pair_url = get(setup, "pairing_url")
+pair_token = get(setup, "pairing_token")
+action("alert", WFAlertActionTitle=text("Connect to Sizzle?"),
+       WFAlertActionMessage=text("Connect this shortcut to ", pair_url, "? Only continue if this is your cookbook. This replaces any previous connection saved on this Apple account."),
+       WFAlertActionCancelButtonShown=True)
+connection = post(pair_url, {"pairing_token": pair_token})
+connection_token = get(connection, "token")
+bad_pairing = condition(connection_token, 101)
+stop("Could not connect. The link may have expired or been used. Return to Sizzle and connect again.")
+end(bad_pairing)
+connection_text = action("gettext", WFTextActionText=text(connection))
+action("documentpicker.save", WFInput=attachment(connection_text), WFAskWhereToSave=False,
+       WFFileDestinationPath="sizzle-connection.json", WFSaveFileOverwrite=True)
+notify("Connected to Sizzle. You can now share a recipe.")
+action("exit")
+end(setup_branch)
+
+file = action("documentpicker.open", WFGetFilePath="sizzle-connection.json", WFFileErrorIfNotFound=False,
+              WFShowFilePicker=False)
+missing = condition(file, 101)
+stop("Connect this shortcut first. Open Share from your phone in Sizzle and tap Connect shortcut.")
+end(missing)
+configuration = action("detect.dictionary", WFInput=attachment(file))
+endpoint = get(configuration, "endpoint")
+credential = get(configuration, "token")
+response = post(endpoint, {"text": shared}, {"Authorization": text("Bearer ", credential)})
+status = get(response, "status")
+accepted = condition(status, 4, "queued")
+notify("Sent to Sizzle. Importing continues in your cookbook.")
+action("exit")
+end(accepted)
+stop("Sizzle did not accept this recipe. Check your connection and reconnect from Sizzle if needed.")
+
+workflow = {
+    "WFWorkflowName": "SavetoSizzle",
+    "WFWorkflowClientVersion": "2600.0.0",
+    "WFWorkflowMinimumClientVersion": 900,
+    "WFWorkflowMinimumClientVersionString": "900",
+    "WFWorkflowIcon": {"WFWorkflowIconStartColor": 4271458815, "WFWorkflowIconGlyphNumber": 59511},
+    "WFWorkflowActions": ACTIONS,
+    "WFWorkflowTypes": ["ActionExtension"],
+    "WFQuickActionSurfaces": [],
+    "WFWorkflowInputContentItemClasses": ["WFURLContentItem", "WFStringContentItem"],
+    "WFWorkflowOutputContentItemClasses": [],
+    "WFWorkflowImportQuestions": [],
+    "WFWorkflowHasShortcutInputVariables": True,
+    "WFWorkflowNoInputBehavior": {"Name": "WFWorkflowNoInputBehaviorContinue"},
+}
+
+destination = ROOT / "config" / "shortcuts"
+destination.mkdir(parents=True, exist_ok=True)
+source = destination / "save-to-sizzle.plist"
+source.write_bytes(plistlib.dumps(workflow, sort_keys=False))
+with tempfile.TemporaryDirectory(prefix="sizzle-shortcut-") as scratch:
+    unsigned = pathlib.Path(scratch) / "SavetoSizzle.shortcut"
+    signed = pathlib.Path(scratch) / "signed.shortcut"
+    unsigned.write_bytes(source.read_bytes())
+    subprocess.run(["shortcuts", "sign", "--mode", "anyone", "--input", str(unsigned),
+                    "--output", str(signed)], check=True)
+    (destination / "save-to-sizzle.shortcut").write_bytes(signed.read_bytes())
+(destination / "save-to-sizzle.shortcut").chmod(0o644)
+print(f"Built Save to Sizzle ({len(ACTIONS)} native actions; no embedded credentials).")

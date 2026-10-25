@@ -152,3 +152,24 @@ reachable from the internet, put authentication in front of it (see [SECURITY.md
 
 Open **Share from your phone** in Sizzle. It shows the exact URL to use and walks through
 building the Shortcut in the Shortcuts app.
+
+For the prebuilt shortcut, set `SIZZLE_SHORTCUT_PAIRING=true` and restart Sizzle. Open
+**Share from your phone** on your iPhone using the server's home-network or Tailscale address,
+tap **Download shortcut**, save the file, then open it in Files and add **SavetoSizzle** in
+Shortcuts. Return and choose **Connect shortcut**. Open the connection
+link within five minutes and approve the connection in Shortcuts. You do not need to copy
+`SIZZLE_API_TOKEN`. The original token-protected API remains available for scripts.
+
+Connected shortcuts appear on the sharing page; **Disconnect** immediately revokes one.
+Pairing is available to anyone who can use the web UI, so keep Sizzle on your trusted network
+or behind authentication. See [shortcut pairing security](../SECURITY.md#optional-shortcut-pairing).
+An authenticating reverse proxy may require additional setup for Shortcuts.
+
+The shortcut stores its connection in `Shortcuts/sizzle-connection.json` in iCloud Drive.
+It connects to one cookbook per Apple account; reconnecting replaces that file. Do not share
+the connection file. Shortcuts may ask permission to use Files and contact your server.
+“Sent to Sizzle” means the server accepted the request, not that extraction has finished.
+
+Maintainers can rebuild the credential-free template on a Mac with `bin/build-shortcut`.
+Apple signs the static file for distribution; no user's connection or API token is embedded.
+The signed asset is bundled with Sizzle, so self-hosted servers do not need macOS or signing tools.

@@ -49,6 +49,10 @@ module Sizzle
     env("SIZZLE_API_TOKEN")
   end
 
+  def shortcut_pairing?
+    env_bool("SIZZLE_SHORTCUT_PAIRING")
+  end
+
   # --- Network -------------------------------------------------------------
 
   # Extra hostnames allowed in the Host header (DNS-rebinding protection).

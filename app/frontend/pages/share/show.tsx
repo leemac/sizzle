@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react'
 import { useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import Tabs from '@/components/Tabs'
+import ShortcutSetup, { type ShortcutPairing } from '@/components/ShortcutSetup'
 import AppLayout from '@/layouts/AppLayout'
 import { copyText } from '@/lib/clipboard'
 import { isTailscaleHost } from '@/lib/network'
@@ -9,7 +10,12 @@ import { detectPlatform } from '@/lib/platform'
 
 type ShortcutEndpoint = { url: string; network: 'home' | 'tailscale' | null }
 
-type Props = { endpoint: string; shortcut_endpoints: ShortcutEndpoint[]; token_required: boolean }
+type Props = {
+  endpoint: string
+  shortcut_endpoints: ShortcutEndpoint[]
+  token_required: boolean
+  shortcut_pairing?: ShortcutPairing | null
+}
 
 const NETWORK_LABELS = { home: 'On your home Wi-Fi', tailscale: 'Through Tailscale, at home or away' }
 
@@ -19,7 +25,7 @@ const code = 'rounded-md bg-porcelain px-1.5 py-0.5 text-[0.9em] ring-1 ring-hai
 const button =
   'inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm ring-1 ring-hairline hover:ring-ink/30'
 
-export default function ShareShow({ endpoint, shortcut_endpoints, token_required }: Props) {
+export default function ShareShow({ endpoint, shortcut_endpoints, token_required, shortcut_pairing }: Props) {
   const tailscaleOnServer = shortcut_endpoints.some(({ network }) => network === 'tailscale')
   const viaTailscale = isTailscaleHost(new URL(endpoint).hostname)
 
@@ -29,6 +35,8 @@ export default function ShareShow({ endpoint, shortcut_endpoints, token_required
       <p className="mt-4 max-w-xl text-graphite">
         Save recipes from your phone’s share sheet, or from a script on your computer. Set it up once, then it’s a tap.
       </p>
+
+      {shortcut_pairing && <ShortcutSetup {...shortcut_pairing} />}
 
       <section aria-labelledby="address-heading" className={`mt-8 ${card}`}>
         <h2 id="address-heading" className="font-display text-2xl font-semibold">
@@ -70,13 +78,19 @@ export default function ShareShow({ endpoint, shortcut_endpoints, token_required
           <h2 id="private-heading" className="font-display text-xl font-semibold">
             Who can add recipes
           </h2>
-          <Status done={token_required}>
-            {token_required ? 'Shares need your API token' : 'Anyone who can reach this server can add recipes'}
+          <Status done={!!shortcut_pairing || token_required}>
+            {shortcut_pairing
+              ? 'Shortcuts connect without copying a key'
+              : token_required
+                ? 'Shares need your API token'
+                : 'Anyone who can reach this server can add recipes'}
           </Status>
           <p className="mt-4 text-sm text-graphite">
-            {token_required
-              ? 'Each method below sends the token with every share. Requests without it are refused.'
-              : 'That’s fine on a home network you trust. To require a token, set SIZZLE_API_TOKEN in your server’s .env file and restart Sizzle.'}{' '}
+            {shortcut_pairing
+              ? 'Only connect devices you trust. Anyone who can use this page can connect or disconnect a shortcut.'
+              : token_required
+                ? 'Each method below sends the token with every share. Requests without it are refused.'
+                : 'That’s fine on a home network you trust. To require a token, set SIZZLE_API_TOKEN in your server’s .env file and restart Sizzle.'}{' '}
             Don’t put Sizzle on the open internet: it has no login yet.
           </p>
         </section>
@@ -84,14 +98,27 @@ export default function ShareShow({ endpoint, shortcut_endpoints, token_required
 
       <section aria-labelledby="methods-heading" className="mt-12">
         <h2 id="methods-heading" className="font-display text-3xl font-semibold">
-          Set up sharing
+          {shortcut_pairing ? 'Other ways to share' : 'Set up sharing'}
         </h2>
         <div className="mt-5">
           <Tabs
             label="Share from"
             initial={detectPlatform(navigator.userAgent)}
             tabs={[
-              { id: 'ios', label: 'iPhone and iPad', content: <IosSetup tokenRequired={token_required} /> },
+              {
+                id: 'ios',
+                label: 'iPhone and iPad',
+                content: shortcut_pairing ? (
+                  <details>
+                    <summary className="cursor-pointer py-3 font-medium">
+                      Advanced setup: build a shortcut manually
+                    </summary>
+                    <IosSetup tokenRequired={token_required} />
+                  </details>
+                ) : (
+                  <IosSetup tokenRequired={token_required} />
+                ),
+              },
               { id: 'android', label: 'Android', content: <AndroidSetup tokenRequired={token_required} /> },
               {
                 id: 'computer',
