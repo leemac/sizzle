@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_210100) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_200000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "cookbook_imports", force: :cascade do |t|
+    t.string "status", default: "queued", null: false
+    t.integer "imported_count", default: 0, null: false
+    t.integer "skipped_count", default: 0, null: false
+    t.integer "rejected_count", default: 0, null: false
+    t.string "error"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "cooks", force: :cascade do |t|
@@ -69,9 +80,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_200000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "active_job_id"
-    t.json "source_metadata", default: {}, null: false
     t.boolean "ai_allowed", default: true, null: false
     t.datetime "dismissed_at"
+    t.json "source_metadata", default: {}, null: false
     t.index ["created_at"], name: "index_imports_on_created_at"
     t.index ["recipe_id"], name: "index_imports_on_recipe_id"
     t.index ["status"], name: "index_imports_on_status"
@@ -109,6 +120,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_200000) do
     t.json "meal_times", default: [], null: false
     t.json "seasons", default: [], null: false
     t.json "source_metadata", default: {}, null: false
+    t.string "uid", null: false
     t.index ["archived_at"], name: "index_recipes_on_archived_at"
     t.index ["course"], name: "index_recipes_on_course"
     t.index ["created_at"], name: "index_recipes_on_created_at"
@@ -117,6 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_200000) do
     t.index ["main_ingredient"], name: "index_recipes_on_main_ingredient"
     t.index ["source_url"], name: "index_recipes_on_source_url", unique: true
     t.index ["total_minutes"], name: "index_recipes_on_total_minutes"
+    t.index ["uid"], name: "index_recipes_on_uid", unique: true
   end
 
   create_table "shortcut_connections", force: :cascade do |t|

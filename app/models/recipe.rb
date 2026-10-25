@@ -21,6 +21,9 @@ class Recipe < ApplicationRecord
 
   scope :favorites, -> { where.not(favorited_at: nil) }
 
+  # Stable across instances: exports carry it, so an import recognizes recipes you already have.
+  before_validation(on: :create) { self.uid ||= SecureRandom.uuid }
+
   validates :title, presence: true, length: { maximum: 300 }
   validates :course, inclusion: { in: COURSES }, allow_nil: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true

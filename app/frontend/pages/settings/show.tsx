@@ -1,9 +1,10 @@
 import { Link, useForm, usePage } from '@inertiajs/react'
 import type { ReactNode } from 'react'
+import CookbookImportForm from '@/components/CookbookImportForm'
 import AppLayout from '@/layouts/AppLayout'
 import FieldError, { inputClass } from '@/components/FieldError'
 import { RECIPE_SORTS } from '@/lib/recipeSort'
-import type { BrowserPreferences } from '@/types'
+import type { BrowserPreferences, CookbookImportSettings } from '@/types'
 
 type Instance = {
   api_protected: boolean
@@ -21,6 +22,7 @@ type Instance = {
     build_seconds: number
     download_seconds: number
   }
+  cookbook_import: CookbookImportSettings
 }
 const sections = [
   ['appearance', 'Appearance'],
@@ -211,8 +213,8 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
               </button>
             </form>
             <p className="mt-3 text-sm text-graphite">
-              Downloads a .tar.gz archive with readable JSON and original images. Export is portable; restoring an
-              export into Sizzle is not yet supported.
+              Downloads a .tar.gz archive with readable JSON and original images. Another Sizzle server can import it
+              below.
             </p>
             <p className="mt-3 text-sm text-graphite">
               Up to {instance.export_limits.recipes.toLocaleString()} recipes and {instance.export_limits.mib} MiB. Only
@@ -242,6 +244,11 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
               </a>
               .
             </p>
+            <h3 className="mt-8 font-display text-xl font-semibold">Import a cookbook</h3>
+            <p className="mt-2 mb-4 text-sm text-graphite">
+              Add the recipes, photos, notes and cooking history from another Sizzle cookbook export.
+            </p>
+            <CookbookImportForm settings={instance.cookbook_import} buttonClass={linkClass} />
           </Section>
           <Section id="about" title="About this instance" hint="Server configuration is managed by your host.">
             <dl className="divide-y divide-hairline text-sm">
