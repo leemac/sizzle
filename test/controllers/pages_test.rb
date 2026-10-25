@@ -92,6 +92,16 @@ class PagesTest < ActionDispatch::IntegrationTest
 
     assert_equal "share/show", inertia.component
     assert_equal api_imports_url, inertia.props[:endpoint]
+    assert_equal [ { "url" => api_imports_url, "network" => nil } ], inertia.props[:shortcut_endpoints]
+  end
+
+  test "share setup page never offers the phone a localhost address" do
+    get "http://localhost/share"
+
+    assert_equal "http://localhost/api/imports", inertia.props[:endpoint]
+    inertia.props[:shortcut_endpoints].each do |endpoint|
+      assert_not ServerAddresses.loopback_host?(URI(endpoint["url"]).host), endpoint["url"]
+    end
   end
 
   test "history encryption is enabled over HTTPS and omitted for LAN HTTP" do
