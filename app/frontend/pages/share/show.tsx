@@ -78,7 +78,7 @@ function CopyField({ value }: { value: string }) {
         onClick={() => {
           void navigator.clipboard?.writeText(value).then(() => setCopied(true))
         }}
-        className="shrink-0 rounded-full bg-yolk px-3 py-1.5 text-sm font-medium text-[#18181b]"
+        className="shrink-0 rounded-full bg-action px-3 py-1.5 text-sm font-medium text-on-action"
       >
         {copied ? 'Copied' : 'Copy'}
       </button>

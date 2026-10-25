@@ -15,7 +15,7 @@ export default function ImportStatusLabel({ status }: { status: ImportStatus }) 
 
   return (
     <span className={`inline-flex items-center gap-2 text-sm ${tone}`}>
-      {pending && <span className="size-2 animate-pulse rounded-full bg-yolk" aria-hidden="true" />}
+      {pending && <span className="size-2 animate-pulse rounded-full bg-active" aria-hidden="true" />}
       {STATUS_TEXT[status]}
     </span>
   )

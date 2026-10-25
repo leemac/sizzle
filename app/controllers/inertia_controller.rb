@@ -4,4 +4,5 @@
 # (page.flash); shared props here are available on every page via usePage().
 class InertiaController < ApplicationController
   inertia_share app: -> { { claude_configured: Sizzle.claude_configured? } }
+  inertia_share appearance: -> { helpers.appearance.as_props }
 end

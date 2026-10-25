@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="<%= appearance.theme.id %>" data-mode="<%= appearance.effective_mode %>">
   <head>
     <%= inertia_meta_tags(default_title: content_for(:title) || "Sizzle") %>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0c0a09" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="<%= appearance.theme_colors[:light] %>" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="<%= appearance.theme_colors[:dark] %>" media="(prefers-color-scheme: dark)">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -20,6 +20,7 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= vite_stylesheet_tag "application" %>
+    <%= theme_style_tag %>
     <%= vite_react_refresh_tag %>
     <%= vite_client_tag %>
     <%= vite_typescript_tag "inertia.tsx" %>

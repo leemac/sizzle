@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   end
   get "share", to: "share#show"
   get "setup", to: "setup#show"
+  resource :appearance, only: %i[show update]
 
   namespace :api do
     resources :imports, only: %i[create show]

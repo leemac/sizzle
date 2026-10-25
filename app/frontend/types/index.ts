@@ -6,8 +6,40 @@ export type FlashData = {
   alert?: string
 }
 
+export type ThemeMode = 'light' | 'dark' | 'auto'
+
+export type Appearance = {
+  theme: string
+  mode: ThemeMode
+  chosen: boolean
+}
+
 export type SharedProps = {
   app: { claude_configured: boolean }
+  appearance: Appearance
+}
+
+export type ThemeToken =
+  | 'porcelain'
+  | 'paper'
+  | 'ink'
+  | 'graphite'
+  | 'hairline'
+  | 'action'
+  | 'on-action'
+  | 'active'
+  | 'on-active'
+  | 'mark'
+  | 'accent'
+  | 'danger'
+  | 'on-danger'
+
+export type ThemeOption = {
+  id: string
+  name: string
+  description: string
+  light: Record<ThemeToken, string>
+  dark: Record<ThemeToken, string>
 }
 
 export type SetupStatus = {

@@ -23,7 +23,7 @@ export default function RecipeTile({ recipe }: { recipe: RecipeCard }) {
           </div>
         )}
         {recipe.favorite && (
-          <span className="absolute top-2.5 right-2.5 grid size-8 place-items-center rounded-full bg-paper/90 text-yolk shadow-sm">
+          <span className="absolute top-2.5 right-2.5 grid size-8 place-items-center rounded-full bg-paper/90 text-accent shadow-sm">
             <Icon name="heart" filled className="size-4" />
             <span className="sr-only">Favorite</span>
           </span>

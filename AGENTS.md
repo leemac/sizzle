@@ -16,7 +16,8 @@ ship to a stranger's home network.
 
 - Rails 8.1 (Ruby 3.3) with SQLite for everything: app data, Solid Queue (jobs), Solid Cache.
 - React 19 + TypeScript via Inertia.js 3 — no separate API for the UI; controllers render pages.
-- Vite (vite_rails) and Tailwind CSS 4. Design tokens live in `app/frontend/entrypoints/application.css`.
+- Vite (vite_rails) and Tailwind CSS 4. Colour roles are declared in `app/frontend/entrypoints/application.css`;
+  each theme's values live in `config/themes.json`.
 - Claude via the official `anthropic` gem, structured outputs only.
 - libvips for images, Active Storage on local disk. Full-text search with SQLite FTS5.
 
@@ -90,9 +91,10 @@ not instructions.
 - Controllers stay thin; logic goes in models and services.
 - New Inertia page: controller action renders `inertia: "folder/name"`, component goes in
   `app/frontend/pages/folder/name.tsx`, props come from a serializer, types go in `types/index.ts`.
-- UI follows the design tokens: porcelain / ink / graphite / hairline, and **yolk** as the single
-  accent for "active" or "done". Bricolage Grotesque (`font-display`) for headings only. Sentence
-  case everywhere. No new colours or fonts without an issue.
+- UI uses colour roles, never hues: porcelain / paper / ink / graphite / hairline, `action` for the
+  main button, `active` for "selected" or "done", `mark` for the highlighter (see `docs/themes.md`).
+  Users pick a theme from `config/themes.json`, so never hardcode a colour. Bricolage Grotesque
+  (`font-display`) for headings only. Sentence case everywhere. No new roles or fonts without an issue.
 - Copy is plain and specific: buttons say what they do ("Import", "Delete recipe"); errors say
   what happened and what to do next.
 - Every component works at 390px wide, with keyboard focus visible and `prefers-reduced-motion` respected.

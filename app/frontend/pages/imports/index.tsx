@@ -49,7 +49,7 @@ export default function ImportsIndex({
             key={value}
             href={value === 'manual' ? '/imports?mode=manual' : '/imports'}
             aria-current={mode === value ? 'page' : undefined}
-            className={`rounded-full px-4 py-2 text-sm ${mode === value ? 'bg-yolk font-semibold text-[#18181b]' : 'ring-1 ring-hairline hover:ring-ink/30'}`}
+            className={`rounded-full px-4 py-2 text-sm ${mode === value ? 'bg-active font-semibold text-on-active' : 'ring-1 ring-hairline hover:ring-ink/30'}`}
           >
             {label}
           </Link>
@@ -103,7 +103,7 @@ export default function ImportsIndex({
             <button
               type="submit"
               disabled={form.processing || form.data.input.trim() === ''}
-              className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+              className="rounded-full bg-action px-6 py-3 font-semibold text-on-action hover:brightness-95 disabled:opacity-50"
             >
               Import
             </button>

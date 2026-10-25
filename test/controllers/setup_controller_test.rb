@@ -33,8 +33,9 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
   test "exposes only configuration flags and never the credentials" do
     ENV["ANTHROPIC_API_KEY"] = "setup-test-claude-credential"
     ENV["SIZZLE_API_TOKEN"] = "setup-test-share-credential"
+    choose_look
 
-    %w[welcome ready claude].each do |step|
+    %w[welcome look ready claude].each do |step|
       get setup_url, params: { step: }
 
       assert_equal step, inertia.props[:step]
@@ -42,6 +43,33 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
       assert_not response.body.include?(ENV.fetch("ANTHROPIC_API_KEY")), "Setup must not expose the Claude credential"
       assert_not response.body.include?(ENV.fetch("SIZZLE_API_TOKEN")), "Setup must not expose the share credential"
     end
+  end
+
+  test "picking a look comes after the welcome and lists every theme" do
+    get setup_url, params: { step: "look" }
+
+    assert_equal "look", inertia.props[:step]
+    assert_equal Theme.all.map(&:id), inertia.props[:themes].map { |theme| theme["id"] }
+  end
+
+  test "other steps don't carry the theme list" do
+    get setup_url
+
+    assert_nil inertia.props[:themes]
+  end
+
+  test "setup can't skip past picking a look" do
+    get setup_url, params: { step: "ready" }
+    assert_redirected_to setup_url(step: "look")
+
+    cookies[:sizzle_theme] = "pesto"
+    get setup_url, params: { step: "ready" }
+    assert_redirected_to setup_url(step: "look"), "A theme alone isn't a full choice"
+
+    choose_look
+    get setup_url, params: { step: "ready" }
+    assert_response :success
+    assert_equal "ready", inertia.props[:step]
   end
 
   test "old privacy step links skip to the first recipe" do
@@ -61,5 +89,11 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
     assert_nil ENV["ANTHROPIC_API_KEY"]
+  end
+
+  private
+
+  def choose_look
+    patch appearance_url, params: { theme: "pesto", mode: "dark" }
   end
 end

@@ -1,4 +1,11 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+// The radios are visually hidden inside their cards, so click the card like a person would.
+const choose = (page: Page, name: RegExp) =>
+  page
+    .locator('label')
+    .filter({ has: page.getByRole('radio', { name }) })
+    .click()
 
 test.beforeEach(async ({ context }) => {
   await context.route('**/*', (route) => {
@@ -43,8 +50,22 @@ for (const width of [390, 1280]) {
       await page.screenshot({ path: testInfo.outputPath(`setup-welcome-${width}.png`), fullPage: true })
       await page.getByRole('link', { name: 'Continue', exact: true }).click()
 
+      // Picking a look can't be skipped: nothing is preselected and Continue waits for both choices.
+      await expect(page.getByRole('heading', { name: 'Pick a look', exact: true })).toBeVisible()
+      await expect(page.getByText('Step 2 of 3', { exact: true })).toBeVisible()
+      const next = page.getByRole('button', { name: 'Continue', exact: true })
+      await expect(next).toBeDisabled()
+      await choose(page, /Pesto/)
+      await expect(next).toBeDisabled()
+      await choose(page, /Dark/)
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'pesto')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      await page.screenshot({ path: testInfo.outputPath(`setup-look-${width}.png`), fullPage: true })
+      await next.click()
+
       await expect(page.getByRole('heading', { name: 'Your first recipe', exact: true })).toBeVisible()
-      await expect(page.getByText('Step 2 of 2', { exact: true })).toBeVisible()
+      await expect(page.getByText('Step 3 of 3', { exact: true })).toBeVisible()
+      await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark')
       await expect(page.getByRole('link', { name: 'Keep it private' })).toHaveCount(0)
       await expect(page.getByText('Generate a token on your server:', { exact: true })).toHaveCount(0)
       await expect(page.getByText('Advanced server setup', { exact: true })).toHaveCount(0)
@@ -54,8 +75,14 @@ for (const width of [390, 1280]) {
       await page.screenshot({ path: testInfo.outputPath(`setup-ready-${width}.png`), fullPage: true })
 
       await page.goBack()
-      await expect(page.getByRole('heading', { name: 'A home for your recipes' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Pick a look', exact: true })).toBeVisible()
+      // A page restored from history still shows the look that was just saved.
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'pesto')
+      await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark')
       await page.goForward()
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'pesto')
+      // Saving the look redirected to this step outside the stubbed /setup route, so load it again through it.
+      await page.getByRole('link', { name: '3 Add a recipe', exact: true }).click()
       await expect(page.getByRole('heading', { name: 'Your first recipe', exact: true })).toBeVisible()
 
       await page.getByRole('link', { name: configured ? 'Review AI setup' : 'Set up optional AI', exact: true }).click()

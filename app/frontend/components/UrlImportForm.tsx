@@ -68,7 +68,7 @@ export default function UrlImportForm() {
         <button
           type="submit"
           disabled={form.processing || form.data.url.trim() === ''}
-          className="shrink-0 rounded-full bg-yolk px-5 py-3 text-sm font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
+          className="shrink-0 rounded-full bg-action px-5 py-3 text-sm font-semibold text-on-action hover:brightness-95 disabled:opacity-50"
         >
           {form.processing ? 'Adding…' : 'Import'}
         </button>

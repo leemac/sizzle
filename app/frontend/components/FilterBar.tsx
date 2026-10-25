@@ -116,7 +116,7 @@ function Chip({ selected, onClick, children }: { selected: boolean; onClick: () 
       aria-pressed={selected}
       onClick={onClick}
       className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors first-letter:uppercase ${
-        selected ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper text-ink ring-1 ring-hairline hover:ring-ink/30'
+        selected ? 'bg-active font-medium text-on-active' : 'bg-paper text-ink ring-1 ring-hairline hover:ring-ink/30'
       }`}
     >
       {children}
@@ -144,7 +144,7 @@ function FacetSelect({
         value={value ?? ''}
         onChange={(event) => onChange(event.target.value || undefined)}
         className={`rounded-full border-0 py-1.5 pr-8 pl-3.5 text-sm ring-1 focus:ring-ink ${
-          value ? 'bg-yolk font-medium text-[#18181b] ring-yolk' : 'bg-paper ring-hairline'
+          value ? 'bg-active font-medium text-on-active ring-active' : 'bg-paper ring-hairline'
         }`}
       >
         <option value="">{label}</option>

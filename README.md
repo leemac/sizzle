@@ -37,7 +37,20 @@
   Anthropic API key to handle pages without recipe data and pasted text.
 - **Fast to browse.** A photo-first gallery with full-text search and filters for course, cuisine,
   diet, main ingredient and time.
+- **Make it look like yours.** Six themes, each in light and dark, or let it follow your device.
+  Everyone in the house can pick their own.
 - **Yours.** One small container with SQLite on your own server. No accounts, no tracking.
+
+## Themes
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/themes-dark.svg">
+  <img src="docs/images/themes-light.svg" alt="Sizzle's six themes, each shown in light and dark: Sunny side up, Squid ink, Hot sauce, Pesto, Beet it and Blue plate special">
+</picture>
+
+You pick a look when you set Sizzle up, and can change it any time from the Appearance button in
+the header. Themes live in [`config/themes.json`](config/themes.json); see
+[docs/themes.md](docs/themes.md) to add one.
 
 ## Install
 

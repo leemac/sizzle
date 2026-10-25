@@ -3,7 +3,12 @@ class SetupController < InertiaController
   def show
     return redirect_to setup_path(step: "ready") if params[:step] == "privacy"
 
-    step = %w[welcome ready claude].include?(params[:step]) ? params[:step] : "welcome"
-    render inertia: "setup/show", props: { setup: SetupSerializer.call, step: }
+    step = %w[welcome look ready claude].include?(params[:step]) ? params[:step] : "welcome"
+    # Picking a look is the one step setup can't skip.
+    return redirect_to setup_path(step: "look") if step == "ready" && !helpers.appearance.chosen?
+
+    props = { setup: SetupSerializer.call, step: }
+    props[:themes] = ThemeSerializer.call if step == "look"
+    render inertia: "setup/show", props:
   end
 end

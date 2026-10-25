@@ -4,9 +4,20 @@
 @plugin '@tailwindcss/forms';
 
 /*
- * Sizzle design tokens. Minimal and photo-first: a cool porcelain base, ink
- * type, and one bold accent — yolk — used like a highlighter for "this is
- * active / this is done". Keep new UI inside this palette.
+ * Sizzle design tokens. Minimal and photo-first. Colours are roles, not hues:
+ * the values below are only fallbacks (the "Sunny side up" light theme), and
+ * config/themes.json sets the real ones per theme and mode at runtime.
+ *
+ *   porcelain / paper     page and card backgrounds
+ *   ink / graphite        primary and secondary text
+ *   hairline              borders and rings
+ *   action, on-action     the main button on a page and its label
+ *   active, on-active     selected, toggled on or done, and its label
+ *   mark                  highlighter and the active step
+ *   accent                accent as an icon on a card (favorite heart, bullets)
+ *   danger, on-danger     destructive actions and errors
+ *
+ * Keep new UI inside these roles.
  */
 @theme {
   --color-porcelain: #f6f6f3;
@@ -14,9 +25,14 @@
   --color-ink: #18181b;
   --color-graphite: #6e6e73;
   --color-hairline: #e3e3de;
-  --color-yolk: #ffc21a;
-  --color-yolk-soft: #fff1c2;
+  --color-action: #ffc21a;
+  --color-on-action: #18181b;
+  --color-active: #ffc21a;
+  --color-on-active: #18181b;
+  --color-mark: #fff1c2;
+  --color-accent: #a87300;
   --color-danger: #c0362c;
+  --color-on-danger: #ffffff;
 
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -25,26 +41,11 @@
 }
 
 @layer base {
-  :root {
-    color-scheme: light dark;
-  }
-
   html {
     background: var(--color-porcelain);
     color: var(--color-ink);
     -webkit-tap-highlight-color: transparent;
     font-family: var(--font-sans);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-porcelain: #141416;
-      --color-paper: #1d1d20;
-      --color-ink: #f2f2ee;
-      --color-graphite: #9d9da3;
-      --color-hairline: #2e2e33;
-      --color-yolk-soft: #4a3a0c;
-    }
   }
 
   :focus-visible {
@@ -94,5 +95,5 @@
 
 /* Highlighter mark used for checked ingredients and the active step. */
 @utility highlight {
-  background-image: linear-gradient(transparent 55%, var(--color-yolk-soft) 55%);
+  background-image: linear-gradient(transparent 55%, var(--color-mark) 55%);
 }
