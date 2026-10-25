@@ -38,6 +38,22 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
     }, fields)
   end
 
+  test "method sections survive filling the form and saving it" do
+    extractor = FakeExtractor.new(FakeExtractor.recipe("steps" => [
+      { "section" => "For the sauce", "text" => "Simmer the tomatoes." },
+      { "section" => "For the sauce", "text" => "Season to taste." },
+      { "section" => "To finish", "text" => "Spoon over the chicken." }
+    ]))
+
+    fields = RecipeScreenshot.new([ upload ], extractor:).fields
+    form = ManualRecipe.new(fields)
+
+    assert form.save, form.errors.full_messages.to_sentence
+    assert_equal [ [ "For the sauce", "Simmer the tomatoes." ], [ "For the sauce", "Season to taste." ],
+                   [ "To finish", "Spoon over the chicken." ] ],
+                 form.recipe.steps.map { |step| step.values_at("section", "text") }
+  end
+
   test "a partial recipe fills what it can and leaves the rest blank" do
     extractor = FakeExtractor.new(FakeExtractor.recipe(
       "title" => "", "description" => nil, "servings" => nil, "prep_minutes" => nil, "cook_minutes" => nil,

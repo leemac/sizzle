@@ -99,6 +99,23 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert_equal "Rice", inertia.props[:recipe]["ingredients"].first["section"]
   end
 
+  test "method groups are plain headings, like ingredient groups" do
+    post imports_url, params: { manual_recipe: fields.merge(
+      steps: "# <b>Rice</b>\nRinse the rice.\nSimmer for 20 minutes.\n#\n#1 rule: rest it for 5 minutes."
+    ) }
+
+    assert_equal [ [ "Rice", "Rinse the rice." ], [ "Rice", "Simmer for 20 minutes." ], [ nil, "#1 rule: rest it for 5 minutes." ] ],
+                 Recipe.last.steps.map { |step| step.values_at("section", "text") }
+  end
+
+  test "method headings alone do not create a recipe" do
+    assert_no_difference "Recipe.count" do
+      post imports_url, params: { manual_recipe: fields.merge(steps: "# Sauce\n# Finish") }
+    end
+    follow_redirect!(headers: inertia_headers)
+    assert_includes inertia.props[:errors]["steps"], "needs at least one step"
+  end
+
   test "ingredient headings alone do not create a recipe" do
     assert_no_difference "Recipe.count" do
       post imports_url, params: { manual_recipe: fields.merge(ingredients: "# Sauce\n# Finish") }

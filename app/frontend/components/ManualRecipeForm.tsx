@@ -189,7 +189,7 @@ export default function ManualRecipeForm({
           Method
         </label>
         <p id="steps-hint" className="mt-1 text-sm text-graphite">
-          One step per line.
+          One step per line. Headings work here too.
         </p>
         <textarea
           id="recipe-steps"
