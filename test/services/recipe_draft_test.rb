@@ -86,4 +86,51 @@ class RecipeDraftTest < ActiveSupport::TestCase
     assert_equal IMAGES.map(&:url), draft("hero_image_id" => "img42").cover_urls
     assert_empty draft(images: []).cover_urls
   end
+
+  test "video metadata only comes from the fetched video, never from model output" do
+    attributes = draft("video_metadata" => { "id" => YoutubeWatchPage::VIDEO_ID, "duration_seconds" => 200 }).attributes
+
+    assert_equal({}, attributes[:video_metadata])
+    [ nil, [], "video", { "id" => "not-an-id" } ].each do |video|
+      assert_equal({}, RecipeDraft.new({}, video:).video_metadata)
+    end
+  end
+
+  test "validates video duration, chapter ordering and plain text titles" do
+    video = {
+      "id" => YoutubeWatchPage::VIDEO_ID, "duration_seconds" => 300,
+      "chapters" => [
+        nil, "chapter", { "start_seconds" => -1, "title" => "Negative" },
+        { "start_seconds" => "0", "title" => "String" },
+        { "start_seconds" => 0, "title" => "<b>Intro</b><script>alert(1)</script>" },
+        { "start_seconds" => 0, "title" => "Duplicate" },
+        { "start_seconds" => 60, "title" => "T" * 1000 },
+        { "start_seconds" => 45, "title" => "Backwards" },
+        { "start_seconds" => 90, "title" => {} },
+        { "start_seconds" => 300, "title" => "After the end" }
+      ],
+      "written_recipe_url" => "https://example.com/recipe"
+    }
+    metadata = RecipeDraft.new({}, video:).video_metadata
+
+    assert_equal 300, metadata["duration_seconds"]
+    assert_equal [ 0, 60 ], metadata["chapters"].pluck("start_seconds")
+    assert_equal "Intro", metadata["chapters"].first["title"]
+    assert_equal 200, metadata["chapters"].last["title"].length
+    assert_equal "https://example.com/recipe", metadata["written_recipe_url"]
+  end
+
+  test "caps chapter count and rejects unreasonable video durations and unsafe written links" do
+    video = { "id" => YoutubeWatchPage::VIDEO_ID,
+              "chapters" => (0..100).map { |n| { "start_seconds" => n, "title" => "Part #{n}" } } }
+    assert_equal RecipeDraft::MAX_VIDEO_CHAPTERS, RecipeDraft.new({}, video:).video_metadata["chapters"].size
+
+    [ -1, 0, "30", Float::INFINITY, 10**12 ].each do |duration|
+      assert_nil RecipeDraft.new({}, video: video.merge("duration_seconds" => duration)).video_metadata["duration_seconds"]
+    end
+    [ "javascript:alert(1)", "data:text/html,hello", "https:///recipe", "https://user:secret@example.com/recipe",
+      "https://example.com/#{'x' * 2048}", {}, 123 ].each do |url|
+      assert_nil RecipeDraft.new({}, video: video.merge("written_recipe_url" => url)).video_metadata["written_recipe_url"]
+    end
+  end
 end

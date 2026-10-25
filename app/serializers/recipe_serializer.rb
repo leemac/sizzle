@@ -25,11 +25,20 @@ module RecipeSerializer
   end
 
   def detail(recipe)
+    video_id = YoutubeVideo.id_from_url(recipe.source_url)
+    video = video_id && recipe.video_metadata["id"] == video_id ? recipe.video_metadata : {}
+
     card(recipe).merge(
       description: recipe.description,
       author: recipe.author,
       source_url: recipe.source_url,
       source_name: recipe.source_name,
+      youtube_url: video_id && YoutubeVideo.watch_url(video_id),
+      youtube_duration_seconds: video["duration_seconds"],
+      youtube_chapters: Array(video["chapters"]).map do |chapter|
+        chapter.merge("url" => "#{YoutubeVideo.watch_url(video_id)}&t=#{chapter.fetch('start_seconds')}s")
+      end,
+      written_recipe_url: video["written_recipe_url"],
       servings: recipe.servings,
       yield_text: recipe.yield_text,
       prep_minutes: recipe.prep_minutes,

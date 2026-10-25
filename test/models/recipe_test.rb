@@ -85,4 +85,13 @@ class RecipeTest < ActiveSupport::TestCase
     assert_not Recipe.new(title: "x", source_url: "data:text/html,hi").valid?
     assert Recipe.new(title: "x", source_url: "https://example.com/pie").valid?
   end
+
+  test "rejects unsafe written recipe links even outside the import pipeline" do
+    [ "javascript:alert(1)", "data:text/html,hello", "https:///recipe", "https://user:secret@example.com/recipe",
+      "https://example.com/#{'x' * 2048}", {}, 123 ].each do |url|
+      assert_not Recipe.new(title: "Recipe", video_metadata: { "written_recipe_url" => url }).valid?, url.inspect
+    end
+    assert_not Recipe.new(title: "Recipe", video_metadata: []).valid?
+    assert Recipe.new(title: "Recipe", video_metadata: { "written_recipe_url" => "https://example.com/recipe" }).valid?
+  end
 end
