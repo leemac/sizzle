@@ -59,11 +59,13 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         </p>
       )}
 
-      <header className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-y-5">
+      <header className="relative isolate grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-y-5">
+        {recipe.hero_url && <RecipeAtmosphere key={recipe.hero_url} url={recipe.image_url ?? recipe.hero_url} />}
         {recipe.hero_url && (
           <img
             src={recipe.hero_url}
             alt={recipe.title}
+            fetchPriority="high"
             className="aspect-[4/3] w-full rounded-photo object-cover lg:col-start-2 lg:row-start-1 lg:aspect-[4/5]"
           />
         )}
@@ -196,6 +198,22 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
 }
 
 RecipeShow.layout = AppLayout
+
+function RecipeAtmosphere({ url }: { url: string }) {
+  const [ready, setReady] = useState(false)
+  return (
+    <div className="recipe-atmosphere" data-ready={ready} aria-hidden="true">
+      <img
+        src={url}
+        alt=""
+        decoding="async"
+        fetchPriority="low"
+        onLoad={() => setReady(true)}
+        onError={() => setReady(false)}
+      />
+    </div>
+  )
+}
 
 function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale: number; children: React.ReactNode }) {
   const [checked, setChecked] = useState<Set<number>>(new Set())

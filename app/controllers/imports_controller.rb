@@ -4,26 +4,35 @@ class ImportsController < InertiaController
   rate_limit to: 30, within: 1.minute, only: %i[create retry]
 
   def index
-    inertia_meta.add(title: "Add a recipe")
-    render inertia: "imports/index", props: {
-      imports: Import.includes(:recipe).recent.limit(30).map { |import| ImportSerializer.call(import) },
-      mode: params[:mode] == "manual" ? "manual" : "import",
-      source_url: -> { Import.find_by(id: params[:from], kind: "url")&.url if params[:from].present? }
-    }
+    render_index
   end
 
   def create
     return create_manual_recipe if params.key?(:manual_recipe)
 
     batch = ImportBatch.new(params[:input], origin: "web")
-    if batch.valid? && !charge_import_budget(batch.imports.size)
+    unless batch.valid?
+      return redirect_to imports_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
+    end
+
+    review = ImportReview.new(batch)
+    if (review.needed? || params[:review_token].present?) && params[:review_token] != review.token
+      return render_index(review:)
+    end
+
+    selected = params.permit(selected_urls: [])[:selected_urls] || [] if params[:review_token].present?
+    count = review.imports(selected).size
+    if count.positive? && !charge_import_budget(count)
       redirect_to imports_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
-    elsif batch.save
-      count = batch.imports.size
-      notice = count == 1 ? "Importing… this usually takes under a minute." : "Importing #{count} recipes… this usually takes a minute or two."
-      redirect_to imports_path, notice:
     else
-      redirect_to imports_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
+      restored = review.save(selected)
+      flash[:submitted_import_ids] = review.imports(selected).map(&:id)
+      notice = if restored.positive?
+        "Restored #{restored} archived #{'recipe'.pluralize(restored)} to your cookbook."
+      elsif count.zero?
+        "Done. No new imports were needed."
+      end
+      redirect_to imports_path, notice:
     end
   end
 
@@ -33,6 +42,27 @@ class ImportsController < InertiaController
   end
 
   private
+
+  def render_index(review: nil)
+    inertia_meta.add(title: "Add a recipe")
+    render inertia: "imports/index", props: {
+      imports: recent_imports.map { |import| ImportSerializer.call(import) },
+      mode: params[:mode] == "manual" ? "manual" : "import",
+      duplicate_review: review && ImportReviewSerializer.call(review),
+      submitted_import_ids: Array(flash[:submitted_import_ids]),
+      source_duplicate: -> {
+        recipe = Recipe.find_by(id: flash[:duplicate_recipe_id])
+        RecipeSerializer.source_duplicate(recipe) if recipe
+      },
+      source_url: -> { Import.find_by(id: params[:from], kind: "url")&.url if params[:from].present? }
+    }
+  end
+
+  def recent_imports
+    imports = Import.includes(recipe: { cover_attachment: :blob }).recent.limit(30).to_a
+    current = Import.includes(recipe: { cover_attachment: :blob }).find_by(id: params[:current]) if params[:current].present?
+    current ? [ current, *imports ].uniq : imports
+  end
 
   # Every queued import is a fetch and maybe a Claude call, so each link
   # counts against the budget, not just each request. A rejected batch
@@ -51,6 +81,7 @@ class ImportsController < InertiaController
     if form.save
       redirect_to recipe_path(form.recipe), notice: "Recipe saved."
     else
+      flash[:duplicate_recipe_id] = form.duplicate_recipe.id if form.duplicate_recipe
       redirect_to imports_path(mode: "manual"), inertia: { errors: form.errors.to_hash.transform_values(&:to_sentence) }
     end
   end

@@ -11,7 +11,7 @@ class ManualRecipe
   attribute :prep_minutes, :string
   attribute :cook_minutes, :string
   attribute :source_url, :string
-  attr_reader :recipe
+  attr_reader :recipe, :duplicate_recipe
 
   validates :title, presence: true, length: { maximum: 300 }
   validates :description, length: { maximum: 2000 }
@@ -68,7 +68,8 @@ class ManualRecipe
     uri = URI.parse(source_url.strip)
     return errors.add(:source_url, "must be a link starting with http:// or https://") unless uri.is_a?(URI::HTTP) && uri.host.present?
 
-    errors.add(:source_url, "is already in your cookbook") if other_recipes.exists?(source_url: Recipe.normalize_url(source_url))
+    @duplicate_recipe = other_recipes.find_by(source_url: Recipe.normalize_url(source_url))
+    errors.add(:source_url, "is already in your cookbook") if duplicate_recipe
   rescue URI::InvalidURIError
     errors.add(:source_url, "isn't a valid link")
   end

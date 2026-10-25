@@ -111,7 +111,27 @@ export type Import = {
   error: string | null
   recipe_id: number | null
   recipe_title: string | null
+  recipe_image_url: string | null
   created_at: string
+}
+
+export type ImportReview = {
+  token: string
+  entries: {
+    key: string
+    url: string
+    occurrences: number
+    recipe_id: number | null
+    recipe_title: string | null
+    archived: boolean
+    pending_id: number | null
+  }[]
+}
+
+export type SourceDuplicate = {
+  id: number
+  title: string
+  archived: boolean
 }
 
 export type FacetCount = { value: string; count: number }

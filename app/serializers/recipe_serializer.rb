@@ -12,8 +12,16 @@ module RecipeSerializer
       total_minutes: recipe.total_minutes,
       source_host: recipe.source_host,
       favorite: recipe.favorite?,
-      image_url: image_path(recipe.cover, :card)
+      image_url: cover_image_url(recipe)
     }
+  end
+
+  def cover_image_url(recipe)
+    image_path(recipe.cover, :card)
+  end
+
+  def source_duplicate(recipe)
+    { id: recipe.id, title: recipe.title, archived: recipe.archived? }
   end
 
   def detail(recipe)

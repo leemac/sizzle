@@ -33,6 +33,13 @@ class Import < ApplicationRecord
     end
   end
 
+  # Match the worker's identity without fetching the page. Tracking links and
+  # the different YouTube URL forms all refer to the same source.
+  def self.source_key(url)
+    video_id = YoutubeVideo.id_from_url(url)
+    Recipe.normalize_url(video_id ? YoutubeVideo.watch_url(video_id) : url)
+  end
+
   def pending?
     status.in?(PENDING_STATUSES)
   end
