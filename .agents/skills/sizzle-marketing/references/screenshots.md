@@ -2,7 +2,7 @@
 
 Run from a Sizzle checkout with its Ruby and Node dependencies, Playwright Chromium, and `cwebp` installed. Use the bundled, licensed seed photos; do not import third-party recipes or expose private cookbook contents for a marketing capture.
 
-The light/dark pairs in `site/images` were captured from app revision `450836948943daa7ae9f1e6f5a60d313f6d3151f`, which follows the system appearance. Later app revisions force dark mode. To reproduce these pairs, serve that app revision in a separate disposable checkout and run the current capture helpers against it. The cooking captures also include the current `highlight` utility fix: a mark from 20% to 85% of each line box, repeated at `1lh`, using that revision’s `--color-yolk-soft` role. Apply that source change when reproducing the cooking captures. Both helpers check the rendered palette before saving; do not override app CSS or label a dark capture as light. The marketing page's system preference is independent of the app's current default.
+The current light/dark pairs were captured from app revision `4d4fe54b0faa4311b6d18d7b457032cc35fcf532`, including main through `828e247`. Use the current app in a disposable snapshot. Both helpers select the supported `sunny-side-up` theme and light/dark appearance cookies before loading the page, then verify the rendered palette. Do not override app CSS. Captures reserve space above crops for sticky navigation and cooking controls.
 
 Create a separate database instead of altering the maintainer's cookbook:
 
@@ -21,6 +21,7 @@ DATABASE_URL=sqlite3:tmp/marketing/demo.sqlite3 bin/rails runner '
   priority = ["Coconut vegetable korma", "Lemon salmon with cucumber salsa",
               "Smoky sweetcorn and black bean tacos", "Chocolate chunk cookies with flaky salt",
               "Blueberry buttermilk pancakes", "Rainbow chickpea salad with lemon tahini dressing"]
+  samples.where(course: "drink").update_all(created_at: 1.day.ago)
   food = samples.where.not(course: "drink").to_a.sort_by { |r| priority.index(r.title) || 100 + r.id }
   food.each_with_index { |r, i| r.update_columns(created_at: Time.current - i.minutes) }
   recipe = samples.find_by!(title: "Coconut vegetable korma")
