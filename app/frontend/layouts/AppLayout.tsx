@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import FailedImportsLink from '@/components/FailedImportsLink'
+import ReleaseNotesLink from '@/components/ReleaseNotesLink'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
 import SosButton from '@/components/SosButton'
@@ -43,6 +44,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <nav className="flex items-center gap-1">
             <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
             <FailedImportsLink count={props.failed_import_count} />
+            <ReleaseNotesLink latest={props.latest_release} active={component === 'releases/index'} />
             <Link
               href="/settings"
               aria-label="Settings"
@@ -79,21 +81,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 sm:pt-10">{children}</main>
       <footer className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 pb-6 text-xs text-graphite sm:px-6">
-        <a
-          href={
-            props.app.version === 'dev'
-              ? 'https://github.com/leemac/sizzle'
-              : `https://github.com/leemac/sizzle/releases/tag/${encodeURIComponent(`v${props.app.version}`)}`
-          }
-          target="_blank"
-          rel="noreferrer"
-          aria-label={
-            props.app.version === 'dev' ? 'View Sizzle on GitHub' : `View release notes for Sizzle ${props.app.version}`
-          }
-          className="footer-link"
-        >
+        <Link href="/releases" aria-label="Sizzle release notes" className="footer-link">
           Sizzle {props.app.version === 'dev' ? 'dev' : `v${props.app.version}`}
-        </a>
+        </Link>
         <span aria-hidden="true">·</span>
         <a href="https://mckinnon.dev" target="_blank" rel="noreferrer" className="footer-link">
           By Lee

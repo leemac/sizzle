@@ -10,6 +10,7 @@ class InertiaController < ApplicationController
   inertia_share preferences: -> { browser_preferences.as_props }
   # Failed imports nobody has dismissed yet; the header shows the count.
   inertia_share failed_import_count: -> { Import.needs_attention.count }
+  inertia_share latest_release: -> { ReleaseNotes.latest_version }
 
   private
 

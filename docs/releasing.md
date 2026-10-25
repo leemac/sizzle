@@ -24,7 +24,8 @@ downgrade them. An older release also leaves GitHub's latest release unchanged.
 
 ## Cut a release
 
-1. Make sure `main` is green in CI and has everything you want to ship.
+1. Prepare the in-app notes in `config/releases.json` using the process below, and have that
+   change reviewed and merged. Make sure `main` is green in CI and has everything you want to ship.
 2. Tag the commit on `main` and push the tag:
 
    ```sh
@@ -58,6 +59,30 @@ stop publication rather than being treated as a missing tag.
 
 If a fix requires a code change, release the next patch version. Never move or reuse a version
 tag, including after a partially failed release.
+
+## In-app release journal
+
+`/releases` reads `config/releases.json`, bundled in the image. It never contacts GitHub.
+The header's quiet dot means there are unread bundled notes, not that a newer image is
+available. Opening the journal remembers the newest visible version in this browser.
+Versioned builds show entries at or below their own version; development shows all entries.
+
+Before choosing the final release SHA, prepend an entry with the proposed `version` (without
+`v`), intended release `date` (`YYYY-MM-DD`), a short `title` and `summary`, `highlights`
+(`title` and `body`), and `sections` (`title` and `paragraphs`). Follow the existing entries.
+Use plain text; React escapes it. Keep upgrade steps, opt-in settings, privacy implications
+and limitations in the full notes. Use only changes actually included in the candidate.
+GitHub notes may include extra PR links, but their claims and upgrade guidance must agree.
+
+Have the notes change reviewed and merged before tagging; publishing GitHub notes afterward
+cannot add them to an already-built image. If the version, date or scope changes, update the
+entry and revalidate the new candidate. Do not move an existing tag to repair old notes.
+
+Check `bin/rails test test/models/release_notes_test.rb test/controllers/releases_controller_test.rb`,
+`npm test -- ReleaseNotesLink` and the release browser tests, then `bin/ci`. Preview `/releases`
+at 390px and 1280px, including expanded notes and the unread dot clearing after a visit.
+The initial backfill covers every published stable release from v0.0.1 through v0.3.1;
+published dates and prose came from the corresponding GitHub releases.
 
 ## First release only
 

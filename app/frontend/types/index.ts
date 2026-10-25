@@ -25,6 +25,18 @@ export type SharedProps = {
   preferences: BrowserPreferences
   /** Failed imports that haven't been dismissed. */
   failed_import_count: number
+  /** Newest release notes bundled with this version, never a remote update check. */
+  latest_release: string | null
+}
+
+export type Release = {
+  version: string
+  date: string
+  title: string
+  summary: string
+  url: string
+  highlights: { title: string; body: string }[]
+  sections: { title: string; paragraphs: string[] }[]
 }
 
 export type RecipeSort = 'newest' | 'alphabetical' | 'recently_cooked' | 'never_cooked'
