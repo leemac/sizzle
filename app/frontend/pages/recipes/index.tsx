@@ -25,7 +25,6 @@ type Props = {
   facets: Facets
   total_count: number
   pending_imports: Import[]
-  failed_imports: Import[]
 }
 
 export default function RecipesIndex({
@@ -37,11 +36,10 @@ export default function RecipesIndex({
   facets,
   total_count,
   pending_imports,
-  failed_imports,
 }: Props) {
   const { start, stop } = usePoll(
     2500,
-    { only: ['recipes', 'pending_imports', 'failed_imports', 'facets', 'total_count', 'has_more'] },
+    { only: ['recipes', 'pending_imports', 'failed_import_count', 'facets', 'total_count', 'has_more'] },
     { autoStart: false },
   )
   const pending = pending_imports.length > 0
@@ -92,20 +90,6 @@ export default function RecipesIndex({
             ))}
           </select>
         </label>
-      )}
-
-      {failed_imports.length > 0 && (
-        <section aria-label="Failed imports" className="mb-8 rounded-photo bg-paper p-4 ring-1 ring-hairline">
-          {failed_imports.map((item) => (
-            <div key={item.id} className="mb-3 last:mb-0" role="alert">
-              <p className="truncate text-sm font-medium">{item.url ?? 'Pasted recipe'}</p>
-              <p className="mt-1 text-sm text-danger">{item.error ?? 'Couldn’t import this recipe.'}</p>
-            </div>
-          ))}
-          <Link href="/imports" className="text-sm underline underline-offset-4">
-            View imports and retry
-          </Link>
-        </section>
       )}
 
       {total_count === 0 && !pending ? (

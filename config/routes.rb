@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   end
   resources :imports, only: %i[index create] do
     post :retry, on: :member
+    post :dismiss, on: :member
   end
   get "share", to: "share#show"
   get "share/shortcut", to: "share#shortcut"

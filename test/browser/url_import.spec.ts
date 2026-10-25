@@ -32,7 +32,6 @@ async function galleryFixture(page: Page, props: Record<string, unknown> = {}) {
     has_more: false,
     filters: {},
     pending_imports: [],
-    failed_imports: [],
     facets: {
       courses: ['drink', 'main', 'baking', 'breakfast', 'bread', 'dessert', 'salad', 'side', 'soup'].map((value) => ({
         value,
@@ -115,16 +114,16 @@ for (const width of [390, 1280]) {
   })
 }
 
-test('background failures stay visible on the gallery', async ({ page }) => {
+test('a background failure shows a count in the header that leads to the imports page', async ({ page }) => {
   const data = await galleryFixture(page, { pending_imports: [sharedImport] })
   await expect(page.getByText('Reading the page', { exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: /failed import/ })).toHaveCount(0)
 
   data.props.pending_imports = []
-  data.props.failed_imports = [{ ...sharedImport, status: 'failed', error: "That doesn't look like a recipe." }]
-  await expect(page.getByRole('region', { name: 'Failed imports' })).toContainText("That doesn't look like a recipe.", {
-    timeout: 10_000,
-  })
-  await expect(page.getByRole('link', { name: 'View imports and retry' })).toHaveAttribute('href', '/imports')
+  data.props.failed_import_count = 1
+  const indicator = page.getByRole('link', { name: '1 failed import. Review imports' })
+  await expect(indicator).toBeVisible({ timeout: 10_000 })
+  await expect(indicator).toHaveAttribute('href', '/imports#needs-attention')
 })
 
 test('links are imported from the Add recipe page, and server errors keep the link', async ({ page }) => {

@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
+import FailedImportsLink from '@/components/FailedImportsLink'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
 import SosButton from '@/components/SosButton'
@@ -32,43 +33,32 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-[0.3em] font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]"
+            className="inline-flex shrink-0 items-center gap-[0.3em] font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]"
           >
             <img src="/icon.svg" alt="" width={32} height={32} className="size-[1.15em] shrink-0" />
             <SizzleLogo />
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/share"
-              className={`hidden rounded-full px-3 py-2 text-sm text-graphite hover:text-ink sm:block ${url.startsWith('/share') ? 'text-ink' : ''}`}
-            >
-              Share from your phone
-            </Link>
+          {/* Appearance and sharing from your phone live in Settings, so the header keeps
+              one main action and a few quiet ones. */}
+          <nav className="flex items-center gap-1">
+            <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
+            <FailedImportsLink count={props.failed_import_count} />
             <Link
               href="/settings"
               aria-label="Settings"
               title="Settings"
               aria-current={url.startsWith('/settings') ? 'page' : undefined}
-              className="rounded-full p-2 text-graphite hover:text-ink"
+              className={`rounded-full p-2 hover:text-ink ${url.startsWith('/settings') ? 'text-ink' : 'text-graphite'}`}
             >
               <Icon name="settings" className="size-5" />
             </Link>
-            <Link
-              href="/appearance"
-              aria-label="Appearance"
-              title="Appearance"
-              aria-current={url.startsWith('/appearance') ? 'page' : undefined}
-              className={`rounded-full p-2 hover:text-ink ${url.startsWith('/appearance') ? 'text-ink' : 'text-graphite'}`}
-            >
-              <Icon name="appearance" className="size-5" />
-            </Link>
-            <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
+            {/* Phones only have room for the icon, like the SOS button. */}
             <Link
               href="/imports"
-              className="inline-flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-sm font-semibold text-on-action hover:brightness-95"
+              className="ml-1 inline-flex shrink-0 items-center sm:ml-2 gap-1.5 rounded-full bg-action p-2 text-sm font-semibold text-on-action hover:brightness-95 sm:px-4"
             >
-              <Icon name="plus" className="size-4" />
-              Add recipe
+              <Icon name="plus" className="size-5 sm:size-4" />
+              <span className="sr-only sm:not-sr-only">Add recipe</span>
             </Link>
           </nav>
         </div>

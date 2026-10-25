@@ -80,7 +80,7 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "done", import.reload.status
     assert_empty inertia.props[:pending_imports]
-    assert_empty inertia.props[:failed_imports]
+    assert_equal 0, inertia.props[:failed_import_count]
     assert_equal "Weeknight Chickpea Curry", inertia.props[:recipes].sole[:title]
     assert inertia.props[:recipes].sole[:image_url]
     get imports_url
@@ -90,7 +90,7 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     original_key ? ENV["ANTHROPIC_API_KEY"] = original_key : ENV.delete("ANTHROPIC_API_KEY")
   end
 
-  test "gallery shows background failures including blocked private network fetches" do
+  test "the header counts background failures including blocked private network fetches" do
     post imports_url, params: { input: "http://router.example/pie" }
     import = Import.last
     extractor = FakeExtractor.new
@@ -99,19 +99,73 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_empty extractor.pages
     assert_empty inertia.props[:pending_imports]
-    failure = inertia.props[:failed_imports].sole
-    assert_equal import.id, failure[:id]
+    assert_equal 1, inertia.props[:failed_import_count]
+    get imports_url
+    failure = inertia.props[:imports].find { |item| item[:id] == import.id }
     assert_match "non-public address", failure[:error]
+    assert_not failure[:dismissed]
   end
 
-  test "gallery limits failed imports to the three most recent" do
-    4.times do |index|
-      Import.create!(kind: "url", url: "https://example.com/#{index}", origin: "web").fail!("Could not import")
-    end
-
+  test "dismissing a failure clears it from the header count but keeps it in history" do
+    failed = Import.create!(kind: "url", url: "https://example.com/failed", origin: "web")
+    failed.fail!("Could not import")
     get root_url
+    assert_equal 1, inertia.props[:failed_import_count]
 
-    assert_equal Import.recent.limit(3).pluck(:id), inertia.props[:failed_imports].map { |item| item[:id] }
+    post dismiss_import_url(failed)
+
+    assert_redirected_to imports_url
+    follow_redirect!
+    assert_equal 0, inertia.props[:failed_import_count]
+    assert inertia.props[:imports].find { |item| item[:id] == failed.id }[:dismissed]
+    assert_equal "failed", failed.reload.status
+  end
+
+  test "only failures can be dismissed" do
+    pending = Import.create!(kind: "url", url: "https://example.com/pending", origin: "web")
+    done = Import.create!(kind: "url", url: "https://example.com/done", origin: "web")
+    done.succeed!(Recipe.create!(title: "Pie"))
+
+    [ pending, done ].each { |import| post dismiss_import_url(import) }
+
+    assert_nil pending.reload.dismissed_at
+    assert_nil done.reload.dismissed_at
+  end
+
+  test "dismissing needs a POST with the browser's CSRF token" do
+    failed = Import.create!(kind: "url", url: "https://example.com/failed", origin: "web")
+    failed.fail!("Could not import")
+    previous = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+
+    post dismiss_import_url(failed)
+
+    assert_response :unprocessable_content
+    assert_nil failed.reload.dismissed_at
+    assert_raises(ActionController::RoutingError) { Rails.application.routes.recognize_path(dismiss_import_path(failed), method: :get) }
+  ensure
+    ActionController::Base.allow_forgery_protection = previous
+  end
+
+  test "retrying a dismissed failure lets a new failure ask for attention again" do
+    failed = Import.create!(kind: "url", url: "https://example.com/failed", origin: "web")
+    failed.fail!("Could not import")
+    failed.dismiss!
+
+    post retry_import_url(failed)
+    failed.reload.fail!("Still could not import")
+
+    assert_equal [ failed ], Import.needs_attention.to_a
+  end
+
+  test "the imports page lists failures older than the latest thirty" do
+    old = Import.create!(kind: "url", url: "https://example.com/old", origin: "web", created_at: 2.days.ago)
+    old.fail!("Could not import")
+    30.times { |index| Import.create!(kind: "url", url: "https://example.com/#{index}", origin: "web").succeed!(Recipe.create!(title: "Recipe #{index}")) }
+
+    get imports_url
+
+    assert_includes inertia.props[:imports].map { |item| item[:id] }, old.id
   end
 
   test "URL imports keep browser CSRF protection" do
