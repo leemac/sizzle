@@ -101,11 +101,11 @@
 
 /* A low blue burner under the zz. Paused and invisible until the logo link is hovered or focused. */
 .sizzle-logo__flame {
-  --flame: #3b7dff;
-  --flame-tip: #8cc8ff;
+  --flame: #5b9dff;
+  --flame-tip: #c2e6ff;
   position: absolute;
   left: 50%;
-  top: calc(100% - 0.1em);
+  top: calc(100% - 0.26em);
   width: 1.25em;
   height: 0.3125em;
   transform: translateX(-50%);
@@ -118,7 +118,7 @@
 }
 
 :is(:hover, :focus-visible) > .sizzle-logo .sizzle-logo__flame {
-  opacity: 0.85;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
