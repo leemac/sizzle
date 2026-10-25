@@ -50,14 +50,8 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=theme-color][media='(prefers-color-scheme: dark)'][content='#{pesto.dark['porcelain']}']"
   end
 
-  test "saving during setup moves on to the next setup step" do
-    patch appearance_url, params: { theme: "hot-sauce", mode: "auto", next: "setup" }
-
-    assert_redirected_to setup_url(step: "ready")
-  end
-
-  test "the next step is an allowlist, not a redirect target" do
-    [ "https://evil.example", "//evil.example", "/recipes" ].each do |destination|
+  test "saving always returns to Appearance, never to a redirect target from the request" do
+    [ "https://evil.example", "//evil.example", "/recipes", "setup" ].each do |destination|
       patch appearance_url, params: { theme: "pesto", mode: "light", next: destination }
 
       assert_redirected_to appearance_url

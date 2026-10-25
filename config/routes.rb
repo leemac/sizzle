@@ -16,7 +16,6 @@ Rails.application.routes.draw do
     post :retry, on: :member
   end
   get "share", to: "share#show"
-  get "setup", to: "setup#show"
   resource :appearance, only: %i[show update]
   resources :themes, only: %i[new create edit update destroy]
 

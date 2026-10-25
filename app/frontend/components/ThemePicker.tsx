@@ -8,21 +8,18 @@ import type { ThemeMode, ThemeOption, ThemeToken } from '@/types'
 type Props = {
   themes: ThemeOption[]
   submitLabel: string
-  /** Set during setup so saving moves on to the next step. */
-  next?: 'setup'
 }
 
 /**
  * Pick a theme and light, dark or auto. Nothing is preselected until this browser
- * has chosen once, so setup can't be skipped. The page previews the choice live
- * and goes back to the saved look if you leave without saving.
+ * has chosen once, so it's a real choice rather than an accepted default. The page
+ * previews the choice live and goes back to the saved look if you leave without saving.
  */
-export default function ThemePicker({ themes, submitLabel, next }: Props) {
+export default function ThemePicker({ themes, submitLabel }: Props) {
   const { appearance } = usePage().props
-  const form = useForm<{ theme: string; mode: ThemeMode | ''; next: string }>({
+  const form = useForm<{ theme: string; mode: ThemeMode | '' }>({
     theme: appearance.chosen ? appearance.theme : '',
     mode: appearance.chosen ? appearance.mode : '',
-    next: next ?? '',
   })
   const prefersDark = usePrefersDark()
   const scheme = schemeFor(form.data.mode || 'auto', prefersDark)
@@ -113,7 +110,7 @@ export default function ThemePicker({ themes, submitLabel, next }: Props) {
           })}
         </div>
         <FieldError name="theme" error={form.errors.theme} />
-        {!next && current && (
+        {current && (
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href={`/themes/new?from=${encodeURIComponent(current.id)}`}

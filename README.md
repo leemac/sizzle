@@ -54,8 +54,8 @@
   <img src="docs/images/themes-light.svg" alt="Sizzle's six themes, each shown in light and dark: Sunny side up, Squid ink, Hot sauce, Pesto, Beet it and Blue plate special">
 </picture>
 
-You pick a look when you set Sizzle up, and can change it any time from the Appearance button in
-the header. Want something else? **Customize** any theme in the built-in theme editor and save it
+Sizzle starts in the dark Sunny side up theme. Pick another look, or light, dark or auto, any time
+from the Appearance button in the header. Want something else? **Customize** any theme in the built-in theme editor and save it
 as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
 [docs/themes.md](docs/themes.md) to add one.
 
@@ -88,8 +88,8 @@ for `amd64` and `arm64`.
    docker compose up -d
    ```
 
-Open `http://<your-server>:3000` and choose **Setup** for a walkthrough, then **Share from your
-phone** to add the iOS Shortcut.
+Open `http://<your-server>:3000` to start your cookbook, then choose **Share from your phone** to
+add the iOS Shortcut.
 
 > [!IMPORTANT]
 > Sizzle has no login yet. Keep it on your home network or a private network like Tailscale, and

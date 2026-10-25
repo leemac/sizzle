@@ -59,6 +59,6 @@ In development the app reloads when `themes.json` changes. Elsewhere, restart it
 
 Sizzle has no accounts, so each browser keeps its own choice in two cookies, `sizzle_theme` and
 `sizzle_mode` (`light`, `dark` or `auto`). The server only accepts ids from `themes.json` and those
-three modes, and falls back to the default theme on `auto` for anything else. It sets
+three modes, and falls back to the default theme in dark for anything else. It sets
 `data-theme` and `data-mode` on `<html>` before the page loads, so there's no flash of the wrong
-theme. Setup won't move past "Pick a look" until a browser has chosen both.
+theme.

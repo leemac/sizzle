@@ -8,13 +8,11 @@ class AppearancesController < InertiaController
 
   def update
     appearance = Appearance.new(theme_id: params[:theme], mode: params[:mode])
-    # Only setup is an allowed "next" step, so the param can't redirect anywhere else.
-    from_setup = params[:next] == "setup"
 
     if appearance.save(cookies, secure: request.ssl?)
-      redirect_to from_setup ? setup_path(step: "ready") : appearance_path, notice: "Appearance saved."
+      redirect_to appearance_path, notice: "Appearance saved."
     else
-      redirect_to from_setup ? setup_path(step: "look") : appearance_path,
+      redirect_to appearance_path,
                   inertia: { errors: { theme: appearance.errors[:theme_id].to_sentence, mode: appearance.errors[:mode].to_sentence }.compact_blank }
     end
   end

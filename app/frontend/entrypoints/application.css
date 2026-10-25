@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/bricolage-grotesque';
+@import './print.css';
 
 @plugin '@tailwindcss/forms';
 

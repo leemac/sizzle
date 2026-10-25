@@ -57,11 +57,6 @@ export type ThemeDraft = {
   dark: ThemeColors
 }
 
-export type SetupStatus = {
-  claude_configured: boolean
-  version: string
-}
-
 export type ManualRecipeInput = {
   title: string
   description: string
