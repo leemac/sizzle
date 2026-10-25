@@ -1,5 +1,6 @@
-// Same particle settings and motion as app/frontend/components/SizzleLogo.tsx.
-const config = {
+// Same particle settings, flame and motion as app/frontend/components/SizzleLogo.tsx.
+// app/frontend/lib/marketing-logo.test.js fails if the two drift apart.
+export const config = {
   version: 1,
   design: 'sizzle-zz',
   seed: 42,
@@ -106,4 +107,22 @@ export function animateLogo(field) {
   }
 }
 
+// Blue gas-flame pixels under the zz; styles.css shows and runs them while the logo is hovered or focused.
+export function drawFlame(field) {
+  for (let index = 0; index < 24; index++) {
+    const a = (index * 0.618034) % 1
+    const b = (index * 0.381966 + 0.5) % 1
+    const pixel = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    pixel.setAttribute('x', (9.5 + (index / 23) * 12 + (a - 0.5) * 1.2).toFixed(2))
+    pixel.setAttribute('y', '6')
+    pixel.setAttribute('width', '1.3')
+    pixel.setAttribute('height', '1.3')
+    pixel.style.setProperty('--flame-delay', `${(-a * 0.9).toFixed(2)}s`)
+    pixel.style.setProperty('--flame-duration', `${(0.55 + b * 0.45).toFixed(2)}s`)
+    pixel.style.setProperty('--flame-rise', `${(2.5 + b * 3).toFixed(2)}px`)
+    field.append(pixel)
+  }
+}
+
 document.querySelectorAll('.sizzle-logo__particles').forEach(animateLogo)
+document.querySelectorAll('.sizzle-logo__flame').forEach(drawFlame)

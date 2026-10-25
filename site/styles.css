@@ -147,6 +147,64 @@ main > section,
   pointer-events: none;
 }
 
+/* sizzle-logo-flame:start — keep identical to app/frontend/entrypoints/application.css (marketing-logo.test.js checks). */
+/* A low blue burner under the zz. Paused and invisible until the logo link is hovered or focused. */
+.sizzle-logo__flame {
+  --flame: #5b9dff;
+  --flame-tip: #c2e6ff;
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 0.26em);
+  width: 1.25em;
+  height: 0.3125em;
+  transform: translateX(-50%);
+  overflow: visible;
+  fill: var(--flame);
+  shape-rendering: crispEdges;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease-out;
+}
+
+a:is(:hover, :focus-visible) .sizzle-logo__flame {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sizzle-logo__flame rect {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: sizzle-flame var(--flame-duration) var(--flame-delay) linear infinite paused;
+  }
+
+  a:is(:hover, :focus-visible) .sizzle-logo__flame rect {
+    animation-play-state: running;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sizzle-logo__flame rect {
+    transform: translateY(calc(var(--flame-rise) * -0.4));
+  }
+}
+
+@keyframes sizzle-flame {
+  0% {
+    transform: translateY(0) scale(1);
+    fill: var(--flame);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(var(--flame-rise) * -1)) scale(0.5);
+    fill: var(--flame-tip);
+    opacity: 0;
+  }
+}
+/* sizzle-logo-flame:end */
+
 .icon {
   width: 1.125em;
   height: 1.125em;
