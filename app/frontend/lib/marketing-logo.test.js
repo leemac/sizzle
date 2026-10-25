@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { act, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { animateLogo } from '../../../site/sizzle-logo.js'
+import SizzleLogo from '../components/SizzleLogo'
+import appConfig from '../components/sizzle-logo-config.json'
+import { animateLogo, config as marketingConfig, drawFlame } from '../../../site/sizzle-logo.js'
 import marketingPage from '../../../site/index.html?raw'
 
 let media
@@ -79,4 +85,52 @@ it('pauses in hidden tabs and cleans up its animation and listeners', () => {
   document.dispatchEvent(new Event('visibilitychange'))
   media.dispatchEvent(new Event('change'))
   expect(frames.size).toBe(0)
+})
+
+// Vitest stubs CSS imports, even ?raw ones, so read the stylesheets from disk.
+const appStyles = readFileSync(resolve(import.meta.dirname, '../entrypoints/application.css'), 'utf8')
+const marketingStyles = readFileSync(resolve(import.meta.dirname, '../../../site/styles.css'), 'utf8')
+
+// The app header and the marketing site draw the same logo. These fail when one changes without the other.
+function flameRule(css) {
+  const block = css.match(/sizzle-logo-flame:start[^\n]*\n([\s\S]*?)\/\* sizzle-logo-flame:end/)
+  expect(block).not.toBeNull()
+  return block[1]
+}
+
+function flamePixels(field) {
+  return [...field.querySelectorAll('rect')].map((pixel) => ({
+    x: pixel.getAttribute('x'),
+    y: pixel.getAttribute('y'),
+    width: pixel.getAttribute('width'),
+    height: pixel.getAttribute('height'),
+    delay: pixel.style.getPropertyValue('--flame-delay'),
+    duration: pixel.style.getPropertyValue('--flame-duration'),
+    rise: pixel.style.getPropertyValue('--flame-rise'),
+  }))
+}
+
+it('uses the same particle settings as the app logo', () => {
+  expect(marketingConfig).toEqual(appConfig)
+})
+
+it('uses the same flame styles as the app logo', () => {
+  expect(flameRule(marketingStyles)).toBe(flameRule(appStyles))
+})
+
+it('draws the same flame pixels as the app logo', () => {
+  const marketingFlame = document.querySelector('.sizzle-logo__flame')
+  drawFlame(marketingFlame)
+
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  const container = document.createElement('div')
+  document.body.append(container)
+  const root = createRoot(container)
+  act(() => root.render(createElement(SizzleLogo)))
+  const appFlame = container.querySelector('.sizzle-logo__flame')
+
+  expect(marketingFlame.getAttribute('viewBox')).toBe(appFlame.getAttribute('viewBox'))
+  expect(flamePixels(marketingFlame)).toHaveLength(24)
+  expect(flamePixels(marketingFlame)).toEqual(flamePixels(appFlame))
+  act(() => root.unmount())
 })
