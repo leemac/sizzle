@@ -86,13 +86,16 @@ export default function ImportsIndex({
             )}
           </p>
           <label htmlFor="input" className="text-sm font-medium">
-            {app.claude_configured ? 'Recipe link or text' : 'Recipe link'}
+            {app.claude_configured ? 'Recipe links or text' : 'Recipe links'}
           </label>
+          <p id="input-help" className="mt-1 text-sm text-graphite">
+            To import several recipes at once, paste one link per line (up to 20).
+          </p>
           <textarea
             id="input"
-            aria-describedby={form.errors.input ? 'input-error' : undefined}
+            aria-describedby={`input-help${form.errors.input ? ' input-error' : ''}`}
             aria-invalid={!!form.errors.input}
-            rows={3}
+            rows={4}
             value={form.data.input}
             onChange={(event) => form.setData('input', event.target.value)}
             placeholder={example.placeholder}
