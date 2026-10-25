@@ -60,10 +60,13 @@ class SafeHttp
 
   # Fetches `url` and returns a Response. `max_bytes` caps the decompressed
   # body; `accept` filters on the response's media type prefix (e.g. "image/").
-  def get(url, max_bytes: 5.megabytes, accept: nil, headers: {})
+  def get(url, max_bytes: 5.megabytes, accept: nil, headers: {}, deadline: nil)
     # Timeout uses CLOCK_MONOTONIC and covers DNS, headers, body reads and all
     # redirects in one budget, including a peer that never stops trickling bytes.
-    Timeout.timeout(@total_timeout, DeadlineExceeded, "download deadline exceeded") do
+    timeout = deadline ? [ @total_timeout, deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC) ].min : @total_timeout
+    raise DeadlineExceeded, "download deadline exceeded" unless timeout.positive?
+
+    Timeout.timeout(timeout, DeadlineExceeded, "download deadline exceeded") do
       uri = validate_uri!(url)
 
       (MAX_REDIRECTS + 1).times do

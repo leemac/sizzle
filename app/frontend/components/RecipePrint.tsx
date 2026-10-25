@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import Icon from '@/components/Icon'
-import { formatAmount, formatQuantity, groupBySection } from '@/lib/format'
+import { formatAmount, formatDate, formatQuantity, formatTimestamp, groupBySection } from '@/lib/format'
 import { fitToPage } from '@/lib/print'
 import { scaleIngredient } from '@/lib/scaleIngredient'
 import type { RecipeDetail } from '@/types'
@@ -58,6 +58,16 @@ function PrintSheet({ recipe, stats, scale, ref }: PrintProps & { ref: React.Ref
     .join(' · ')
   const source = recipe.source_name || recipe.source_host
   const labels = [...recipe.diets, ...recipe.tags].map(sentenceCase).join(' · ')
+  // The sheet mounts afresh for each print, so this is when this copy was printed.
+  const [printedAt] = useState(() => new Date().toISOString())
+  const made = recipe.cooks_count === 1 ? 'Made once' : `Made ${recipe.cooks_count} times`
+  const history = [
+    `Added ${formatDate(recipe.created_at)}`,
+    recipe.cooks_count > 0 && made,
+    recipe.last_cook && `last made ${formatDate(recipe.last_cook.cooked_at)}`,
+  ]
+    .filter(Boolean)
+    .join(' · ')
   const indexedIngredients = recipe.ingredients.map((ingredient, index) => ({
     ...scaleIngredient(ingredient, scale),
     index,
@@ -166,14 +176,20 @@ function PrintSheet({ recipe, stats, scale, ref }: PrintProps & { ref: React.Ref
         </section>
       </div>
 
-      {(labels || recipe.source_url) && (
-        <footer className="print-sheet__footer">
-          <span>{labels}</span>
-          {recipe.source_url && (
-            <span className="print-sheet__clip">{recipe.source_url.replace(/^https?:\/\/(www\.)?/, '')}</span>
-          )}
-        </footer>
-      )}
+      <footer className="print-sheet__footer">
+        {(labels || recipe.source_url) && (
+          <div className="print-sheet__row">
+            <span>{labels}</span>
+            {recipe.source_url && (
+              <span className="print-sheet__clip">{recipe.source_url.replace(/^https?:\/\/(www\.)?/, '')}</span>
+            )}
+          </div>
+        )}
+        <div className="print-sheet__row">
+          <span>{history}</span>
+          <span className="print-sheet__printed">Printed {formatTimestamp(printedAt)}</span>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -209,9 +209,9 @@ class ImportDuplicateReviewTest < ActionDispatch::IntegrationTest
     saved = Recipe.create!(title: "Pie", source_url: "https://example.com/pie")
     input = "#{saved.source_url}\nhttps://example.com/soup\nhttps://example.com/soup"
     plan = review(input)
-    assert_nil ImportsController.cache_store.read("import-budget:#{request.remote_ip}")
+    assert_nil ImportsController.cache_store.read(ImportBudget::KEY)
     confirm(input, plan, [ "https://example.com/soup" ])
-    assert_equal 1, ImportsController.cache_store.read("import-budget:#{request.remote_ip}")
+    assert_equal 1, ImportsController.cache_store.read(ImportBudget::KEY)
   ensure
     ImportsController.cache_store = previous
   end

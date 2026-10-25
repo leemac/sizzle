@@ -141,6 +141,28 @@ class SafeHttpTest < ActiveSupport::TestCase
     assert_not_requested :get, "https://example.com/b"
   end
 
+  test "an inherited deadline interrupts a fetch and cannot extend its own timeout" do
+    resolver = Object.new
+    resolver.define_singleton_method(:getaddresses) { |_host| sleep 1; [ "93.184.215.14" ] }
+    http = SafeHttp.new(resolver:, total_timeout: 0.05)
+    [ 0.02, 10 ].each do |remaining|
+      started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      assert_raises(SafeHttp::DeadlineExceeded) do
+        http.get("https://example.com/", deadline: started + remaining)
+      end
+      assert_operator Process.clock_gettime(Process::CLOCK_MONOTONIC) - started, :<, 0.5
+    end
+    assert_not_requested :get, "https://example.com/"
+  end
+
+  test "an exhausted inherited deadline does not resolve or fetch" do
+    resolver = Object.new
+    resolver.define_singleton_method(:getaddresses) { |_host| raise "must not resolve" }
+    assert_raises(SafeHttp::DeadlineExceeded) do
+      SafeHttp.new(resolver:).get("https://example.com/", deadline: 0)
+    end
+  end
+
   private
 
   def with_env(vars)
