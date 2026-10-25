@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/bricolage-grotesque';
+@import './print.css';
 
 @plugin '@tailwindcss/forms';
 
@@ -36,7 +37,8 @@
     font-family: var(--font-sans);
   }
 
-  @media (prefers-color-scheme: dark) {
+  /* Screen only: printouts stay ink on white paper. */
+  @media screen and (prefers-color-scheme: dark) {
     :root {
       --color-porcelain: #141416;
       --color-paper: #1d1d20;

@@ -2,16 +2,12 @@ import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
-import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
+import RecipePrint from '@/components/RecipePrint'
+import { formatAmount, formatDay, formatTimestamp, groupBySection, isToday, recipeStats, timeAgo } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
-  const stats = [
-    ['Prep', formatMinutes(recipe.prep_minutes)],
-    ['Cook', formatMinutes(recipe.cook_minutes)],
-    ['Total', formatMinutes(recipe.total_minutes)],
-    ['Serves', recipe.servings ? String(recipe.servings) : recipe.yield_text],
-  ].filter((stat): stat is [string, string] => Boolean(stat[1]))
+  const stats = recipeStats(recipe)
 
   return (
     <article>
@@ -20,13 +16,16 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
           <Icon name="back" className="size-4" />
           All recipes
         </Link>
-        <Link
-          href={`/recipes/${recipe.id}/edit`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-paper px-4 py-2 ring-1 ring-hairline transition-colors hover:ring-ink/30"
-        >
-          <Icon name="edit" className="size-4" />
-          Edit recipe
-        </Link>
+        <div className="flex items-center gap-2">
+          <RecipePrint recipe={recipe} />
+          <Link
+            href={`/recipes/${recipe.id}/edit`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-paper px-4 py-2 ring-1 ring-hairline transition-colors hover:ring-ink/30"
+          >
+            <Icon name="edit" className="size-4" />
+            Edit recipe
+          </Link>
+        </div>
       </div>
 
       {recipe.archived && (

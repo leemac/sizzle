@@ -1,0 +1,370 @@
+/*
+ * The printed recipe: one page, laid out like a recipe card. RecipePrint mounts the
+ * sheet only while printing, and fitToPage sets --print-size to the largest type that
+ * keeps it on one page. Everything inside is sized in em, so that one value scales
+ * the whole sheet, photo included.
+ *
+ * On screen the sheet is laid out off to the side at the printable width, invisible,
+ * so it can be measured. In print it replaces everything else on the page.
+ */
+.print-sheet {
+  position: absolute;
+  top: 0;
+  left: -200vw;
+  display: flex;
+  flex-direction: column;
+  width: 7.25in;
+  visibility: hidden;
+  pointer-events: none;
+  font-size: var(--print-size, 10pt);
+  line-height: 1.4;
+  /* Imported text can hold one enormous "word"; it wraps rather than running off the paper. */
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+  background: var(--color-paper);
+}
+
+.print-sheet__masthead,
+.print-sheet__footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2em;
+  font-size: 0.78em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__masthead {
+  padding-bottom: 0.7em;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+/* The wordmark, with one yolk pixel of sizzle. */
+.print-sheet__brand {
+  font-family: var(--font-display);
+  font-size: 1.55em;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: var(--color-ink);
+}
+
+.print-sheet__brand::after {
+  content: '';
+  display: inline-block;
+  width: 0.2em;
+  height: 0.2em;
+  margin-left: 0.1em;
+  background: var(--color-yolk);
+}
+
+.print-sheet__clip {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.print-sheet__hero {
+  display: grid;
+  gap: 1.75em;
+  margin-top: 1.5em;
+}
+
+.print-sheet__hero--photo {
+  grid-template-columns: minmax(0, 1fr) 19em;
+}
+
+.print-sheet__intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.print-sheet__kicker {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--color-graphite);
+}
+
+.print-sheet__title {
+  margin-top: 0.2em;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: 2.9em;
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.print-sheet__description {
+  margin-top: 0.75em;
+  max-width: 34em;
+  font-size: 1.04em;
+  line-height: 1.45;
+  color: var(--color-graphite);
+}
+
+.print-sheet__byline {
+  margin-top: 0.6em;
+  font-size: 0.85em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 2em;
+  margin-top: 1.2em;
+  padding-top: 0.75em;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.print-sheet__stats dt {
+  font-size: 0.75em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__stats dd {
+  font-family: var(--font-display);
+  font-size: 1.35em;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-sheet__photo {
+  align-self: start;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.9em;
+}
+
+/*
+ * Ingredients beside the method, with "Good to know" under whichever column is shorter:
+ * the second row takes the leftover height, so the box sits right under its column.
+ */
+.print-sheet__body {
+  display: grid;
+  grid-template-columns: 16.5em minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'shopping method'
+    'tips method';
+  column-gap: 2.25em;
+  margin-top: 1.6em;
+  padding: 1.3em 0 1.6em;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.print-sheet[data-layout='split-tips-right'] .print-sheet__body {
+  grid-template-areas:
+    'shopping method'
+    'shopping tips';
+}
+
+.print-sheet__shopping {
+  grid-area: shopping;
+}
+
+.print-sheet__method {
+  grid-area: method;
+}
+
+/* The dense layout: ingredients across the page in three columns, the method in two below. */
+.print-sheet[data-layout='stacked'] .print-sheet__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas: 'shopping' 'tips' 'method';
+  row-gap: 1.5em;
+}
+
+.print-sheet[data-layout='stacked'] .print-sheet__aside {
+  margin-top: 0;
+}
+
+.print-sheet[data-layout='stacked'] .print-sheet__groups--ingredients {
+  columns: 3;
+  column-gap: 1.75em;
+}
+
+.print-sheet[data-layout='stacked'] .print-sheet__groups--steps {
+  columns: 2;
+  column-gap: 2.25em;
+}
+
+.print-sheet__heading {
+  font-family: var(--font-display);
+  font-size: 1.35em;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.print-sheet__subheading {
+  font-family: var(--font-display);
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.print-sheet__yield {
+  margin-top: 0.15em;
+  font-size: 0.85em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__section {
+  margin-top: 0.9em;
+  font-size: 0.9em;
+  font-weight: 600;
+  break-after: avoid;
+}
+
+.print-sheet__ingredients {
+  margin-top: 0.4em;
+  font-size: 0.92em;
+  line-height: 1.3;
+}
+
+.print-sheet__ingredients li {
+  display: grid;
+  grid-template-columns: 0.75em minmax(0, 1fr);
+  gap: 0.6em;
+  padding: 0.34em 0;
+  border-bottom: 1px solid var(--color-hairline);
+  break-inside: avoid;
+}
+
+.print-sheet__ingredients--amounts li {
+  grid-template-columns: 0.75em 4.6em minmax(0, 1fr);
+}
+
+/* An empty box to tick off with a pen. */
+.print-sheet__box {
+  width: 0.75em;
+  height: 0.75em;
+  margin-top: 0.22em;
+  border: 1px solid var(--color-graphite);
+  border-radius: 0.18em;
+}
+
+.print-sheet__amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-sheet__muted {
+  color: var(--color-graphite);
+}
+
+.print-sheet__note {
+  display: block;
+  font-size: 0.88em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__aside {
+  grid-area: tips;
+  align-self: start;
+  margin-top: 1.4em;
+  padding: 0.85em 1em 0.95em;
+  border: 1px solid var(--color-hairline);
+  border-radius: 0.8em;
+  break-inside: avoid;
+}
+
+.print-sheet__tips {
+  margin-top: 0.35em;
+  padding-left: 1.1em;
+  list-style: disc;
+  font-size: 0.88em;
+  color: var(--color-graphite);
+}
+
+.print-sheet__tips li + li {
+  margin-top: 0.3em;
+}
+
+.print-sheet__tips li::marker {
+  color: var(--color-yolk);
+}
+
+.print-sheet__steps li {
+  display: grid;
+  grid-template-columns: 1.7em minmax(0, 1fr);
+  gap: 0.4em;
+  margin-top: 0.7em;
+  line-height: 1.45;
+  break-inside: avoid;
+}
+
+.print-sheet__number {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-graphite);
+  font-variant-numeric: tabular-nums;
+}
+
+.print-sheet__notes {
+  margin-top: 1.4em;
+  padding-top: 0.9em;
+  border-top: 1px solid var(--color-hairline);
+  break-inside: avoid;
+}
+
+.print-sheet__notes p {
+  margin-top: 0.3em;
+  font-size: 0.92em;
+  white-space: pre-line;
+  color: var(--color-graphite);
+}
+
+.print-sheet__footer {
+  margin-top: auto;
+  padding-top: 0.7em;
+  border-top: 1px solid var(--color-hairline);
+}
+
+@media print {
+  /* No browser margins, so no printed URL and date; the sheet brings its own. */
+  @page {
+    margin: 0;
+  }
+
+  /* A recipe too long for one page gets real margins on every page instead. */
+  @page sizzle-long {
+    margin: 0.5in 0;
+  }
+
+  html,
+  body {
+    background: var(--color-paper);
+  }
+
+  body:has(> .print-sheet) > :not(.print-sheet) {
+    display: none !important;
+  }
+
+  .print-sheet {
+    position: static;
+    width: auto;
+    min-height: calc(100vh - 0.25in);
+    padding: 0.5in;
+    visibility: visible;
+    print-color-adjust: exact;
+  }
+
+  .print-sheet[data-fit='overflow'] {
+    page: sizzle-long;
+    display: block;
+    min-height: 0;
+    padding-block: 0;
+  }
+}
