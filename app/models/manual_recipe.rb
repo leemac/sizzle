@@ -39,7 +39,7 @@ class ManualRecipe
     @recipe = Recipe.create!(
       title: RecipeText.plain(title), description: RecipeText.plain(description).presence,
       ingredients: RecipeText.sectioned_lines(ingredients).filter_map { |section, line| RecipeText.ingredient(line)&.merge("section" => section) },
-      steps: RecipeText.lines(steps).map { |line| { "section" => nil, "text" => line } },
+      steps: parsed_steps,
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
       total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence,
       **list_attributes
@@ -53,6 +53,11 @@ class ManualRecipe
   end
 
   private
+
+  # One step per line; "# Heading" lines name the section for the steps below them.
+  def parsed_steps
+    RecipeText.sectioned_lines(steps).map { |section, line| { "section" => section, "text" => line } }
+  end
 
   # Ticked options in Sizzle's own order.
   def list_attributes
@@ -83,6 +88,7 @@ class ManualRecipe
     return if errors.any?
 
     errors.add(:ingredients, "needs at least one ingredient, not only headings") if RecipeText.sectioned_lines(ingredients).none? { |_, line| RecipeText.visible(line).present? }
+    errors.add(:steps, "needs at least one step, not only headings") if RecipeText.sectioned_lines(steps).empty?
   end
 
   # The source is only shown as a link, never fetched, but it must be a web link

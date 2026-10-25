@@ -136,15 +136,10 @@ class RecipeEdit < ManualRecipe
     end
   end
 
-  def parsed_steps
-    sectioned_lines(steps).map { |section, line| { "section" => section, "text" => line } }
-  end
-
   def usable_sections
     return if errors.any?
 
     super
-    errors.add(:steps, "needs at least one step, not only headings") if sectioned_lines(steps).empty?
     tip_lines = RecipeText.lines(tips)
     errors.add(:tips, "must have at most #{RecipeText::MAX_ITEMS} lines") if tip_lines.length > RecipeText::MAX_ITEMS
     errors.add(:tips, "has a line longer than #{MAX_TIP_LENGTH} characters") if tip_lines.any? { |line| line.length > MAX_TIP_LENGTH }

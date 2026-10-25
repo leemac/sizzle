@@ -38,7 +38,8 @@
   in the video aren't supported yet.
 - **Just the recipe.** Ingredients, steps and the best photo. No ads, pop-ups or life story.
 - **No AI required.** Sizzle reads a site's recipe data, or you write the recipe yourself. Add an
-  Anthropic API key to handle pages without recipe data and pasted text.
+  Anthropic API key to handle pages without recipe data, pasted text, and screenshots of recipes
+  Sizzle can't fetch.
 - **Fast to browse.** A photo grid or compact list with full-text search and filters for course,
   cuisine, diet, main ingredient and time.
 - **Remember what you cook.** Save favorites and use “I made this” to track when and how often
