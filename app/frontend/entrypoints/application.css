@@ -100,7 +100,8 @@
 }
 
 /* sizzle-logo-flame:start — keep identical to site/styles.css (marketing-logo.test.js checks). */
-/* A low blue burner under the zz. Paused and invisible until the logo link is hovered or focused. */
+/* A low blue burner under the zz. Paused and invisible until the logo link is hovered or focused.
+   Fixed brand colours, not theme roles: the logo mark looks the same in every theme (docs/themes.md). */
 .sizzle-logo__flame {
   --flame: #5b9dff;
   --flame-tip: #c2e6ff;
