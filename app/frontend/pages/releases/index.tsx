@@ -13,6 +13,15 @@ export default function ReleasesIndex({ releases }: { releases: Release[] }) {
         <Icon name="back" className="size-4" /> Back to the cookbook
       </Link>
 
+      <div className="mt-6 flex items-center gap-3 rounded-xl border border-active/30 bg-mark px-4 py-3 text-sm font-semibold text-ink">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-5 shrink-0 text-active">
+          <path d="M5 15v6M19 15v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <rect x="2" y="5" width="20" height="10" rx="2" fill="currentColor" />
+          <path d="m7 6-4 8m10-8-4 8m10-8-4 8" stroke="var(--color-on-active)" strokeWidth="2" />
+        </svg>
+        Under construction
+      </div>
+
       <header className="relative mt-8 mb-8 grid items-center gap-8 border-b border-hairline pb-8 sm:grid-cols-[1fr_10rem]">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Release notes</h1>
         <div
@@ -71,17 +80,27 @@ export default function ReleasesIndex({ releases }: { releases: Release[] }) {
                 id={`v${release.version}`}
                 className="release-entry scroll-mt-24 rounded-2xl border border-hairline bg-paper p-5 sm:p-8"
               >
-                <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
-                  <h2 className="rounded-full bg-mark px-3 py-1 font-mono font-medium text-ink">v{release.version}</h2>
-                  <time dateTime={release.date} className="text-graphite">
-                    {dateFormat.format(new Date(`${release.date}T12:00:00Z`))}
-                  </time>
-                  {release.version === app.version ? (
-                    <span className="inline-flex items-center gap-1 text-graphite">
-                      <Icon name="check" className="size-3" /> Your version
+                <div className="mb-5 flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+                    <h2 className="rounded-full bg-mark px-3 py-1 font-mono font-medium text-ink">
+                      v{release.version}
+                    </h2>
+                    <time dateTime={release.date} className="text-graphite">
+                      {dateFormat.format(new Date(`${release.date}T12:00:00Z`))}
+                    </time>
+                    {release.version === app.version && (
+                      <span className="inline-flex items-center gap-1 text-graphite">
+                        <Icon name="check" className="size-3" /> Your version
+                      </span>
+                    )}
+                  </div>
+                  {index === 0 && (
+                    <span
+                      title="Latest release in this build"
+                      className="shrink-0 rounded-full bg-active px-3 py-1 text-xs font-semibold text-on-active"
+                    >
+                      Latest
                     </span>
-                  ) : (
-                    index === 0 && <span className="text-graphite">Latest in this build</span>
                   )}
                 </div>
                 <details open={index === 0} className="group border-t border-hairline pt-4">
