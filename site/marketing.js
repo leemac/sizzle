@@ -3,7 +3,36 @@ const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 // Northern-hemisphere seasons; the selector also works without JavaScript.
 const season = ['winter', 'spring', 'summer', 'autumn'][Math.floor(((new Date().getMonth() + 1) % 12) / 3)]
 const seasonalChoice = document.querySelector(`input[name="hero-season"][value="${season}"]`)
-if (seasonalChoice) seasonalChoice.checked = true
+const hero = document.querySelector('.hero-screen')
+if (hero) {
+  hero.dataset.activeSeason = hero.querySelector('input[name="hero-season"]:checked').value
+
+  const showSeason = async (choice) => {
+    const images = hero.querySelectorAll(`[data-season="${choice.value}"] img`)
+    try {
+      // Hidden seasons are lazy-loaded. Keep the current stack until every card is ready to paint.
+      await Promise.all(
+        [...images].map((img) => {
+          img.loading = 'eager'
+          return img.decode()
+        }),
+      )
+    } catch {
+      if (choice.checked) hero.querySelector(`input[value="${hero.dataset.activeSeason}"]`).checked = true
+      return
+    }
+    // A slower request must not replace a more recent selection.
+    if (choice.checked) hero.dataset.activeSeason = choice.value
+  }
+
+  hero.querySelectorAll('input[name="hero-season"]').forEach((choice) => {
+    choice.addEventListener('change', () => showSeason(choice))
+  })
+  if (seasonalChoice) {
+    seasonalChoice.checked = true
+    showSeason(seasonalChoice)
+  }
+}
 
 // Content stays visible without JS, without IntersectionObserver, or with reduced motion.
 if (!motion.matches && 'IntersectionObserver' in window) {

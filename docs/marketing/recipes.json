@@ -1,0 +1,436 @@
+[
+  {
+    "slug": "roast-chicken",
+    "title": "Golden rosemary roast chicken",
+    "description": "Crisp golden skin, garlic pan juices and rosemary potatoes. A Sunday roast worth gathering around.",
+    "course": "main",
+    "servings": 4,
+    "prep_minutes": 20,
+    "cook_minutes": 90,
+    "total_minutes": 125,
+    "tags": ["autumn", "Sunday lunch"],
+    "ingredients": [
+      {
+        "amount": "1",
+        "unit": "",
+        "item": "whole chicken, about 1.6 kg",
+        "section": ""
+      },
+      {
+        "amount": "750",
+        "unit": "g",
+        "item": "potatoes, cut into chunks",
+        "section": ""
+      },
+      {
+        "amount": "2",
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": ""
+      },
+      {
+        "amount": "30",
+        "unit": "g",
+        "item": "soft butter",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "",
+        "item": "lemon, halved",
+        "section": ""
+      },
+      {
+        "amount": "6",
+        "unit": "",
+        "item": "garlic cloves",
+        "section": ""
+      },
+      {
+        "amount": "3",
+        "unit": "",
+        "item": "rosemary sprigs",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "tsp",
+        "item": "fine salt",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Heat the oven to 200°C. Pat the chicken dry and rub with the butter and half the salt. Put the lemon and one rosemary sprig inside the cavity.",
+        "section": ""
+      },
+      {
+        "text": "Toss the potatoes and garlic with the oil, remaining salt and rosemary in a roasting tin. Set the chicken on top.",
+        "section": ""
+      },
+      {
+        "text": "Roast for about 90 minutes, turning the potatoes halfway through. Check with a thermometer that the thickest breast and thigh reach at least 74°C, away from the bone. Continue cooking if needed.",
+        "section": ""
+      },
+      {
+        "text": "Transfer the chicken to a board and rest for 15 minutes. Return the potatoes to the oven to crisp, then serve with the pan juices.",
+        "section": ""
+      }
+    ]
+  },
+  {
+    "slug": "apple-crumble",
+    "title": "Warm apple crumble tarts",
+    "description": "Buttery pastry, cinnamon apples and a crisp oat crumble. Best served warm with vanilla ice cream.",
+    "course": "dessert",
+    "servings": 6,
+    "prep_minutes": 25,
+    "cook_minutes": 35,
+    "total_minutes": 75,
+    "tags": ["autumn", "baking"],
+    "ingredients": [
+      {
+        "amount": "320",
+        "unit": "g",
+        "item": "ready-rolled shortcrust pastry",
+        "section": ""
+      },
+      {
+        "amount": "3",
+        "unit": "",
+        "item": "apples, peeled and finely diced",
+        "section": ""
+      },
+      {
+        "amount": "60",
+        "unit": "g",
+        "item": "light brown sugar",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "tsp",
+        "item": "cinnamon",
+        "section": ""
+      },
+      {
+        "amount": "60",
+        "unit": "g",
+        "item": "plain flour",
+        "section": ""
+      },
+      {
+        "amount": "40",
+        "unit": "g",
+        "item": "rolled oats",
+        "section": ""
+      },
+      {
+        "amount": "50",
+        "unit": "g",
+        "item": "cold butter, cubed",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Heat the oven to 190°C. Line six greased tart tins with pastry and prick the bases. Line with baking paper and baking beans; bake for 12 minutes, then remove the paper and beans.",
+        "section": ""
+      },
+      {
+        "text": "Cook the apples with 20 g of the sugar, the cinnamon and 2 tbsp water over medium heat for 8 minutes, until just tender.",
+        "section": ""
+      },
+      {
+        "text": "Rub the butter into the flour until crumbly, then stir in the oats and remaining sugar. Divide the apples between the pastry cases and scatter the crumble over them.",
+        "section": ""
+      },
+      {
+        "text": "Bake for 20 to 25 minutes, until the pastry and topping are golden. Cool for 15 minutes before serving.",
+        "section": ""
+      }
+    ]
+  },
+  {
+    "slug": "lasagna",
+    "title": "Bubbling beef lasagna",
+    "description": "Rich tomato ragù, creamy béchamel and a bubbling golden cheese crust. Save a corner piece.",
+    "course": "main",
+    "servings": 6,
+    "prep_minutes": 25,
+    "cook_minutes": 65,
+    "total_minutes": 100,
+    "tags": ["winter", "comfort food"],
+    "ingredients": [
+      {
+        "amount": "500",
+        "unit": "g",
+        "item": "minced beef",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "",
+        "item": "onion, finely chopped",
+        "section": ""
+      },
+      {
+        "amount": "2",
+        "unit": "",
+        "item": "garlic cloves, crushed",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "tbsp",
+        "item": "olive oil",
+        "section": ""
+      },
+      {
+        "amount": "800",
+        "unit": "g",
+        "item": "chopped tomatoes",
+        "section": ""
+      },
+      {
+        "amount": "250",
+        "unit": "g",
+        "item": "lasagna sheets",
+        "section": ""
+      },
+      {
+        "amount": "600",
+        "unit": "ml",
+        "item": "béchamel sauce",
+        "section": ""
+      },
+      {
+        "amount": "150",
+        "unit": "g",
+        "item": "grated mozzarella",
+        "section": ""
+      },
+      {
+        "amount": "50",
+        "unit": "g",
+        "item": "grated parmesan",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Heat the oil in a deep pan. Soften the onion for 8 minutes, add the garlic, then brown the beef thoroughly, breaking it up with a spoon.",
+        "section": ""
+      },
+      {
+        "text": "Add the tomatoes, season to taste and simmer for 25 minutes. Heat the oven to 190°C.",
+        "section": ""
+      },
+      {
+        "text": "Layer the ragù, pasta sheets and béchamel in a baking dish, finishing with béchamel and both cheeses. Follow the pasta packet instructions if the sheets need precooking.",
+        "section": ""
+      },
+      {
+        "text": "Bake for 35 to 40 minutes, until the pasta is tender, the centre is piping hot and the top is golden. Rest for 10 minutes before slicing.",
+        "section": ""
+      }
+    ]
+  },
+  {
+    "slug": "spring-pasta",
+    "title": "Lemon pea and mint pasta",
+    "description": "Sweet green peas, ribbons of lemon zest and fresh mint in a silky parmesan sauce.",
+    "course": "main",
+    "servings": 4,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "total_minutes": 25,
+    "tags": ["spring", "quick"],
+    "ingredients": [
+      {
+        "amount": "350",
+        "unit": "g",
+        "item": "farfalle",
+        "section": ""
+      },
+      {
+        "amount": "250",
+        "unit": "g",
+        "item": "peas",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "",
+        "item": "lemon, zest and juice",
+        "section": ""
+      },
+      {
+        "amount": "30",
+        "unit": "g",
+        "item": "butter",
+        "section": ""
+      },
+      {
+        "amount": "60",
+        "unit": "g",
+        "item": "finely grated parmesan",
+        "section": ""
+      },
+      {
+        "amount": "2",
+        "unit": "tbsp",
+        "item": "chopped fresh mint",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Bring a large pan of salted water to the boil. Cook the pasta according to the packet instructions, adding the peas for the final 3 minutes.",
+        "section": ""
+      },
+      {
+        "text": "Reserve a mug of pasta water, then drain. Return the pasta and peas to the warm pan off the heat.",
+        "section": ""
+      },
+      {
+        "text": "Toss with the butter, lemon zest, half the lemon juice and parmesan. Add a little pasta water at a time until the sauce coats the pasta.",
+        "section": ""
+      },
+      {
+        "text": "Fold in the mint, taste and add more lemon juice, salt and pepper as needed. Serve straight away.",
+        "section": ""
+      }
+    ]
+  },
+  {
+    "slug": "strawberry-tart",
+    "title": "Strawberry cream tart",
+    "description": "A crisp pastry shell, vanilla cream and juicy strawberries. A little sunshine on a plate.",
+    "course": "dessert",
+    "servings": 6,
+    "prep_minutes": 25,
+    "cook_minutes": 25,
+    "total_minutes": 110,
+    "tags": ["spring", "baking"],
+    "ingredients": [
+      {
+        "amount": "320",
+        "unit": "g",
+        "item": "ready-rolled shortcrust pastry",
+        "section": ""
+      },
+      {
+        "amount": "250",
+        "unit": "g",
+        "item": "mascarpone",
+        "section": ""
+      },
+      {
+        "amount": "150",
+        "unit": "ml",
+        "item": "double cream",
+        "section": ""
+      },
+      {
+        "amount": "40",
+        "unit": "g",
+        "item": "icing sugar",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "tsp",
+        "item": "vanilla extract",
+        "section": ""
+      },
+      {
+        "amount": "400",
+        "unit": "g",
+        "item": "strawberries, hulled and sliced",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Heat the oven to 190°C. Line a 23 cm tart tin with the pastry and prick the base. Line with baking paper and baking beans.",
+        "section": ""
+      },
+      {
+        "text": "Bake for 15 minutes. Remove the paper and beans and bake for 10 minutes more, until golden and cooked through. Cool completely for about 45 minutes.",
+        "section": ""
+      },
+      {
+        "text": "Whisk the mascarpone, cream, icing sugar and vanilla until thick enough to hold soft peaks.",
+        "section": ""
+      },
+      {
+        "text": "Spoon the cream into the cooled shell and top with strawberries. Chill for 15 minutes before slicing. Keep refrigerated and eat within 2 days.",
+        "section": ""
+      }
+    ]
+  },
+  {
+    "slug": "grilled-corn",
+    "title": "Charred corn with lime butter",
+    "description": "Sweetcorn blistered on the grill, brushed with chilli-lime butter and finished with coriander.",
+    "course": "side",
+    "servings": 4,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "total_minutes": 25,
+    "tags": ["summer", "barbecue"],
+    "ingredients": [
+      {
+        "amount": "4",
+        "unit": "",
+        "item": "corn cobs, husks removed",
+        "section": ""
+      },
+      {
+        "amount": "40",
+        "unit": "g",
+        "item": "soft butter",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "",
+        "item": "lime, zest and juice",
+        "section": ""
+      },
+      {
+        "amount": "0.5",
+        "unit": "tsp",
+        "item": "chilli flakes",
+        "section": ""
+      },
+      {
+        "amount": "1",
+        "unit": "tbsp",
+        "item": "chopped coriander",
+        "section": ""
+      },
+      {
+        "amount": "0.25",
+        "unit": "tsp",
+        "item": "fine salt",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "text": "Heat a barbecue or griddle pan to medium-high. Mix the butter with the lime zest, chilli flakes, salt and 1 tsp lime juice.",
+        "section": ""
+      },
+      {
+        "text": "Grill the corn for 12 to 15 minutes, turning regularly, until tender with lightly charred patches.",
+        "section": ""
+      },
+      {
+        "text": "Brush the hot corn with the lime butter. Scatter with coriander and serve with the remaining lime cut into wedges.",
+        "section": ""
+      }
+    ]
+  }
+]

@@ -10,15 +10,18 @@ const base = new URL(process.argv[2] || 'http://localhost:3212')
 if (!['localhost', '127.0.0.1', '[::1]'].includes(base.hostname)) throw new Error('Use a loopback demo URL.')
 const output = resolve(process.argv[3] || 'site/images')
 const recipes = [
+  ['roast-chicken', 'Golden rosemary roast chicken'],
   ['soup', 'Roasted carrot and ginger soup'],
-  ['banana-bread', 'Brown Butter Banana Bread'],
+  ['apple-crumble', 'Warm apple crumble tarts'],
   ['cookies', 'Chocolate chunk cookies with flaky salt'],
   ['ramen', 'Miso ramen with salmon and soft-boiled eggs'],
+  ['lasagna', 'Bubbling beef lasagna'],
   ['salmon', 'Lemon salmon with cucumber salsa'],
-  ['salad', 'Rainbow chickpea salad with lemon tahini dressing'],
+  ['spring-pasta', 'Lemon pea and mint pasta'],
+  ['strawberry-tart', 'Strawberry cream tart'],
   ['berry-tarts', 'Little summer berry lattice tarts'],
   ['tacos', 'Smoky sweetcorn and black bean tacos'],
-  ['pancakes', 'Blueberry buttermilk pancakes'],
+  ['grilled-corn', 'Charred corn with lime butter'],
 ]
 const encode = promisify(execFile)
 await mkdir(output, { recursive: true })
