@@ -9,6 +9,17 @@ Make the next action clear and its result easy to see. The experience should fee
 quick, simple, and quietly playful. Work within the existing tokens and conventions in
 `AGENTS.md` and `app/frontend/entrypoints/application.css`.
 
+## Dark surfaces and recipe color
+
+Sizzle defaults to dark surfaces, including when the OS prefers light. Match browser chrome,
+native controls, and installed-app launch colors so the page does not flash into a light shell.
+Keep semantic feedback readable against dark surfaces.
+
+Recipe photos may supply a restrained abstract color wash around the hero. Reuse the existing
+image with blur and fading edges; keep it decorative, static after arrival, and behind readable
+text. Preserve the neutral layout when a photo is absent or cannot load. The image provides
+atmosphere; yolk remains the accent for actions and state.
+
 ## Forms become visible results
 
 - Keep a submitted item close to the control that created it. For imports, place the newly
