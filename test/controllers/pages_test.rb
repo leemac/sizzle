@@ -56,8 +56,7 @@ class PagesTest < ActionDispatch::IntegrationTest
       recipe_url(@recipe) => "Chickpea Curry · Sizzle",
       edit_recipe_url(@recipe) => "Edit Chickpea Curry · Sizzle",
       imports_url => "Add a recipe · Sizzle",
-      share_url => "Share from your phone · Sizzle",
-      setup_url => "Set up · Sizzle" }.each do |url, title|
+      share_url => "Share from your phone · Sizzle" }.each do |url, title|
       get url
       assert_select "head title", count: 1, text: title
     end

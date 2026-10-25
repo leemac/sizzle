@@ -71,7 +71,7 @@ class ImportPipeline
 
   def import_text
     @import.advance!("extracting")
-    raise NeedsManualEntry, "Pasted text needs optional AI extraction. Write the recipe manually instead, or enable AI in Setup." unless ai_extractor
+    raise NeedsManualEntry, "Pasted text needs optional AI extraction. Write the recipe manually instead, or set ANTHROPIC_API_KEY on your server to enable AI." unless ai_extractor
 
     draft = RecipeDraft.new(ai_extractor.from_text(@import.text))
     raise NotARecipe unless draft.recipe?
@@ -89,9 +89,10 @@ class ImportPipeline
   def no_recipe_data_message
     if video_id
       "This video's description has no recipe data Sizzle can read without AI. Write the recipe manually, " \
-        "or enable optional AI in Setup."
+        "or set ANTHROPIC_API_KEY on your server to enable optional AI."
     else
-      "This page has no usable recipe data. Write the recipe manually, or enable optional AI in Setup."
+      "This page has no usable recipe data. Write the recipe manually, " \
+        "or set ANTHROPIC_API_KEY on your server to enable optional AI."
     end
   end
 

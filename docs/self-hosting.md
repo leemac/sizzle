@@ -21,7 +21,7 @@ docker compose up -d
 
 Sizzle listens on port 3000 (change it with `SIZZLE_PORT`). Everything it stores lives in the
 `sizzle-storage` Docker volume: SQLite databases, recipe photos, and a generated secret key.
-**Setup** in Sizzle shows which version you're running.
+The footer in Sizzle shows which version you're running.
 
 ## Versions
 
@@ -70,7 +70,7 @@ cp .env.example .env
 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
-Setup will report the version as `dev`.
+The footer will show the version as `dev`.
 
 ## Back up
 

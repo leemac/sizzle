@@ -10,11 +10,6 @@ export type SharedProps = {
   app: { claude_configured: boolean; version: string }
 }
 
-export type SetupStatus = {
-  claude_configured: boolean
-  version: string
-}
-
 export type ManualRecipeInput = {
   title: string
   description: string

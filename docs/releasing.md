@@ -37,7 +37,7 @@ downgrade them. An older release also leaves GitHub's latest release unchanged.
    1. checks the tag is a version and points at a commit on `main`;
    2. runs all of CI again on that commit;
    3. builds `linux/amd64` and `linux/arm64` on native runners, with the version baked in
-      (Setup shows it), plus an SBOM and build provenance;
+      (the app footer shows it), plus an SBOM and build provenance;
    4. publishes the exact image tag (`0.0.1`) and signs its provenance, then advances `0.0`
       and `latest` if they don't already point to a newer version (and the major tag, `1`,
       from 1.0 on);

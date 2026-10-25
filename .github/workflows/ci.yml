@@ -153,9 +153,9 @@ jobs:
           for _ in $(seq 1 30); do
             # /up proves Rails booted; / proves the database was prepared and the gallery renders.
             if curl -fsS http://localhost:3000/up && curl -fsS -o /dev/null http://localhost:3000/; then
-              # The version passed at build time is what Setup reports.
-              curl -fsS http://localhost:3000/setup | grep -q '0\.0\.0-ci' && exit 0
-              echo "Setup does not report the build's version"
+              # The version passed at build time is what the footer reports.
+              curl -fsS http://localhost:3000/ | grep -q '0\.0\.0-ci' && exit 0
+              echo "The footer does not report the build's version"
               break
             fi
             sleep 2
