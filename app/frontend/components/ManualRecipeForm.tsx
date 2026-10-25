@@ -1,7 +1,9 @@
-import { Link, useForm } from '@inertiajs/react'
+import { Link, useForm, usePage } from '@inertiajs/react'
 import ChoiceChips from '@/components/ChoiceChips'
 import FieldError, { inputClass } from '@/components/FieldError'
+import ScreenshotFill from '@/components/ScreenshotFill'
 import { MEAL_TIMES, SEASONS } from '@/lib/mealMoment'
+import { mergeScreenshotFields } from '@/lib/screenshotFill'
 import type { ManualRecipeInput, SourceDuplicate } from '@/types'
 
 export default function ManualRecipeForm({
@@ -11,6 +13,7 @@ export default function ManualRecipeForm({
   sourceUrl?: string | null
   duplicate?: SourceDuplicate | null
 }) {
+  const { app } = usePage().props
   const form = useForm<ManualRecipeInput>({
     title: '',
     description: '',
@@ -35,6 +38,16 @@ export default function ManualRecipeForm({
       <p className="text-sm text-graphite">
         Write or paste your recipe into the fields below. No AI or API key needed.
       </p>
+      {app.claude_configured && (
+        <ScreenshotFill
+          onFields={(found) => {
+            const { data, filled, kept } = mergeScreenshotFields(form.data, found)
+            form.setData(data)
+            form.clearErrors(...(Object.keys(found) as (keyof ManualRecipeInput)[]))
+            return { filled, kept }
+          }}
+        />
+      )}
       <div>
         <label htmlFor="recipe-title" className="text-sm font-medium">
           Recipe title

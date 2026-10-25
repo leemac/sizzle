@@ -76,6 +76,11 @@ class RecipeExtractor
     links to. You can't see or hear the video, so use only what is written. If the material doesn't contain the
     recipe's ingredients, set is_recipe to false.
 
+    Screenshots are images of a recipe the user couldn't import, in order; several may show parts of one page.
+    Read only the recipe text they show and ignore phone and browser interface, ads and comments. A screenshot may
+    show only part of a recipe, such as just the method: set is_recipe to true if any part of a recipe is shown,
+    and leave fields you can't read empty or null. Never guess text that is cut off or unreadable.
+
     Stay faithful to the cook's recipe: same ingredients, quantities and method. Never invent quantities, steps or
     times that aren't in the source. Prefer the schema.org data when it agrees with the page, and fix its obvious
     problems (HTML entities, duplicated steps, ad text mashed in). Drop everything that isn't the recipe: life
@@ -128,6 +133,14 @@ class RecipeExtractor
 
   def from_text(text)
     extract("<pasted_text>\n#{strip_wrapper_tags(text)}\n</pasted_text>")
+  end
+
+  # Each screenshot responds to media_type (an image type Claude accepts) and bytes.
+  def from_screenshots(screenshots)
+    images = screenshots.map do |screenshot|
+      { type: "image", source: { type: "base64", media_type: screenshot.media_type, data: Base64.strict_encode64(screenshot.bytes) } }
+    end
+    extract([ *images, { type: "text", text: "<screenshots count=\"#{screenshots.size}\" />" } ])
   end
 
   private

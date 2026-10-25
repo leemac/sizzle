@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   resources :imports, only: %i[index create] do
     post :retry, on: :member
   end
+  resources :recipe_screenshots, path: "imports/screenshots", only: :create
   get "share", to: "share#show"
   get "share/shortcut", to: "share#shortcut"
   resources :shortcut_connections, path: "share/connections", only: %i[create destroy]
