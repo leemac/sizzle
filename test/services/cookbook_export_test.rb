@@ -99,4 +99,41 @@ class CookbookExportTest < ActiveSupport::TestCase
     writer&.close
     file&.close!
   end
+
+  test "a killed export child cannot leave its manifest in the temporary directory" do
+    Dir.mktmpdir do |directory|
+      reader, writer = IO.pipe
+      builder = Class.new(CookbookExport) do
+        define_method(:write_metadata) do |file, _text|
+          file.write("x" * 1.megabyte)
+          file.flush
+          writer.puts({ path: file.path, links: file.stat.nlink }.to_json)
+          writer.close
+          sleep
+        end
+      end
+      pid = fork do
+        reader.close
+        ENV["TMPDIR"] = directory
+        # Stop at the first actual manifest write, before reading any records.
+        builder.new.send(:write_cookbook, nil)
+      end
+      writer.close
+      manifest = JSON.parse(Timeout.timeout(5) { reader.gets })
+      assert_equal directory, File.dirname(manifest.fetch("path"))
+      assert_equal 0, manifest.fetch("links"), "the manifest must be anonymous before generation continues"
+      assert_empty Dir.children(directory)
+      Process.kill("KILL", pid)
+      Timeout.timeout(5) { Process.wait(pid) }
+      pid = nil
+      assert_empty Dir.children(directory), "SIGKILL must not leave a named manifest behind"
+    ensure
+      reader&.close unless reader&.closed?
+      writer&.close unless writer&.closed?
+      if pid
+        Process.kill("KILL", pid)
+        Process.wait(pid)
+      end
+    end
+  end
 end

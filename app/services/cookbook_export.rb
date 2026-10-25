@@ -110,6 +110,9 @@ class CookbookExport
 
   def write_cookbook(tar)
     Tempfile.create([ "sizzle-recipes-", ".json" ]) do |manifest|
+      # Ruby 3.3 doesn't support Tempfile.create(anonymous: true). Unlink the
+      # open file immediately so the OS reclaims it even if this child is killed.
+      File.unlink(manifest.path)
       write_metadata(manifest, "{\"format_version\":1,\"exported_at\":#{Time.current.iso8601.to_json},\"recipes\":[")
       count = 0
       Recipe.with_attached_cover.with_attached_photos.find_each(batch_size: 50) do |recipe|
