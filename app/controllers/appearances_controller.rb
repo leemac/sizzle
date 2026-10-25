@@ -2,6 +2,7 @@
 # in cookies (see Appearance); nothing is written to the database.
 class AppearancesController < InertiaController
   def show
+    inertia_meta.add(title: "Appearance")
     render inertia: "appearance/show", props: { themes: ThemeSerializer.call }
   end
 

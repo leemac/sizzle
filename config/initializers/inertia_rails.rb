@@ -8,5 +8,8 @@ InertiaRails.configure do |config|
   config.use_script_element_for_initial_page = true
   config.use_data_inertia_head_attribute = true
   config.server_head = true
+  # Titles are set in controllers with inertia_meta.add(title:) so the first HTML
+  # response and every Inertia visit agree. Pages without one are just "Sizzle".
+  config.meta_title_template = ->(title) { title.present? ? "#{title} · Sizzle" : "Sizzle" }
   config.convert_fragment_redirects = true
 end

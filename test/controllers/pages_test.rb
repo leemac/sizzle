@@ -40,6 +40,35 @@ class PagesTest < ActionDispatch::IntegrationTest
     assert inertia.props[:recipe][:hero_url]
   end
 
+  test "page titles name the page, then Sizzle" do
+    { root_url => "Sizzle",
+      recipe_url(@recipe) => "Chickpea Curry · Sizzle",
+      edit_recipe_url(@recipe) => "Edit Chickpea Curry · Sizzle",
+      imports_url => "Add a recipe · Sizzle",
+      share_url => "Share from your phone · Sizzle",
+      setup_url => "Set up · Sizzle" }.each do |url, title|
+      get url
+      assert_select "head title", count: 1, text: title
+    end
+  end
+
+  test "Inertia visits carry the page title so it updates on navigation" do
+    get recipe_url(@recipe), headers: { "X-Inertia" => "true", "X-Inertia-Version" => ViteRuby.digest }
+
+    assert_includes response.parsed_body.dig("props", "head"), %(<title data-inertia="title">Chickpea Curry · Sizzle</title>)
+  end
+
+  test "imported recipe titles are escaped in the page title" do
+    @recipe.update!(title: "Pie</title><script>alert(1)</script>")
+
+    get recipe_url(@recipe)
+    assert_select "head title", text: "Pie</title><script>alert(1)</script> · Sizzle"
+    assert_select "head script", text: "alert(1)", count: 0
+
+    get recipe_url(@recipe), headers: { "X-Inertia" => "true", "X-Inertia-Version" => ViteRuby.digest }
+    assert_includes response.parsed_body.dig("props", "head").join, "Pie&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt; · Sizzle"
+  end
+
   test "deleting a recipe" do
     delete recipe_url(@recipe)
 
@@ -63,6 +92,16 @@ class PagesTest < ActionDispatch::IntegrationTest
 
     assert_equal "share/show", inertia.component
     assert_equal api_imports_url, inertia.props[:endpoint]
+    assert_equal [ { "url" => api_imports_url, "network" => nil } ], inertia.props[:shortcut_endpoints]
+  end
+
+  test "share setup page never offers the phone a localhost address" do
+    get "http://localhost/share"
+
+    assert_equal "http://localhost/api/imports", inertia.props[:endpoint]
+    inertia.props[:shortcut_endpoints].each do |endpoint|
+      assert_not ServerAddresses.loopback_host?(URI(endpoint["url"]).host), endpoint["url"]
+    end
   end
 
   test "history encryption is enabled over HTTPS and omitted for LAN HTTP" do
