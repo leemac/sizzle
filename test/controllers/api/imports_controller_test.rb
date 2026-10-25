@@ -16,6 +16,7 @@ class Api::ImportsControllerTest < ActionDispatch::IntegrationTest
     body = response.parsed_body
     assert_equal "queued", body["status"]
     assert_equal "share", Import.find(body["id"]).origin
+    assert Import.find(body["id"]).ai_allowed?, "API imports retain server configuration independently of browser preferences"
   end
 
   test "rejects non-JSON requests so other websites can't submit imports from a browser" do

@@ -56,10 +56,10 @@ class Import < ApplicationRecord
     update!(status: "failed", error: message.to_s.truncate(500), finished_at: Time.current)
   end
 
-  def retry!
+  def retry!(ai_allowed: self.ai_allowed)
     return unless status == "failed"
 
-    update!(status: "queued", error: nil, finished_at: nil)
+    update!(status: "queued", error: nil, finished_at: nil, ai_allowed:)
     enqueue
   end
 

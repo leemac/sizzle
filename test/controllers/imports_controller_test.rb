@@ -125,4 +125,35 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
   ensure
     ActionController::Base.allow_forgery_protection = previous
   end
+
+  test "web imports capture explicit permission and default to local extraction" do
+    post imports_url, params: { input: "https://example.com/local" }
+    assert_not Import.last.ai_allowed?
+    post imports_url, params: { input: "https://example.com/approved", allow_ai: true }
+    assert Import.last.ai_allowed?
+    post imports_url, params: { input: "https://example.com/forged", allow_ai: "anything" }
+    assert_not Import.last.ai_allowed?
+    patch settings_url, params: { preferences: { ai_mode: "automatic" } }
+    post imports_url, params: { input: "https://example.com/automatic" }
+    assert_not Import.last.ai_allowed?, "a cookie change cannot authorize a stale page's local-only submission"
+    post imports_url, params: { input: "https://example.com/automatic-approved", allow_ai: true }
+    assert Import.last.ai_allowed?
+    post imports_url, params: { input: "https://example.com/automatic-current", automatic_ai: true }
+    assert Import.last.ai_allowed?
+    patch settings_url, params: { preferences: { ai_mode: "ask" } }
+    post imports_url, params: { input: "https://example.com/stale-automatic", automatic_ai: true }
+    assert_not Import.last.ai_allowed?, "turning automatic AI off must also stop stale pages in history or other tabs"
+  end
+
+  test "permission applies to every link in a batch and is checked again on retries" do
+    post imports_url, params: { input: "https://example.com/a\nhttps://example.com/b", allow_ai: true }
+    assert Import.last(2).all?(&:ai_allowed?)
+    import = Import.last
+    import.fail!("No recipe data")
+    post retry_import_url(import)
+    assert_not import.reload.ai_allowed?
+    import.fail!("No recipe data")
+    post retry_import_url(import), params: { allow_ai: true }
+    assert import.reload.ai_allowed?
+  end
 end

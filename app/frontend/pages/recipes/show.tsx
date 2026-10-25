@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
 import RecipeVideo from '@/components/RecipeVideo'
+import CookingMode from '@/components/CookingMode'
 import RecipePrint from '@/components/RecipePrint'
 import AppLayout from '@/layouts/AppLayout'
 import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
@@ -120,74 +121,76 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         />
       </header>
 
-      <div className="mt-14 grid gap-14 border-t border-hairline pt-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <Ingredients key={recipe.id} recipe={recipe} scale={scale}>
-          <div role="group" aria-label="Ingredient quantities" className="mt-4 flex flex-wrap gap-2">
-            {(
-              [
-                [0.5, '½×', 'Half quantities'],
-                [1, '1×', 'Original quantities'],
-                [2, '2×', 'Double quantities'],
-              ] as const
-            ).map(([multiplier, label, name]) => (
-              <button
-                key={multiplier}
-                type="button"
-                aria-label={name}
-                aria-pressed={scale === multiplier}
-                disabled={!!recipe.servings && recipe.servings * multiplier > 10000}
-                onClick={() => multiply(multiplier)}
-                className={`min-h-11 min-w-14 rounded-full px-4 py-2 text-sm tabular-nums disabled:opacity-50 ${scale === multiplier ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {recipe.servings ? (
-            <div className="mt-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <label htmlFor="recipe-servings" className="text-sm font-medium">
-                  Servings
-                </label>
-                <input
-                  id="recipe-servings"
-                  type="number"
-                  min={0.5}
-                  max={10000}
-                  step={0.5}
-                  value={servings}
-                  onChange={(event) => changeServings(event.target.value)}
-                  className="w-24 rounded-xl border-hairline bg-paper px-3 py-2 text-base focus:border-ink focus:ring-0"
-                  aria-invalid={!validServings}
-                  aria-describedby="servings-hint"
-                />
-                {servings !== String(recipe.servings) && (
-                  <button
-                    type="button"
-                    onClick={() => changeServings(String(recipe.servings))}
-                    className="rounded-full px-3 py-2 text-sm ring-1 ring-hairline hover:bg-paper"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-              <p id="servings-hint" className="mt-2 text-sm text-graphite">
-                {validServings
-                  ? `Original recipe serves ${recipe.servings}. Quantities adjust for this view.`
-                  : 'Enter servings from ½ to 10,000, in half-serving increments.'}
-              </p>
+      <CookingMode key={recipe.id}>
+        <div className="mt-8 grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <Ingredients key={recipe.id} recipe={recipe} scale={scale}>
+            <div role="group" aria-label="Ingredient quantities" className="mt-4 flex flex-wrap gap-2">
+              {(
+                [
+                  [0.5, '½×', 'Half quantities'],
+                  [1, '1×', 'Original quantities'],
+                  [2, '2×', 'Double quantities'],
+                ] as const
+              ).map(([multiplier, label, name]) => (
+                <button
+                  key={multiplier}
+                  type="button"
+                  aria-label={name}
+                  aria-pressed={scale === multiplier}
+                  disabled={!!recipe.servings && recipe.servings * multiplier > 10000}
+                  onClick={() => multiply(multiplier)}
+                  className={`min-h-11 min-w-14 rounded-full px-4 py-2 text-sm tabular-nums disabled:opacity-50 ${scale === multiplier ? 'bg-active font-medium text-on-active' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-          ) : (
-            <p className="mt-2 text-sm text-graphite">Add servings in Edit recipe to choose a serving count.</p>
-          )}
-          {scale !== 1 && (
-            <p role="status" className="mt-2 text-sm text-graphite">
-              Only ingredient quantities adjust. Amounts without a number stay unchanged.
-            </p>
-          )}
-        </Ingredients>
-        <Steps recipe={recipe} />
-      </div>
+            {recipe.servings ? (
+              <div className="mt-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label htmlFor="recipe-servings" className="text-sm font-medium">
+                    Servings
+                  </label>
+                  <input
+                    id="recipe-servings"
+                    type="number"
+                    min={0.5}
+                    max={10000}
+                    step={0.5}
+                    value={servings}
+                    onChange={(event) => changeServings(event.target.value)}
+                    className="w-24 rounded-xl border-hairline bg-paper px-3 py-2 text-base focus:border-ink focus:ring-0"
+                    aria-invalid={!validServings}
+                    aria-describedby="servings-hint"
+                  />
+                  {servings !== String(recipe.servings) && (
+                    <button
+                      type="button"
+                      onClick={() => changeServings(String(recipe.servings))}
+                      className="rounded-full px-3 py-2 text-sm ring-1 ring-hairline hover:bg-paper"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <p id="servings-hint" className="mt-2 text-sm text-graphite">
+                  {validServings
+                    ? `Original recipe serves ${recipe.servings}. Quantities adjust for this view.`
+                    : 'Enter servings from ½ to 10,000, in half-serving increments.'}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-graphite">Add servings in Edit recipe to choose a serving count.</p>
+            )}
+            {scale !== 1 && (
+              <p role="status" className="mt-2 text-sm text-graphite">
+                Only ingredient quantities adjust. Amounts without a number stay unchanged.
+              </p>
+            )}
+          </Ingredients>
+          <Steps recipe={recipe} />
+        </div>
+      </CookingMode>
 
       {recipe.photo_urls.length > 0 && (
         <section className="mt-16">
@@ -251,7 +254,7 @@ function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale:
       {groupBySection(indexed).map(([section, items]) => (
         <div key={section ?? ''} className="mt-6">
           {section && <h3 className="mb-2 font-medium">{section}</h3>}
-          <ul className="divide-y divide-hairline">
+          <ul data-ingredient-list className="divide-y divide-hairline">
             {items.map((ingredient) => {
               const done = checked.has(ingredient.index)
               const amount = formatAmount(ingredient)
@@ -305,7 +308,9 @@ function Steps({ recipe }: { recipe: RecipeDetail }) {
                   <span className="font-display text-2xl leading-7 font-semibold text-graphite tabular-nums">
                     {step.index + 1}
                   </span>
-                  <span className="max-w-prose text-lg leading-relaxed">{step.text}</span>
+                  <span data-method-text className="max-w-prose text-lg leading-relaxed">
+                    {step.text}
+                  </span>
                 </button>
               </li>
             ))}

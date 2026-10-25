@@ -71,6 +71,9 @@ class ImportPipeline
 
   def import_text
     @import.advance!("extracting")
+    unless @import.ai_allowed?
+      raise NeedsManualEntry, "Pasted text needs AI extraction. Allow Claude for this import, or write the recipe manually."
+    end
     raise NeedsManualEntry, "Pasted text needs optional AI extraction. Write the recipe manually instead, or set ANTHROPIC_API_KEY on your server to enable AI." unless ai_extractor
 
     draft = RecipeDraft.new(ai_extractor.from_text(@import.text))
@@ -87,6 +90,11 @@ class ImportPipeline
   end
 
   def no_recipe_data_message
+    unless @import.ai_allowed?
+      return "No usable recipe data was found. AI wasn't allowed for this import. " \
+        "Try again with Claude, or write the recipe manually."
+    end
+
     if video_id
       "This video's description has no recipe data Sizzle can read without AI. Write the recipe manually, " \
         "or set ANTHROPIC_API_KEY on your server to enable optional AI."
@@ -102,6 +110,8 @@ class ImportPipeline
   end
 
   def ai_extractor
+    return unless @import.ai_allowed?
+
     return @extractor if @extractor
 
     @extractor = RecipeExtractor.new if Sizzle.claude_configured?
