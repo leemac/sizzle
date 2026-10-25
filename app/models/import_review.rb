@@ -8,10 +8,7 @@ class ImportReview
   def initialize(batch)
     groups = batch.imports.select { |import| import.kind == "url" }.group_by { |import| Import.source_key(import.url) }
     recipes = Recipe.where(source_url: groups.keys).index_by(&:source_url)
-    # A previously imported redirect/canonical alias can also identify a recipe.
-    aliases = Import.where(kind: "url", status: "done", url: batch.imports.map(&:url) + groups.keys)
-      .where.not(recipe_id: nil).includes(:recipe).order(:id)
-    aliases.each { |import| recipes[Import.source_key(import.url)] ||= import.recipe }
+    recipes.merge!(historical_sources(groups.keys - recipes.keys))
     pending = pending_sources(groups.keys - recipes.keys)
 
     @entries = groups.map do |key, imports|
@@ -48,6 +45,23 @@ class ImportReview
   end
 
   private
+
+  # Redirects can save a recipe under a different canonical URL. Normalize the
+  # stored alias before matching, too: raw SQL URL equality would miss earlier
+  # tracking variants. Scan only the needed columns in batches, retain at most
+  # one ID per requested source, then load only the matching recipes.
+  def historical_sources(keys)
+    aliases = {}
+    return aliases if keys.empty?
+
+    Import.where(kind: "url", status: "done").where.not(recipe_id: nil).select(:id, :url, :recipe_id).find_each do |import|
+      key = Import.source_key(import.url)
+      aliases[key] ||= import.recipe_id if keys.include?(key)
+      break if aliases.size == keys.size
+    end
+    recipes = Recipe.where(id: aliases.values).index_by(&:id)
+    aliases.transform_values { |id| recipes[id] }.compact
+  end
 
   # Tracking parameters and YouTube aliases also occur in the pending queue.
   # Scan in batches, retaining at most one match per source in this paste.

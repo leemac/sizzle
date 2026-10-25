@@ -103,6 +103,45 @@ class ImportDuplicateReviewTest < ActionDispatch::IntegrationTest
     assert_equal saved.id, plan[:entries].sole[:recipe_id]
   end
 
+  test "historical tracking aliases require review before restoring archived canonical recipes" do
+    saved = Recipe.create!(title: "Archived pie", source_url: "https://example.com/canonical-pie", archived_at: Time.current)
+    Import.create!(kind: "url", url: "https://example.com/redirect?utm_source=ig#recipe", origin: "web", status: "done", recipe: saved)
+
+    [ "https://example.com/redirect", "https://example.com/redirect?utm_source=email",
+      "https://example.com/redirect?fbclid=share#notes" ].each do |input|
+      plan = review(input)
+      assert_equal saved.id, plan[:entries].sole[:recipe_id]
+      assert plan[:entries].sole[:archived]
+      assert saved.reload.archived?
+
+      assert_no_enqueued_jobs do
+        assert_no_difference("Import.count") { confirm(input, plan) }
+      end
+      assert saved.reload.archived?, "skipping a historical alias must not restore its recipe"
+    end
+
+    input = "https://example.com/redirect?utm_medium=share"
+    plan = review(input)
+    assert_no_enqueued_jobs do
+      assert_no_difference("Import.count") { confirm(input, plan, [ "https://example.com/redirect" ]) }
+    end
+    assert_not saved.reload.archived?
+  end
+
+  test "historical aliases retain query parameters that select a different recipe" do
+    saved = Recipe.create!(title: "Pie", source_url: "https://example.com/canonical-pie")
+    Import.create!(kind: "url", url: "https://example.com/redirect?recipe=pie&utm_source=ig", origin: "web", status: "done", recipe: saved)
+
+    input = "https://example.com/redirect?recipe=pie\nhttps://example.com/redirect?recipe=cake&utm_source=email"
+    plan = review(input)
+    assert_equal saved.id, plan[:entries].first[:recipe_id]
+    assert_nil plan[:entries].last[:recipe_id]
+    assert_enqueued_jobs 1, only: ImportJob do
+      assert_difference("Import.count", 1) { confirm(input, plan, [ plan[:entries].last[:key] ]) }
+    end
+    assert_equal "https://example.com/redirect?recipe=cake&utm_source=email", Import.last.url
+  end
+
   test "confirmation is bound to the paste and current matches" do
     saved = Recipe.create!(title: "Pie", source_url: "https://example.com/pie")
     input = saved.source_url
