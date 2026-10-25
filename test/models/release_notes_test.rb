@@ -10,7 +10,7 @@ class ReleaseNotesTest < ActiveSupport::TestCase
     releases.each do |release|
       assert_match(/\A\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?\z/, release.fetch("version"))
       Date.iso8601(release.fetch("date"))
-      %w[title summary highlights sections].each { |key| assert release.fetch(key).present? }
+      assert release.fetch("sections").present?
       release.fetch("sections").each { |section| assert section.fetch("paragraphs").all?(&:present?) }
     end
   end

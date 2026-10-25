@@ -68,8 +68,8 @@ available. Opening the journal remembers the newest visible version in this brow
 Versioned builds show entries at or below their own version; development shows all entries.
 
 Before choosing the final release SHA, prepend an entry with the proposed `version` (without
-`v`), intended release `date` (`YYYY-MM-DD`), a short `title` and `summary`, `highlights`
-(`title` and `body`), and `sections` (`title` and `paragraphs`). Follow the existing entries.
+`v`), intended release `date` (`YYYY-MM-DD`), and `sections` (`title` and `paragraphs`).
+Use the published release prose directly, without editorial titles, summaries or commentary.
 Use plain text; React escapes it. Keep upgrade steps, opt-in settings, privacy implications
 and limitations in the full notes. Use only changes actually included in the candidate.
 GitHub notes may include extra PR links, but their claims and upgrade guidance must agree.

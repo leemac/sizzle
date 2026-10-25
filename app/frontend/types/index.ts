@@ -32,10 +32,7 @@ export type SharedProps = {
 export type Release = {
   version: string
   date: string
-  title: string
-  summary: string
   url: string
-  highlights: { title: string; body: string }[]
   sections: { title: string; paragraphs: string[] }[]
 }
 

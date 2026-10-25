@@ -2,22 +2,6 @@
   {
     "version": "0.3.1",
     "date": "2026-10-25",
-    "title": "A little less typing. A lot more cooking.",
-    "summary": "Turn recipe screenshots into a first draft, bring a cookbook with you, and make ingredients easier to follow.",
-    "highlights": [
-      {
-        "title": "From screenshot to recipe",
-        "body": "Paste, drop or select up to four screenshots. Optional Claude extraction fills the form; you review it before saving."
-      },
-      {
-        "title": "Your cookbook, unpacked",
-        "body": "Import a Sizzle export with photos, notes and cooking history when your host enables cookbook imports."
-      },
-      {
-        "title": "Ingredients at a glance",
-        "body": "Little ingredient icons, smarter quantity scaling and a choice of ingredient order or grouping."
-      }
-    ],
     "sections": [
       {
         "title": "About this release",
@@ -66,22 +50,6 @@
   {
     "version": "0.3.0",
     "date": "2026-10-25",
-    "title": "Make yourself at home.",
-    "summary": "Your colours, your cooking preferences, and a little help answering “what’s for dinner?”",
-    "highlights": [
-      {
-        "title": "A cookbook in your colours",
-        "body": "Choose a theme and light, dark or automatic mode for each browser."
-      },
-      {
-        "title": "Dinner indecision, meet SOS",
-        "body": "Find recipes for the current meal, with seasonal dishes first."
-      },
-      {
-        "title": "Ready for your kitchen",
-        "body": "Adjust cooking text, keep the screen awake on supported browsers, export your cookbook and connect the optional iPhone Shortcut."
-      }
-    ],
     "sections": [
       {
         "title": "About this release",
@@ -129,22 +97,6 @@
   {
     "version": "0.2.0",
     "date": "2026-10-25",
-    "title": "A recipe that fits the table.",
-    "summary": "Half a batch, twice the guests, or a printed copy beside the stove. Your recipes can come along.",
-    "highlights": [
-      {
-        "title": "A pinch more, a little less",
-        "body": "Scale servings without changing the saved recipe, and organise ingredients under headings."
-      },
-      {
-        "title": "From screen to countertop",
-        "body": "Print a recipe card with your chosen servings on A4 or Letter."
-      },
-      {
-        "title": "Keep the useful bits",
-        "body": "Review duplicate links before importing and open YouTube directions straight from a recipe."
-      }
-    ],
     "sections": [
       {
         "title": "About this release",
@@ -192,22 +144,6 @@
   {
     "version": "0.1.0",
     "date": "2026-10-25",
-    "title": "Keep the ones you make again.",
-    "summary": "A growing cookbook gets cooking history, a compact view, and more ways to bring recipes in.",
-    "highlights": [
-      {
-        "title": "“I made this”",
-        "body": "Record a cook, see when you last made a recipe and undo an accidental entry."
-      },
-      {
-        "title": "A handful of links",
-        "body": "Paste up to 20 recipe links at once, including YouTube videos with written recipes."
-      },
-      {
-        "title": "Browse your way",
-        "body": "Switch between a photo grid and a compact list. Your browser remembers."
-      }
-    ],
     "sections": [
       {
         "title": "About this release",
@@ -257,22 +193,6 @@
   {
     "version": "0.0.1",
     "date": "2026-10-24",
-    "title": "The first things on the stove.",
-    "summary": "The first published Sizzle: a home for recipes, without the long story before the ingredients.",
-    "highlights": [
-      {
-        "title": "Save the good part",
-        "body": "Import from recipe pages, write recipes yourself, or enable optional AI extraction."
-      },
-      {
-        "title": "Build your own collection",
-        "body": "Keep favourites, edit the details and archive recipes you no longer need."
-      },
-      {
-        "title": "At home on your server",
-        "body": "Install versioned images for both supported architectures, with local storage for your cookbook."
-      }
-    ],
     "sections": [
       {
         "title": "What's Changed",
