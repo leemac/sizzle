@@ -382,3 +382,61 @@ test('reduced motion keeps submission and completion feedback without decorative
   await expect(card.locator('.import-saved')).toHaveCSS('animation-name', 'none')
   await expect(page.locator('#input')).toHaveValue('')
 })
+
+for (const width of [390, 1280]) {
+  test(`failed video imports link to the source without AI checkboxes at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    const { data } = await importsFixture(page)
+    const videoUrl = 'https://www.youtube.com/shorts/un5GQ_Hc-Tg'
+    await page.locator('#input').fill(videoUrl)
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
+    Object.assign(data.props.imports[0], {
+      status: 'failed',
+      error: "This video's description doesn't include the recipe. Write the recipe manually instead.",
+    })
+    const source = page.getByRole('link', { name: `${videoUrl} (opens in a new tab)`, exact: true })
+    await expect(source).toHaveAttribute('href', videoUrl, { timeout: 10_000 })
+    await expect(source).toHaveAttribute('target', '_blank')
+    await expect(source).toHaveAttribute('rel', 'noopener noreferrer nofollow')
+    await expect(page.getByRole('checkbox')).toHaveCount(0)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`failed-video-${width}.png`), fullPage: true })
+  })
+}
+
+test('failed imports never expose executable source URLs', async ({ page }) => {
+  const { data } = await importsFixture(page)
+  await page.locator('#input').fill('https://example.com/recipe')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  Object.assign(data.props.imports[0], { status: 'failed', url: 'javascript:alert(1)', error: 'Import failed' })
+  await expect(page.getByText('Import failed', { exact: true })).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0)
+})
+
+for (const width of [390, 1280]) {
+  test(`source metadata survives failed imports and refresh at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    const { data } = await importsFixture(page)
+    await page.locator('#input').fill('https://www.youtube.com/shorts/un5GQ_Hc-Tg')
+    await page.getByRole('button', { name: 'Import', exact: true }).click()
+    Object.assign(data.props.imports[0], {
+      status: 'failed',
+      error: 'No recipe found.',
+      source_metadata: {
+        title: 'Easy coconut rice',
+        site_name: 'The rice kitchen',
+        description: 'A simple rice recipe.',
+      },
+    })
+    const source = page.getByRole('link', { name: 'Easy coconut rice (opens in a new tab)', exact: true })
+    await expect(source).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('The rice kitchen', { exact: true })).toBeVisible()
+    await expect(page.getByText('A simple rice recipe.', { exact: true })).toBeVisible()
+    data.props.submitted_import_ids = []
+    await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
+    await expect(page.getByRole('region', { name: 'Recent imports' })).toContainText('Easy coconut rice')
+    await expect(page.locator('li.border svg')).toHaveCount(2)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`source-metadata-${width}.png`), fullPage: true })
+  })
+}

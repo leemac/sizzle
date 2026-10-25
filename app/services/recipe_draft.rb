@@ -21,6 +21,19 @@ class RecipeDraft
     @video = video.is_a?(Hash) ? video : {}
   end
 
+  # Page metadata is hostile too. Store bounded plain text, never imported HTML.
+  def self.source_metadata(page)
+    { "title" => [ page.title, 300 ], "site_name" => [ page.site_name, 200 ],
+      "description" => [ page.description, 500 ] }.filter_map do |key, (value, limit)|
+      next unless value.is_a?(String)
+
+      fragment = Nokogiri::HTML5.fragment(value)
+      fragment.css("script, style").remove
+      text = fragment.text.squish.truncate(limit)
+      [ key, text ] if text.present?
+    end.to_h
+  end
+
   def recipe?
     @data["is_recipe"] == true && title.present?
   end

@@ -7,6 +7,7 @@ module ImportSerializer
       kind: import.kind,
       origin: import.origin,
       url: import.url,
+      source_metadata: import.source_metadata,
       text_preview: import.text&.truncate(140),
       status: import.status,
       ai_allowed: import.ai_allowed?,

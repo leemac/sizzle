@@ -49,6 +49,7 @@ class ImportPipeline
 
     @import.advance!("fetching")
     page = video_id ? YoutubeVideo.fetch(video_id, http: @http) : PageScraper.fetch(@import.url, http: @http)
+    @import.update!(source_metadata: RecipeDraft.source_metadata(page))
     ImportSourceLock.synchronize(page.canonical_url) do
       if (existing = Recipe.find_by(source_url: Recipe.normalize_url(page.canonical_url)))
         return restore(existing)
@@ -106,6 +107,7 @@ class ImportPipeline
 
   # Sharing an archived recipe again brings it back to the gallery.
   def restore(recipe)
+    @import.update!(source_metadata: recipe.source_metadata) if @import.source_metadata.blank?
     recipe.tap(&:unarchive!)
   end
 
@@ -118,7 +120,7 @@ class ImportPipeline
   end
 
   def save_recipe(draft, source_url: nil, source_name: nil)
-    recipe = Recipe.create!(**draft.attributes, source_url:, source_name:)
+    recipe = Recipe.create!(**draft.attributes, source_url:, source_name:, source_metadata: @import.source_metadata)
     @images.attach(recipe, cover_urls: draft.cover_urls, photo_urls: draft.photo_urls)
     recipe
   end

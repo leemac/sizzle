@@ -40,6 +40,11 @@ for (const width of [390, 1280]) {
       const response = await route.fetch({ url: localUrl.href, headers: { ...route.request().headers(), host } })
       const body = await response.json()
       Object.assign(body.props.recipe, {
+        source_metadata: {
+          title: 'Coconut rice from the rice kitchen',
+          site_name: 'The rice kitchen',
+          description: 'Creamy coconut rice with an easy stovetop method.',
+        },
         youtube_duration_seconds: 512,
         written_recipe_url: 'https://example.com/written-rice',
         youtube_chapters: [
@@ -52,6 +57,11 @@ for (const width of [390, 1280]) {
     await page.getByRole('link', { name: 'All recipes', exact: true }).click()
     await page.locator(`a[href="${new URL(recipeUrl).pathname}"]`).click()
     await expect(page.getByText('Video directions · 8:32 video', { exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Coconut rice from the rice kitchen', exact: true })).toHaveAttribute(
+      'href',
+      `https://youtu.be/${videoId}`,
+    )
+    await expect(page.getByText('Creamy coconut rice with an easy stovetop method.', { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Written recipe', exact: true })).toHaveAttribute(
       'href',
       'https://example.com/written-rice',

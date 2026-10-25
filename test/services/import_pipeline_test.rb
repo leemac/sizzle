@@ -37,6 +37,24 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal "image/webp", recipe.cover.content_type
   end
 
+  test "keeps source metadata when extraction fails" do
+    import = url_import
+    run_import(import, extractor: FakeExtractor.new(FakeExtractor.recipe("is_recipe" => false)))
+
+    assert_equal "failed", import.reload.status
+    assert_equal "Weeknight Chickpea Curry", import.source_metadata.fetch("title")
+    assert_equal import.source_metadata, ImportSerializer.call(import)[:source_metadata]
+  end
+
+  test "copies source metadata to the saved recipe" do
+    import = url_import
+    recipe = run_import(import)
+
+    assert_equal "Weeknight Chickpea Curry", recipe.source_metadata.fetch("title")
+    assert_equal "Sam's Kitchen", recipe.source_metadata.fetch("site_name")
+    assert_equal import.reload.source_metadata, RecipeSerializer.detail(recipe)[:source_metadata]
+  end
+
   test "passes the scraped page to the extractor" do
     run_import(url_import)
     page = @extractor.pages.sole
