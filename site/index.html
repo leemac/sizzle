@@ -6,7 +6,7 @@
     <title>Sizzle — every recipe you love, minus the life story</title>
     <meta
       name="description"
-      content="Sizzle is a free, open-source, self-hosted cookbook. Share any recipe page from your phone and keep a clean copy: ingredients, steps and the best photo, without the ads."
+      content="Sizzle is a free, open-source cookbook you host yourself. Save recipes from the web and YouTube, browse by photo, and remember what you cooked. AI is optional."
     />
     <meta property="og:title" content="Sizzle" />
     <meta property="og:description" content="Every recipe you love, minus the life story. A self-hosted cookbook." />
@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Bump ?v= whenever these files change: GitHub Pages caches them for hours. -->
-    <link rel="stylesheet" href="/styles.css?v=3" />
+    <link rel="stylesheet" href="/styles.css?v=4" />
     <script type="module" src="/sizzle-logo.js?v=2"></script>
   </head>
   <body>
@@ -35,7 +35,9 @@
     </svg>
 
     <aside class="notice" aria-label="Project status">
-      <span class="notice-icon"><svg class="icon" aria-hidden="true"><use href="#beaker" /></svg></span>
+      <span class="notice-icon"
+        ><svg class="icon" aria-hidden="true"><use href="#beaker" /></svg
+      ></span>
       <p>
         <strong>Sizzle is in early development.</strong> It works, but expect rough edges and breaking changes between
         versions. <a href="https://github.com/leemac/sizzle/issues">Follow progress on GitHub</a>
@@ -60,8 +62,8 @@
         <div class="hero-copy">
           <h1>Every recipe you love, minus the life story.</h1>
           <p class="lede">
-            Sizzle is a cookbook you run yourself. Share a recipe page from your phone and it keeps the ingredients,
-            the steps and the best photo. The ads, pop-ups and 2,000 words about somebody’s grandmother stay behind.
+            Sizzle is a cookbook you run yourself. Share a recipe page from your phone and it keeps the ingredients, the
+            steps and the best photo. The ads, pop-ups and life story stay behind.
           </p>
           <div class="actions">
             <a class="button primary" href="https://github.com/leemac/sizzle#install">Install Sizzle</a>
@@ -94,8 +96,14 @@
             <div class="card-photo"></div>
             <h2>Weeknight Chickpea Curry</h2>
             <dl>
-              <div><dt>Total</dt><dd>30 min</dd></div>
-              <div><dt>Serves</dt><dd>4</dd></div>
+              <div>
+                <dt>Total</dt>
+                <dd>30 min</dd>
+              </div>
+              <div>
+                <dt>Serves</dt>
+                <dd>4</dd>
+              </div>
             </dl>
             <ul>
               <li><span>1½ cups</span> chickpeas, drained</li>
@@ -116,53 +124,75 @@
           <li>
             <h3>Share</h3>
             <p>
-              On any recipe page, tap Share, then Save to Sizzle. Pasting a link or the recipe text works too, and
-              forwarding recipes by email is coming soon.
+              Save a recipe link from your phone’s share sheet, or paste it into Sizzle. Setup includes sharing guides
+              for iPhone, Android and computers.
             </p>
           </li>
           <li>
             <h3>Sizzle cleans it up</h3>
             <p>
-              Claude reads the page and writes up the recipe: exact quantities, tidy steps, sensible tags. Nothing gets
-              invented, and the junk is dropped.
+              Sizzle reads a page’s recipe data without AI. You can also write recipes yourself, or enable Claude to
+              handle pasted text and pages without recipe data.
             </p>
           </li>
           <li>
             <h3>Cook from your collection</h3>
             <p>
-              Browse a fast, photo-first gallery. Search by ingredient, or filter by course, cuisine, diet and time.
+              Browse by photo, search by ingredient, or filter by course, cuisine, diet and time. Tap “Made it” to track
+              how often you cook a recipe and when you last made it.
             </p>
           </li>
         </ol>
+        <p class="video-note">
+          <strong>YouTube works too.</strong> Sizzle reads recipes from video descriptions or the recipe pages they link
+          to. Recipes that are only spoken in the video aren’t supported yet.
+        </p>
+        <figure class="cookbook">
+          <picture class="cookbook-screen">
+            <source media="(max-width: 480px)" srcset="/images/cookbook-phone.jpg" width="390" height="1400" />
+            <img
+              src="/images/cookbook.jpg"
+              alt="Sizzle’s cookbook with a recipe search, course filters and a photo gallery of drinks."
+              width="1280"
+              height="1400"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>A Sizzle cookbook, filtered to drinks.</figcaption>
+        </figure>
       </section>
 
       <section class="selfhost">
         <div>
           <h2>Yours, on your own server</h2>
           <p>
-            Sizzle stores everything in SQLite on your own machine: a home server, a NAS, a Raspberry Pi. There are no
-            accounts, no tracking and no subscription. The only outside service it calls is the Claude API, with your
-            own key.
+            Run Sizzle in one Docker container on a home server, NAS or Raspberry Pi. Your recipes and photos stay on
+            your server, with no tracking or Sizzle subscription.
           </p>
           <p>
-            It’s built to be safe to run at home. Every link it fetches is checked so it can’t be turned against your
-            own network, imported content is never rendered as HTML, and the container runs read-only.
+            Sizzle has no login yet. Keep it on your home network, or use Tailscale to reach it away from home. Optional
+            Claude extraction uses your own API key and is billed by Anthropic.
           </p>
         </div>
-        <pre><code><span class="dim"># with Docker installed</span>
+        <div class="install">
+          <pre><code><span class="dim"># with Docker and Compose installed</span>
 mkdir sizzle &amp;&amp; cd sizzle
 url=https://github.com/leemac/sizzle/releases/latest/download
 curl -fsSLO $url/docker-compose.yml
-curl -fsSL $url/env.example -o .env  <span class="dim"># add your token</span>
-docker compose up -d  <span class="dim"># then open http://&lt;your-server&gt;:3000</span></code></pre>
+curl -fsSL $url/env.example -o .env
+<span class="dim"># edit .env: set SIZZLE_API_TOKEN</span>
+docker compose up -d
+<span class="dim"># open http://&lt;your-server&gt;:3000</span></code></pre>
+          <p class="fineprint"><a href="https://github.com/leemac/sizzle#install">Full installation guide</a></p>
+        </div>
       </section>
 
       <section class="open">
         <h2>Built in the open</h2>
         <p>
-          Sizzle is developed in public as a small software factory: people write the specs, AI coding agents do much
-          of the building, and every change is reviewed by a human before it ships. The issues, the agent playbook and
-          the security model are all on GitHub.
+          Sizzle is free to run, modify and share. The code, roadmap and security model are on GitHub, and bug reports
+          and ideas are welcome.
         </p>
         <a class="button" href="https://github.com/leemac/sizzle/issues">See what’s being built</a>
       </section>
