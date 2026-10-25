@@ -107,7 +107,10 @@ class RecipeEdit < ManualRecipe
     attributes[:source_name] = nil if (url && Recipe.normalize_url(url)) != recipe.source_url
     # The imported yield ("4 servings") isn't on the form; drop it rather than contradict new servings.
     attributes[:yield_text] = nil if attributes[:servings] != recipe.servings
-    recipe.update!(attributes)
+    recipe.assign_attributes(attributes)
+    # Only real changes count as an edit; favoriting or logging a cook moves updated_at too.
+    recipe.edited_at = Time.current if recipe.changed?
+    recipe.save!
     true
   end
 

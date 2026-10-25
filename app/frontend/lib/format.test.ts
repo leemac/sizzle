@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount, formatMinutes, formatQuantity, groupBySection } from './format'
+import { formatAmount, formatDay, formatMinutes, formatQuantity, groupBySection, isToday, timeAgo } from './format'
 
 describe('formatMinutes', () => {
   it('formats minutes and hours', () => {
@@ -58,5 +58,46 @@ describe('groupBySection', () => {
       ],
       ['Sauce', [{ section: 'Sauce', text: 'b' }]],
     ])
+  })
+})
+
+const now = new Date(2026, 9, 24, 9, 30)
+const iso = (year: number, month: number, day: number, hour = 12, minute = 0) =>
+  new Date(year, month, day, hour, minute).toISOString()
+
+describe('formatDay', () => {
+  it('says today and yesterday by calendar day, not by 24 hours', () => {
+    expect(formatDay(iso(2026, 9, 24, 0, 5), now)).toBe('Today')
+    expect(formatDay(iso(2026, 9, 23, 23, 55), now)).toBe('Yesterday')
+  })
+
+  it('drops the year only within the current year', () => {
+    expect(formatDay(iso(2026, 9, 3), now)).toBe('Oct 3')
+    expect(formatDay(iso(2025, 11, 31), now)).toBe('Dec 31, 2025')
+  })
+})
+
+describe('isToday', () => {
+  it('is true from midnight to midnight', () => {
+    expect(isToday(iso(2026, 9, 24, 0, 5), now)).toBe(true)
+    expect(isToday(iso(2026, 9, 23, 23, 55), now)).toBe(false)
+  })
+})
+
+const ago = (seconds: number) => new Date(now.getTime() - seconds * 1000).toISOString()
+
+describe('timeAgo', () => {
+  it('counts up from minutes to years', () => {
+    expect(timeAgo(ago(20), now)).toBe('Just now')
+    expect(timeAgo(ago(60), now)).toBe('1 minute ago')
+    expect(timeAgo(ago(5 * 60), now)).toBe('5 minutes ago')
+    expect(timeAgo(ago(3 * 3600), now)).toBe('3 hours ago')
+    expect(timeAgo(ago(3 * 86_400), now)).toBe('3 days ago')
+    expect(timeAgo(ago(65 * 86_400), now)).toBe('2 months ago')
+    expect(timeAgo(ago(400 * 86_400), now)).toBe('1 year ago')
+  })
+
+  it("doesn't show future times from a fast clock", () => {
+    expect(timeAgo(ago(-30), now)).toBe('Just now')
   })
 })

@@ -2,6 +2,7 @@ class Recipe < ApplicationRecord
   include Searchable
   include Filterable
   include Archivable
+  include Cookable
 
   COURSES = %w[breakfast main side appetizer soup salad dessert baking snack drink sauce bread].freeze
   DIETS = %w[vegetarian vegan pescatarian gluten-free dairy-free nut-free low-carb].freeze

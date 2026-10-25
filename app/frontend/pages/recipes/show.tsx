@@ -1,8 +1,8 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
-import { formatAmount, formatMinutes, groupBySection } from '@/lib/format'
+import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
@@ -13,11 +13,8 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
     ['Serves', recipe.servings ? String(recipe.servings) : recipe.yield_text],
   ].filter((stat): stat is [string, string] => Boolean(stat[1]))
 
-  const source = recipe.source_name || recipe.source_host
-
   return (
     <article>
-      <Head title={recipe.title} />
       <div className="mb-6 flex items-center justify-between gap-4 text-sm">
         <Link href="/" className="inline-flex items-center gap-1 text-graphite hover:text-ink">
           <Icon name="back" className="size-4" />
@@ -25,7 +22,7 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         </Link>
         <Link
           href={`/recipes/${recipe.id}/edit`}
-          className="inline-flex items-center gap-1.5 text-graphite hover:text-ink"
+          className="inline-flex items-center gap-1.5 rounded-full bg-paper px-4 py-2 ring-1 ring-hairline transition-colors hover:ring-ink/30"
         >
           <Icon name="edit" className="size-4" />
           Edit recipe
@@ -38,19 +35,22 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
         </p>
       )}
 
-      <header className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
+      <header className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-y-5">
         {recipe.hero_url && (
           <img
             src={recipe.hero_url}
             alt={recipe.title}
-            className="aspect-[4/3] w-full rounded-photo object-cover lg:order-2 lg:aspect-[4/5]"
+            className="aspect-[4/3] w-full rounded-photo object-cover lg:col-start-2 lg:row-start-1 lg:aspect-[4/5]"
           />
         )}
-        <div className="lg:order-1 lg:pb-4">
+        <div className="lg:col-start-1 lg:row-start-1 lg:self-end lg:pb-4">
           <h1 className="font-display text-4xl leading-[0.95] font-semibold text-balance sm:text-6xl">
             {recipe.title}
           </h1>
-          <FavoriteButton recipe={recipe} />
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <FavoriteButton recipe={recipe} />
+            <MadeButton recipe={recipe} />
+          </div>
           {recipe.description && <p className="mt-5 max-w-prose text-lg text-graphite">{recipe.description}</p>}
 
           {stats.length > 0 && (
@@ -64,29 +64,20 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
             </dl>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center gap-2">
-            {[...recipe.diets, ...recipe.tags].map((tag) => (
-              <span key={tag} className="rounded-full px-3 py-1 text-sm ring-1 ring-hairline">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {recipe.source_url && (
-            <p className="mt-6 text-sm text-graphite">
-              {recipe.author ? `By ${recipe.author}, from ` : 'From '}
-              <a
-                href={recipe.source_url}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1 text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
-              >
-                {source}
-                <Icon name="external" className="size-3.5" />
-              </a>
-            </p>
+          {recipe.diets.length + recipe.tags.length > 0 && (
+            <div className="mt-8 flex flex-wrap items-center gap-2">
+              {[...recipe.diets, ...recipe.tags].map((tag) => (
+                <span key={tag} className="rounded-full px-3 py-1 text-sm ring-1 ring-hairline">
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
         </div>
+        <RecipeMeta
+          recipe={recipe}
+          className={`lg:col-start-2 ${recipe.hero_url ? 'lg:row-start-2' : 'lg:row-start-1 lg:self-end'}`}
+        />
       </header>
 
       <div className="mt-14 grid gap-14 border-t border-hairline pt-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -236,13 +227,106 @@ function FavoriteButton({ recipe }: { recipe: RecipeDetail }) {
       aria-pressed={recipe.favorite}
       disabled={processing}
       onClick={() => (recipe.favorite ? router.delete(url, options) : router.post(url, {}, options))}
-      className={`mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors disabled:opacity-60 ${
+      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors disabled:opacity-60 ${
         recipe.favorite ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'
       }`}
     >
       <Icon name="heart" filled={recipe.favorite} className="size-4" />
       {recipe.favorite ? 'Favorited' : 'Add to favorites'}
     </button>
+  )
+}
+
+function MadeButton({ recipe }: { recipe: RecipeDetail }) {
+  const [processing, setProcessing] = useState(false)
+  const options = {
+    preserveScroll: true,
+    onStart: () => setProcessing(true),
+    onFinish: () => setProcessing(false),
+  }
+  const lastCook = recipe.last_cook
+  const madeToday = lastCook && isToday(lastCook.cooked_at)
+
+  if (madeToday) {
+    return (
+      <span className="inline-flex items-center">
+        <span
+          role="status"
+          className="inline-flex items-center gap-2 rounded-full bg-yolk px-4 py-2 text-sm font-medium text-[#18181b]"
+        >
+          <Icon name="check" className="size-4" />
+          Made today
+        </span>
+        <button
+          type="button"
+          disabled={processing}
+          onClick={() => router.delete(`/recipes/${recipe.id}/cooks/${lastCook.id}`, options)}
+          className="px-3 py-2 text-sm text-graphite hover:text-ink disabled:opacity-60"
+        >
+          Undo
+        </button>
+      </span>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={processing}
+      onClick={() => router.post(`/recipes/${recipe.id}/cooks`, {}, options)}
+      className="inline-flex items-center gap-2 rounded-full bg-paper px-4 py-2 text-sm ring-1 ring-hairline transition-colors hover:ring-ink/30 disabled:opacity-60"
+    >
+      <Icon name="check" className="size-4" />I made this
+    </button>
+  )
+}
+
+/** Where the recipe came from and its history, under the photo. */
+function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
+  const source = recipe.source_name || recipe.source_host
+  const count = recipe.cooks_count
+  const stats: [string, string | null, (string | null)?][] = [
+    ['Made', count === 0 ? 'Not yet' : count === 1 ? 'Once' : `${count} times`],
+    ['Last made', recipe.last_cook && formatDay(recipe.last_cook.cooked_at)],
+    ['Added', timeAgo(recipe.created_at), formatTimestamp(recipe.created_at)],
+    ['Updated', recipe.edited_at && timeAgo(recipe.edited_at), recipe.edited_at && formatTimestamp(recipe.edited_at)],
+  ]
+
+  return (
+    <aside aria-label="Recipe details" className={className}>
+      {(recipe.source_url || recipe.author) && (
+        <p className="mb-4 text-sm text-graphite">
+          {recipe.author && `By ${recipe.author}`}
+          {recipe.source_url && (
+            <>
+              {recipe.author ? ', from ' : 'From '}
+              <a
+                href={recipe.source_url}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-1 text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
+              >
+                {source}
+                <Icon name="external" className="size-3.5" />
+              </a>
+            </>
+          )}
+        </p>
+      )}
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline sm:grid-cols-4 lg:grid-cols-2">
+        {stats.map(
+          ([label, value, exact]) =>
+            value && (
+              <div key={label}>
+                <dt className="text-graphite">{label}</dt>
+                <dd title={exact ?? undefined} className="mt-0.5 font-medium tabular-nums">
+                  {value}
+                </dd>
+              </div>
+            ),
+        )}
+      </dl>
+    </aside>
   )
 }
 

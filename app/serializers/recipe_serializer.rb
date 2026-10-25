@@ -37,6 +37,9 @@ module RecipeSerializer
       hero_url: image_path(recipe.cover, :hero),
       photo_urls: recipe.photos.map { |photo| routes.rails_storage_proxy_path(photo.variant(:medium), only_path: true) },
       created_at: recipe.created_at.iso8601,
+      edited_at: recipe.edited_at&.iso8601,
+      cooks_count: recipe.cooks_count,
+      last_cook: last_cook(recipe),
       archived: recipe.archived?
     )
   end
@@ -52,6 +55,11 @@ module RecipeSerializer
   end
 
   private
+
+  def last_cook(recipe)
+    cook = recipe.last_cook
+    cook && { id: cook.id, cooked_at: cook.cooked_at.iso8601 }
+  end
 
   def image_path(attachment, variant)
     return unless attachment.attached?

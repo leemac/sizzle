@@ -72,7 +72,15 @@ export type RecipeDetail = RecipeCard & {
   hero_url: string | null
   photo_urls: string[]
   created_at: string
+  edited_at: string | null
+  cooks_count: number
+  last_cook: Cook | null
   archived: boolean
+}
+
+export type Cook = {
+  id: number
+  cooked_at: string
 }
 
 export type RecipeEditInput = ManualRecipeInput & {
