@@ -3,9 +3,17 @@ import { useEffect } from 'react'
 import FilterBar from '@/components/FilterBar'
 import Icon, { type IconName } from '@/components/Icon'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
+import LayoutToggle from '@/components/LayoutToggle'
+import RecipeRow from '@/components/RecipeRow'
 import RecipeTile from '@/components/RecipeTile'
 import AppLayout from '@/layouts/AppLayout'
+import { useGalleryLayout, type GalleryLayout } from '@/lib/galleryLayout'
 import type { Facets, Import, RecipeCard, RecipeFilters } from '@/types'
+
+const GRIDS: Record<GalleryLayout, string> = {
+  grid: 'grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4',
+  list: 'grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3',
+}
 
 type Props = {
   recipes: RecipeCard[]
@@ -34,6 +42,7 @@ export default function RecipesIndex({
     { autoStart: false },
   )
   const pending = pending_imports.length > 0
+  const [layout, setLayout] = useGalleryLayout()
 
   useEffect(() => {
     if (pending) start()
@@ -45,12 +54,15 @@ export default function RecipesIndex({
 
   return (
     <>
-      <div className="mb-8 flex items-baseline justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
         {total_count > 0 && (
-          <p className="text-sm text-graphite">
-            {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-graphite">
+              {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
+            </p>
+            <LayoutToggle value={layout} onChange={setLayout} />
+          </div>
         )}
       </div>
 
@@ -74,14 +86,15 @@ export default function RecipesIndex({
         <>
           <FilterBar filters={filters} facets={facets} />
 
-          <section
-            aria-label="Recipes"
-            className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4"
-          >
-            {page === 1 && pending_imports.map((item) => <PendingTile key={item.id} item={item} />)}
-            {recipes.map((recipe) => (
-              <RecipeTile key={recipe.id} recipe={recipe} />
-            ))}
+          <section aria-label="Recipes" className={`mt-8 grid ${GRIDS[layout]}`}>
+            {page === 1 && pending_imports.map((item) => <PendingTile key={item.id} item={item} layout={layout} />)}
+            {recipes.map((recipe) =>
+              layout === 'grid' ? (
+                <RecipeTile key={recipe.id} recipe={recipe} />
+              ) : (
+                <RecipeRow key={recipe.id} recipe={recipe} />
+              ),
+            )}
           </section>
 
           {recipes.length === 0 && filtered && (
@@ -136,14 +149,28 @@ function EmptyCookbook() {
   )
 }
 
-function PendingTile({ item }: { item: Import }) {
+function PendingTile({ item, layout }: { item: Import; layout: GalleryLayout }) {
+  const label = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : 'Pasted recipe'
+
+  if (layout === 'list') {
+    return (
+      <div role="status" className="flex items-center gap-4 rounded-photo bg-paper p-2 pr-4 ring-1 ring-hairline">
+        <div className="size-20 shrink-0 animate-pulse rounded-xl bg-hairline sm:size-24" />
+        <div className="min-w-0">
+          <p className="truncate font-display text-base font-semibold text-graphite">{label}</p>
+          <ImportStatusLabel status={item.status} />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div role="status">
-      <div className="aspect-[4/5] animate-pulse rounded-photo bg-hairline" />
-      <p className="mt-3 truncate font-display text-lg font-semibold text-graphite">
-        {item.url ? new URL(item.url).hostname.replace(/^www\./, '') : 'Pasted recipe'}
-      </p>
-      <ImportStatusLabel status={item.status} />
+    <div role="status" className="relative aspect-[4/5] overflow-hidden rounded-photo">
+      <div className="absolute inset-0 animate-pulse bg-hairline" />
+      <div className="absolute inset-x-0 bottom-0 bg-paper/80 px-3 py-2.5 sm:px-4 sm:py-3">
+        <p className="truncate font-display text-base font-semibold text-graphite sm:text-lg">{label}</p>
+        <ImportStatusLabel status={item.status} />
+      </div>
     </div>
   )
 }
