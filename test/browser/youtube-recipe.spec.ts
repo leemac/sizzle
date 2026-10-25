@@ -10,8 +10,8 @@ test.beforeEach(async ({ context }) => {
 for (const width of [390, 1280]) {
   test(`video directions are linked beside the method at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 })
-    const title = `Video coconut rice ${width}`
-    const videoId = width === 390 ? 'AbCdEfGhI_1' : 'AbCdEfGhI_2'
+    const videoId = crypto.randomUUID().replaceAll('-', '').slice(0, 11)
+    const title = `Video coconut rice ${width} ${videoId}`
     const watchUrl = `https://www.youtube.com/watch?v=${videoId}`
     await page.goto('/imports?mode=manual')
     await page.getByLabel('Recipe title', { exact: true }).fill(title)
@@ -50,7 +50,7 @@ for (const width of [390, 1280]) {
       await route.fulfill({ response, json: body })
     })
     await page.getByRole('link', { name: 'All recipes', exact: true }).click()
-    await page.getByRole('link', { name: title }).click()
+    await page.locator(`a[href="${new URL(recipeUrl).pathname}"]`).click()
     await expect(page.getByText('Video directions · 8:32 video', { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Written recipe', exact: true })).toHaveAttribute(
       'href',
@@ -69,14 +69,14 @@ for (const width of [390, 1280]) {
     await page.unroute(recipeUrl)
 
     await page.getByRole('link', { name: 'Edit recipe', exact: true }).first().click()
-    await page.getByLabel('Source link (optional)', { exact: true }).fill(`https://example.com/video-rice-${width}`)
+    await page.getByLabel('Source link (optional)', { exact: true }).fill(`https://example.com/video-rice-${videoId}`)
     await page.getByRole('button', { name: 'Save changes', exact: true }).click()
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
     await expect(video).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Written recipe', exact: true })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'example.com', exact: true })).toHaveAttribute(
       'href',
-      `https://example.com/video-rice-${width}`,
+      `https://example.com/video-rice-${videoId}`,
     )
   })
 }

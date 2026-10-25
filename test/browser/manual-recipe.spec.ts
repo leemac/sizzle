@@ -1,4 +1,10 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+async function deleteRecipe(page: Page, title: string) {
+  await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
+  await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
+  await expect(page.getByRole('link', { name: title })).toHaveCount(0)
+}
 
 test.beforeEach(async ({ context }) => {
   await context.route('**/*', (route) => {
@@ -47,9 +53,26 @@ for (const width of [390, 1280]) {
     await expect(page.getByRole('link', { name: title })).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath(`favorites-gallery-${width}.png`), fullPage: true })
     await page.getByRole('link', { name: title }).click()
-    await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
-    await page.getByRole('button', { name: 'Delete recipe', exact: true }).click()
-    await expect(page.getByRole('link', { name: title })).toHaveCount(0)
+    await deleteRecipe(page, title)
+
+    // The smallest valid recipe must also work with every optional field blank.
+    await page.goto('/imports?mode=manual')
+    const minimalTitle = `Minimal sauce ${width}`
+    await page.getByLabel('Recipe title', { exact: true }).fill(minimalTitle)
+    await page.getByLabel('Ingredients', { exact: true }).fill('# Sauce')
+    await page.getByLabel('Method', { exact: true }).fill('Stir and serve.')
+    await page.getByRole('button', { name: 'Save recipe', exact: true }).click()
+    await expect(page.getByText('needs at least one ingredient, not only headings', { exact: true })).toBeVisible()
+    await expect(page.getByLabel('Recipe title', { exact: true })).toHaveValue(minimalTitle)
+    await expect(page.getByLabel('Method', { exact: true })).toHaveValue('Stir and serve.')
+    await page.getByLabel('Ingredients', { exact: true }).fill('# Sauce\n1 cup yogurt')
+    await page.getByRole('button', { name: 'Save recipe', exact: true }).click()
+    await expect(page.getByRole('heading', { name: minimalTitle, exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Sauce', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '1 cup yogurt', exact: true })).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole('heading', { name: minimalTitle, exact: true })).toBeVisible()
+    await deleteRecipe(page, minimalTitle)
     expect(errors).toEqual([])
   })
 }
