@@ -123,7 +123,17 @@ export default function ImportsIndex({
           <p className="mb-4 text-sm text-graphite">
             Links with recipe data import directly, without AI.{' '}
             {app.claude_configured ? (
-              'Claude extracts other pages and pasted recipe text automatically when needed.'
+              preferences.ai_mode === 'automatic' ? (
+                'Claude extracts other pages and pasted recipe text automatically when needed.'
+              ) : (
+                <>
+                  Claude is turned off for imports in this browser.{' '}
+                  <Link href="/settings#imports" className="underline underline-offset-4">
+                    Change import preferences
+                  </Link>
+                  .
+                </>
+              )
             ) : (
               <>
                 For other pages or unstructured pasted text,{' '}
