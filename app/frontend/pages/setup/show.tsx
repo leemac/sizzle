@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
 import type { ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
@@ -21,7 +21,6 @@ export default function SetupShow({ setup, step }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Head title="Set up Sizzle" />
       <p className="text-sm text-graphite">Your server. Your recipes.</p>
       <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">Set up Sizzle</h1>
       <p className="mt-4 max-w-xl text-graphite">Your cookbook is ready to use. No AI account or API key required.</p>

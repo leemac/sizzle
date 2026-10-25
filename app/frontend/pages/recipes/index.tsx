@@ -1,4 +1,4 @@
-import { Head, Link, usePoll } from '@inertiajs/react'
+import { Link, usePoll } from '@inertiajs/react'
 import { useEffect } from 'react'
 import FilterBar from '@/components/FilterBar'
 import Icon, { type IconName } from '@/components/Icon'
@@ -45,7 +45,6 @@ export default function RecipesIndex({
 
   return (
     <>
-      <Head title="Sizzle" />
       <div className="mb-8 flex items-baseline justify-between gap-4">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
         {total_count > 0 && (

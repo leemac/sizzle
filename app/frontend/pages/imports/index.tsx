@@ -1,4 +1,4 @@
-import { Head, Link, router, useForm, usePage, usePoll } from '@inertiajs/react'
+import { Link, router, useForm, usePage, usePoll } from '@inertiajs/react'
 import { useEffect, useState } from 'react'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import ManualRecipeForm from '@/components/ManualRecipeForm'
@@ -40,7 +40,6 @@ export default function ImportsIndex({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Head title="Add a recipe" />
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Add a recipe</h1>
       <p className="mt-3 text-graphite">
         Import a recipe link or write a recipe yourself. Your cookbook works without AI.

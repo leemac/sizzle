@@ -41,6 +41,17 @@ class RecipeEditTest < ActiveSupport::TestCase
     assert_equal before, @recipe.reload.attributes.except("updated_at")
   end
 
+  test "a real change records when the recipe was edited; favoriting and cooking don't" do
+    @recipe.favorite!
+    @recipe.cooked!
+    assert_nil @recipe.reload.edited_at
+
+    freeze_time do
+      assert edit(title: "Chickpea curry with rice").save
+      assert_equal Time.current, @recipe.reload.edited_at
+    end
+  end
+
   test "unsectioned steps after a section keep their place when saved unchanged" do
     steps = [ { "section" => "Dough", "text" => "Knead." }, { "section" => nil, "text" => "Bake." } ]
     @recipe.update!(steps:)

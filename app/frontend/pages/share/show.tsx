@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
 import { useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import Tabs from '@/components/Tabs'
@@ -25,7 +25,6 @@ export default function ShareShow({ endpoint, shortcut_endpoints, token_required
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Head title="Share from your phone" />
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Share from your phone</h1>
       <p className="mt-4 max-w-xl text-graphite">
         Save recipes from your phone’s share sheet, or from a script on your computer. Set it up once, then it’s a tap.

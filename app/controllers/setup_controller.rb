@@ -4,6 +4,7 @@ class SetupController < InertiaController
     return redirect_to setup_path(step: "ready") if params[:step] == "privacy"
 
     step = %w[welcome ready claude].include?(params[:step]) ? params[:step] : "welcome"
+    inertia_meta.add(title: "Set up")
     render inertia: "setup/show", props: { setup: SetupSerializer.call, step: }
   end
 end
