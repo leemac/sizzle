@@ -109,7 +109,8 @@ export default function ManualRecipeForm({ sourceUrl }: { sourceUrl?: string | n
           Ingredients
         </label>
         <p id="ingredients-hint" className="mt-1 text-sm text-graphite">
-          One ingredient per line, including quantities.
+          One ingredient per line, including quantities. Add a group with a heading like # Sauce. Use # alone to end a
+          group.
         </p>
         <textarea
           id="recipe-ingredients"

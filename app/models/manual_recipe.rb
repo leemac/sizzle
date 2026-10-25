@@ -22,6 +22,7 @@ class ManualRecipe
             allow_blank: true
   validates :source_url, length: { maximum: 2048 }
   validate :usable_content
+  validate :usable_sections
   validate :source_url_is_new_web_link, if: -> { source_url.present? }
 
   def save
@@ -31,7 +32,7 @@ class ManualRecipe
     cook = cook_minutes.present? ? cook_minutes.to_i : nil
     @recipe = Recipe.create!(
       title: RecipeText.plain(title), description: RecipeText.plain(description).presence,
-      ingredients: RecipeText.lines(ingredients).map { |line| RecipeText.ingredient(line) },
+      ingredients: RecipeText.sectioned_lines(ingredients).map { |section, line| RecipeText.ingredient(line).merge("section" => section) },
       steps: RecipeText.lines(steps).map { |line| { "section" => nil, "text" => line } },
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
       total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence
@@ -51,6 +52,12 @@ class ManualRecipe
       errors.add(field, "must have at most #{RecipeText::MAX_ITEMS} lines") if lines.length > RecipeText::MAX_ITEMS
       errors.add(field, "has a line longer than #{maximum} characters") if lines.any? { |line| line.length > maximum }
     end
+  end
+
+  def usable_sections
+    return if errors.any?
+
+    errors.add(:ingredients, "needs at least one ingredient, not only headings") if RecipeText.sectioned_lines(ingredients).empty?
   end
 
   # The source is only shown as a link, never fetched, but it must be a web link
