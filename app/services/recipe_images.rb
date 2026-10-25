@@ -9,6 +9,8 @@ class RecipeImages
   MAX_INPUT_PIXELS = 40_000_000
   MAX_EDGE = 2400
   MAX_PHOTOS = 6
+  MAX_DOWNLOADS = 8
+  DOWNLOAD_SECONDS = 30
 
   MAGIC_BYTES = {
     "jpeg" => ->(bytes) { bytes.start_with?("\xFF\xD8\xFF".b) },
@@ -22,28 +24,38 @@ class RecipeImages
     @http = http
   end
 
+  # Cover fallbacks and step photos share one deadline and attempt budget.
+  # At most MAX_DOWNLOADS * MAX_DOWNLOAD_BYTES can be downloaded per import.
   # Attaches the first usable URL in `cover_urls` as the cover and up to
   # MAX_PHOTOS of `photo_urls` as step photos. Failures are skipped quietly —
   # a recipe without a photo is still a recipe.
   def attach(recipe, cover_urls:, photo_urls: [])
+    deadline = monotonic_time + DOWNLOAD_SECONDS
+    attempts = 0
     cover_urls.uniq.each do |url|
-      webp = fetch_webp(url) or next
+      break if attempts >= MAX_DOWNLOADS || monotonic_time >= deadline
+
+      attempts += 1
+      webp = fetch_webp(url, deadline:) or next
       recipe.cover.attach(io: StringIO.new(webp), filename: "cover.webp", content_type: "image/webp")
       break
     end
 
     photo_urls.uniq.first(MAX_PHOTOS).each_with_index do |url, index|
-      webp = fetch_webp(url) or next
+      break if attempts >= MAX_DOWNLOADS || monotonic_time >= deadline
+
+      attempts += 1
+      webp = fetch_webp(url, deadline:) or next
       recipe.photos.attach(io: StringIO.new(webp), filename: "step-#{index + 1}.webp", content_type: "image/webp")
     end
   end
 
   # Returns WebP bytes for the image at `url`, or nil if it isn't usable.
-  def fetch_webp(url)
-    response = @http.get(url, max_bytes: MAX_DOWNLOAD_BYTES, accept: "image/")
+  def fetch_webp(url, deadline: nil)
+    response = @http.get(url, max_bytes: MAX_DOWNLOAD_BYTES, accept: "image/", deadline:)
     to_webp(response.body)
   rescue SafeHttp::Error => e
-    Rails.logger.info("[RecipeImages] skipped #{url}: #{e.message}")
+    Rails.logger.info("[RecipeImages] skipped image (#{e.class.name})")
     nil
   end
 
@@ -58,7 +70,13 @@ class RecipeImages
     Vips::Image.thumbnail_buffer(bytes, MAX_EDGE, height: MAX_EDGE, size: :down)
       .webpsave_buffer(Q: 82, strip: true)
   rescue Vips::Error => e
-    Rails.logger.info("[RecipeImages] could not decode image: #{e.message.lines.first}")
+    Rails.logger.info("[RecipeImages] could not decode image (#{e.class.name})")
     nil
+  end
+
+  private
+
+  def monotonic_time
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 end

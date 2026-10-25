@@ -22,6 +22,10 @@ class Api::ImportsController < ActionController::API
       Import.from_input(params[:text], origin: "share")
     end
 
+    if import.valid? && !ImportBudget.charge(1, store: cache_store)
+      return render json: { error: "Too many imports, slow down." }, status: :too_many_requests
+    end
+
     if import.save
       render json: payload(import), status: :accepted
     else

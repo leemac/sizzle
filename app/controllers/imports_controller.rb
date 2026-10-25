@@ -1,5 +1,5 @@
 class ImportsController < InertiaController
-  IMPORTS_PER_MINUTE = 30
+  IMPORTS_PER_MINUTE = ImportBudget::LIMIT
 
   rate_limit to: 30, within: 1.minute, only: %i[create retry]
 
@@ -23,7 +23,7 @@ class ImportsController < InertiaController
 
     selected = params.permit(selected_urls: [])[:selected_urls] || [] if params[:review_token].present?
     count = review.imports(selected).size
-    if count.positive? && !charge_import_budget(count)
+    if count.positive? && !ImportBudget.charge(count, store: cache_store)
       redirect_to imports_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
     else
       restored = review.save(selected)
@@ -39,6 +39,9 @@ class ImportsController < InertiaController
 
   def retry
     import = Import.find(params[:id])
+    if import.status == "failed" && !ImportBudget.charge(1, store: cache_store)
+      return redirect_to imports_path, alert: "Too many imports. Wait a minute before retrying."
+    end
     import.retry!(ai_allowed: ai_allowed?)
     redirect_to imports_path, notice: "Retrying."
   end
@@ -72,18 +75,6 @@ class ImportsController < InertiaController
     imports = Import.includes(recipe: { cover_attachment: :blob }).recent.limit(30).to_a
     current = Import.includes(recipe: { cover_attachment: :blob }).find_by(id: params[:current]) if params[:current].present?
     current ? [ current, *imports ].uniq : imports
-  end
-
-  # Every queued import is a fetch and maybe a Claude call, so each link
-  # counts against the budget, not just each request. A rejected batch
-  # gives its links back.
-  def charge_import_budget(count)
-    key = "import-budget:#{request.remote_ip}"
-    used = cache_store.increment(key, count, expires_in: 1.minute)
-    return true if used.nil? || used <= IMPORTS_PER_MINUTE
-
-    cache_store.decrement(key, count)
-    false
   end
 
   def create_manual_recipe

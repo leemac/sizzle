@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount, formatDay, formatMinutes, formatQuantity, groupBySection, isToday, timeAgo } from './format'
+import {
+  formatAmount,
+  formatDate,
+  formatDay,
+  formatMinutes,
+  formatQuantity,
+  groupBySection,
+  isToday,
+  timeAgo,
+} from './format'
 
 describe('formatMinutes', () => {
   it('formats minutes and hours', () => {
@@ -75,6 +84,13 @@ describe('formatDay', () => {
   it('drops the year only within the current year', () => {
     expect(formatDay(iso(2026, 9, 3), now)).toBe('Oct 3')
     expect(formatDay(iso(2025, 11, 31), now)).toBe('Dec 31, 2025')
+  })
+})
+
+describe('formatDate', () => {
+  it('always gives the full date, even for today', () => {
+    expect(formatDate(iso(2026, 9, 24, 12))).toBe('Oct 24, 2026')
+    expect(formatDate(iso(2025, 11, 31))).toBe('Dec 31, 2025')
   })
 })
 

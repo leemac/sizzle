@@ -169,7 +169,7 @@ class YoutubeVideo
     url = recipe_link(description) or return
     PageScraper.fetch(url, http: @http)
   rescue SafeHttp::Error => e
-    Rails.logger.info("[YoutubeVideo] skipped linked recipe page: #{e.message}")
+    Rails.logger.info("[YoutubeVideo] skipped linked recipe page (#{e.class.name})")
     nil
   end
 

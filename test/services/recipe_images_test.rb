@@ -1,6 +1,42 @@
 require "test_helper"
 
 class RecipeImagesTest < ActiveSupport::TestCase
+  test "cover fallbacks stop when their shared download deadline expires" do
+    now = 100.0
+    calls = []
+    http = Object.new
+    http.define_singleton_method(:get) do |url, **options|
+      calls << [ url, options[:deadline] ]
+      now += RecipeImages::DOWNLOAD_SECONDS
+      raise SafeHttp::DeadlineExceeded
+    end
+    images = RecipeImages.new(http:)
+    images.define_singleton_method(:monotonic_time) { now }
+    urls = Array.new(20) { |i| "https://example.com/#{i}.jpg" }
+
+    images.attach(Object.new, cover_urls: urls, photo_urls: urls)
+
+    assert_equal [ [ urls.first, 130.0 ] ], calls
+  end
+
+  test "cover and step photos share a bounded number of download attempts" do
+    calls = []
+    http = Object.new
+    http.define_singleton_method(:get) do |url, **options|
+      calls << options
+      SafeHttp::Response.new(url:, status: 200, content_type: "image/jpeg", body: "not an image")
+    end
+    images = RecipeImages.new(http:)
+    urls = Array.new(20) { |i| "https://example.com/#{i}.jpg" }
+
+    # Failed images still spend the budget, including across the two loops.
+    images.attach(Object.new, cover_urls: urls.first(5), photo_urls: urls.drop(5))
+
+    assert_equal RecipeImages::MAX_DOWNLOADS, calls.size
+    assert_equal 1, calls.map { |options| options[:deadline] }.uniq.size
+    assert calls.all? { |options| options[:max_bytes] == RecipeImages::MAX_DOWNLOAD_BYTES }
+  end
+
   test "rejects excessive dimensions and pixel counts in compressed PNGs before resizing" do
     # These PNG headers advertise enormous images but contain only tiny pixel data.
     # They must be rejected by header inspection, before asking libvips to decode.
