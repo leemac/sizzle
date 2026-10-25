@@ -1,9 +1,9 @@
 import { Head, Link, usePoll } from '@inertiajs/react'
 import { useEffect } from 'react'
 import FilterBar from '@/components/FilterBar'
+import Icon, { type IconName } from '@/components/Icon'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import RecipeTile from '@/components/RecipeTile'
-import UrlImportForm from '@/components/UrlImportForm'
 import AppLayout from '@/layouts/AppLayout'
 import type { Facets, Import, RecipeCard, RecipeFilters } from '@/types'
 
@@ -55,8 +55,6 @@ export default function RecipesIndex({
         )}
       </div>
 
-      <UrlImportForm />
-
       {failed_imports.length > 0 && (
         <section aria-label="Failed imports" className="mb-8 rounded-photo bg-paper p-4 ring-1 ring-hairline">
           {failed_imports.map((item) => (
@@ -71,7 +69,9 @@ export default function RecipesIndex({
         </section>
       )}
 
-      {(total_count > 0 || pending) && (
+      {total_count === 0 && !pending ? (
+        <EmptyCookbook />
+      ) : (
         <>
           <FilterBar filters={filters} facets={facets} />
 
@@ -102,6 +102,40 @@ export default function RecipesIndex({
 }
 
 RecipesIndex.layout = AppLayout
+
+const FIRST_STEPS: { href: string; icon: IconName; title: string; hint: string }[] = [
+  { href: '/imports', icon: 'link', title: 'Import a link', hint: 'From a recipe site' },
+  { href: '/imports?mode=manual', icon: 'edit', title: 'Write a recipe', hint: 'A family favourite' },
+  { href: '/share', icon: 'share', title: 'Share from your phone', hint: 'Save as you browse' },
+]
+
+function EmptyCookbook() {
+  return (
+    <section aria-labelledby="empty-heading">
+      <h2 id="empty-heading" className="text-graphite">
+        No recipes yet.
+      </h2>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
+        {FIRST_STEPS.map(({ href, icon, title, hint }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="flex h-full items-center gap-4 rounded-photo bg-paper p-4 ring-1 ring-hairline hover:ring-ink/30 sm:flex-col sm:items-start sm:p-5"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-yolk-soft">
+                <Icon name={icon} className="size-5" />
+              </span>
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="mt-0.5 block text-sm text-graphite">{hint}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
 
 function PendingTile({ item }: { item: Import }) {
   return (
