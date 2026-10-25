@@ -45,6 +45,8 @@ module RecipeSerializer
       cook_minutes: recipe.cook_minutes,
       main_ingredient: recipe.main_ingredient,
       diets: recipe.diets,
+      meal_times: recipe.meal_times,
+      seasons: recipe.seasons,
       tags: recipe.tags,
       ingredients: recipe.ingredients,
       steps: recipe.steps,
@@ -66,7 +68,8 @@ module RecipeSerializer
     {
       id: recipe.id,
       title: recipe.title,
-      fields: RecipeEdit::FIELDS.index_with { |field| form.public_send(field).to_s },
+      fields: RecipeEdit::FIELDS.index_with { |field| form.public_send(field).to_s }
+        .merge(RecipeEdit::LIST_FIELDS.keys.index_with { |field| form.public_send(field) }),
       courses: Recipe::COURSES
     }
   end

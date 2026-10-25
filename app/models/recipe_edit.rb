@@ -34,6 +34,7 @@ class RecipeEdit < ManualRecipe
         servings: recipe.servings, prep_minutes: recipe.prep_minutes, cook_minutes: recipe.cook_minutes,
         total_minutes: recipe.total_minutes, cuisine: recipe.cuisine, course: recipe.course,
         main_ingredient: recipe.main_ingredient, notes: recipe.notes, tips: Array(recipe.tips).join("\n"),
+        meal_times: recipe.meal_times, seasons: recipe.seasons,
         ingredients: sectioned_text(recipe.ingredients) { |ingredient| ingredient_line(ingredient) },
         steps: sectioned_text(recipe.steps) { |step| step["text"] })
   end
@@ -98,7 +99,8 @@ class RecipeEdit < ManualRecipe
       total_minutes: integer_or_nil(total_minutes) || (prep + cook if prep && cook),
       cuisine: RecipeText.plain(cuisine).presence, course: course.presence,
       main_ingredient: RecipeText.plain(main_ingredient).downcase.presence,
-      tips: RecipeText.lines(tips), notes: RecipeText.plain(notes).presence, source_url: url
+      tips: RecipeText.lines(tips), notes: RecipeText.plain(notes).presence, source_url: url,
+      **list_attributes
     }
     # The site name came from the old page; don't show it next to a different link.
     attributes[:source_name] = nil if (url && Recipe.normalize_url(url)) != recipe.source_url

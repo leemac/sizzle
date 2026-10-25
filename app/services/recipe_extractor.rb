@@ -14,7 +14,8 @@ class RecipeExtractor
     type: "object",
     additionalProperties: false,
     required: %w[is_recipe title description author servings yield_text prep_minutes cook_minutes total_minutes
-                 cuisine course diets main_ingredient tags ingredients steps tips hero_image_id step_image_ids],
+                 cuisine course diets meal_times seasons main_ingredient tags ingredients steps tips hero_image_id
+                 step_image_ids],
     properties: {
       is_recipe: { type: "boolean" },
       title: { type: "string" },
@@ -28,6 +29,8 @@ class RecipeExtractor
       cuisine: NULLABLE_STRING,
       course: { anyOf: [ { type: "string", enum: Recipe::COURSES }, { type: "null" } ] },
       diets: { type: "array", items: { type: "string", enum: Recipe::DIETS } },
+      meal_times: { type: "array", items: { type: "string", enum: Recipe::MEAL_TIMES } },
+      seasons: { type: "array", items: { type: "string", enum: Recipe::SEASONS } },
       main_ingredient: NULLABLE_STRING,
       tags: { type: "array", items: { type: "string" } },
       ingredients: {
@@ -93,6 +96,12 @@ class RecipeExtractor
     - cuisine: one Title Case cuisine ("Italian", "Thai", "American") or null. course: the best single fit.
       diets: only those the recipe satisfies as written. main_ingredient: one lowercase word or short phrase
       ("chicken", "chickpeas"). tags: up to six short lowercase browsing tags ("weeknight", "one-pot").
+    - meal_times: when someone would most likely cook this — breakfast, lunch, dinner and/or snack. A packable
+      salad or soup suits lunch; a weeknight curry suits dinner (and lunch if it's quick or reheats well). Empty
+      for things that aren't a meal on their own, like sauces or drinks.
+    - seasons: the seasons this is most wanted in, by produce or mood ("summer" for no-cook salads and berry
+      tarts, "winter" for stews and roasts, "autumn" for squash and apples). Empty when it's good all year, which
+      is most recipes.
     - hero_image_id: the candidate that best shows the finished dish — never a logo, ad, author photo or product
       shot; null if none fit. step_image_ids: optional process photos, in recipe order.
 

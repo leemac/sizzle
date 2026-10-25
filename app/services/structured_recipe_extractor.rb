@@ -9,6 +9,7 @@ class StructuredRecipeExtractor
     "VegetarianDiet" => "vegetarian", "VeganDiet" => "vegan", "GlutenFreeDiet" => "gluten-free",
     "LowCarbDiet" => "low-carb"
   }.freeze
+  MEAL_CATEGORIES = { "brunch" => "breakfast", "supper" => "dinner", "snacks" => "snack" }.freeze
 
   def from_page(page)
     data = page.structured_recipe
@@ -39,6 +40,8 @@ class StructuredRecipeExtractor
       "diets" => Array(data["suitableForDiet"]).filter_map { |diet|
         DIETS[diet.delete_prefix("https://schema.org/").delete_prefix("http://schema.org/")] if diet.is_a?(String)
       }.uniq,
+      "meal_times" => meal_times(data["recipeCategory"]),
+      "seasons" => Recipe.seasons_from([ *Array(data["recipeCategory"]), *keywords(data["keywords"]) ]),
       "tags" => [], "main_ingredient" => nil, "tips" => [],
       "ingredients" => ingredients.map { |line| RecipeText.ingredient(line) }, "steps" => steps,
       "hero_image_id" => page.images.first&.id, "step_image_ids" => []
@@ -116,6 +119,17 @@ class StructuredRecipeExtractor
     days, hours, mins, seconds = match.captures.map(&:to_f)
     result = ((days * 1440) + (hours * 60) + mins + (seconds / 60)).ceil
     result if result.between?(0, MAX_MINUTES)
+  end
+
+  def meal_times(value)
+    Array(value).first(RecipeText::MAX_ITEMS).filter_map { |category| optional_text(category, maximum: 100)&.downcase }
+      .filter_map { |category| MEAL_CATEGORIES.fetch(category, category).presence_in(Recipe::MEAL_TIMES) }.uniq
+  end
+
+  # schema.org keywords are a comma-separated string or a list of strings.
+  def keywords(value)
+    values = value.is_a?(String) ? value.first(Import::MAX_TEXT_LENGTH).split(",") : Array(value)
+    values.first(RecipeText::MAX_ITEMS).grep(String)
   end
 
   def first_value(value)
