@@ -65,7 +65,7 @@ for (const width of [390, 1280]) {
     await expect(review).not.toBeVisible()
     await expect(input).toHaveValue('')
     await expect(
-      page.getByText('Importing… this usually takes under a minute. Restored 1 archived recipe to your cookbook.', {
+      page.getByText('Restored 1 archived recipe to your cookbook.', {
         exact: true,
       }),
     ).toBeVisible()

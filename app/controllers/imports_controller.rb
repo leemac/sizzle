@@ -26,14 +26,11 @@ class ImportsController < InertiaController
       redirect_to imports_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
     else
       restored = review.save(selected)
-      notice = case count
-      when 0 then "Done. No new imports were needed."
-      when 1 then "Importing… this usually takes under a minute."
-      else "Importing #{count} recipes… this usually takes a minute or two."
-      end
-      if restored.positive?
-        restored_notice = "Restored #{restored} archived #{'recipe'.pluralize(restored)} to your cookbook."
-        notice = count.zero? ? restored_notice : "#{notice} #{restored_notice}"
+      flash[:submitted_import_ids] = review.imports(selected).map(&:id)
+      notice = if restored.positive?
+        "Restored #{restored} archived #{'recipe'.pluralize(restored)} to your cookbook."
+      elsif count.zero?
+        "Done. No new imports were needed."
       end
       redirect_to imports_path, notice:
     end
@@ -52,6 +49,7 @@ class ImportsController < InertiaController
       imports: recent_imports.map { |import| ImportSerializer.call(import) },
       mode: params[:mode] == "manual" ? "manual" : "import",
       duplicate_review: review && ImportReviewSerializer.call(review),
+      submitted_import_ids: Array(flash[:submitted_import_ids]),
       source_duplicate: -> {
         recipe = Recipe.find_by(id: flash[:duplicate_recipe_id])
         RecipeSerializer.source_duplicate(recipe) if recipe
@@ -61,8 +59,8 @@ class ImportsController < InertiaController
   end
 
   def recent_imports
-    imports = Import.includes(:recipe).recent.limit(30).to_a
-    current = Import.includes(:recipe).find_by(id: params[:current]) if params[:current].present?
+    imports = Import.includes(recipe: { cover_attachment: :blob }).recent.limit(30).to_a
+    current = Import.includes(recipe: { cover_attachment: :blob }).find_by(id: params[:current]) if params[:current].present?
     current ? [ current, *imports ].uniq : imports
   end
 

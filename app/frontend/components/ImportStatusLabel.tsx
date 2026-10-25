@@ -9,13 +9,21 @@ export const STATUS_TEXT: Record<ImportStatus, string> = {
   failed: 'Couldn’t import',
 }
 
-export default function ImportStatusLabel({ status }: { status: ImportStatus }) {
+export default function ImportStatusLabel({
+  status,
+  showIndicator = true,
+}: {
+  status: ImportStatus
+  showIndicator?: boolean
+}) {
   const pending = status !== 'done' && status !== 'failed'
   const tone = status === 'failed' ? 'text-danger' : pending ? 'text-ink' : 'text-graphite'
 
   return (
     <span className={`inline-flex items-center gap-2 text-sm ${tone}`}>
-      {pending && <span className="size-2 animate-pulse rounded-full bg-yolk" aria-hidden="true" />}
+      {pending && showIndicator && (
+        <span className="size-2 motion-safe:animate-pulse rounded-full bg-yolk" aria-hidden="true" />
+      )}
       {STATUS_TEXT[status]}
     </span>
   )

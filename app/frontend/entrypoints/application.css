@@ -96,3 +96,53 @@
 @utility highlight {
   background-image: linear-gradient(transparent 55%, var(--color-yolk-soft) 55%);
 }
+
+/* A small handoff into the queue, then a quiet simmer while the worker runs. */
+@media (prefers-reduced-motion: no-preference) {
+  .import-card {
+    animation: import-arrive 380ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  .import-dot {
+    animation: import-simmer 1800ms ease-in-out infinite;
+  }
+
+  .import-saved {
+    animation: import-settle 300ms ease-out;
+  }
+}
+
+@keyframes import-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes import-simmer {
+  0%,
+  65%,
+  100% {
+    opacity: 0.45;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes import-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

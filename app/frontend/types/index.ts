@@ -111,6 +111,7 @@ export type Import = {
   error: string | null
   recipe_id: number | null
   recipe_title: string | null
+  recipe_image_url: string | null
   created_at: string
 }
 

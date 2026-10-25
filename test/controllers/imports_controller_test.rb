@@ -23,8 +23,11 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to imports_url
-    assert_equal "Importing 2 recipes… this usually takes a minute or two.", flash[:notice]
+    assert_nil flash[:notice], "inline progress replaces the generic success banner"
+    assert_equal Import.order(:id).last(2).map(&:id), flash[:submitted_import_ids]
     assert_equal %w[https://example.com/pie https://example.com/cake], Import.order(:id).pluck(:url).last(2)
+    follow_redirect!
+    assert_equal Import.order(:id).last(2).map(&:id), inertia.props[:submitted_import_ids]
   end
 
   test "invalid links return field errors without creating or enqueueing imports" do
@@ -80,6 +83,9 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_empty inertia.props[:failed_imports]
     assert_equal "Weeknight Chickpea Curry", inertia.props[:recipes].sole[:title]
     assert inertia.props[:recipes].sole[:image_url]
+    get imports_url
+    assert_equal RecipeSerializer.cover_image_url(import.recipe), inertia.props[:imports].sole[:recipe_image_url]
+    assert_match %r{\A/rails/active_storage/representations/proxy/}, inertia.props[:imports].sole[:recipe_image_url]
   ensure
     original_key ? ENV["ANTHROPIC_API_KEY"] = original_key : ENV.delete("ANTHROPIC_API_KEY")
   end
