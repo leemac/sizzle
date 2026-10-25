@@ -25,8 +25,8 @@ export default function ImportsIndex({
   duplicate_review: ImportReview | null
   source_duplicate: SourceDuplicate | null
 }) {
-  const { app } = usePage().props
-  const form = useForm({ input: '' })
+  const { app, preferences } = usePage().props
+  const form = useForm({ input: '', allow_ai: false })
   const input = useRef<HTMLTextAreaElement>(null)
   const [review, setReview] = useState(duplicate_review)
   const [submittedIds, setSubmittedIds] = useState<number[]>([])
@@ -70,17 +70,19 @@ export default function ImportsIndex({
   }, [pending, start, stop])
 
   const send = (selected?: string[]) => {
-    form.transform((data) =>
-      review && selected ? { ...data, review_token: review.token, selected_urls: selected } : data,
-    )
+    form.transform((data) => {
+      const submission = { ...data, automatic_ai: preferences.ai_mode === 'automatic' }
+      return review && selected ? { ...submission, review_token: review.token, selected_urls: selected } : submission
+    })
     form.post('/imports', {
       preserveScroll: true,
       onSuccess: (page) => {
         const nextReview = page.props.duplicate_review as ImportReview | null
         setReview(nextReview)
-        form.setDefaults({ input: '' })
+        form.setDefaults({ input: '', allow_ai: false })
         if (!nextReview) {
           form.setData('input', '')
+          form.setData('allow_ai', false)
           const ids = (page.props.submitted_import_ids ?? []) as number[]
           if (ids.length) setSubmittedIds((previous) => [...ids, ...previous.filter((id) => !ids.includes(id))])
         }
@@ -172,6 +174,14 @@ export default function ImportsIndex({
               {form.errors.input}
             </p>
           )}
+          {app.claude_configured && (
+            <AiPermission
+              automatic={preferences.ai_mode === 'automatic'}
+              checked={form.data.allow_ai}
+              onChange={(value) => form.setData('allow_ai', value)}
+              disabled={form.processing}
+            />
+          )}
           <div className="mt-4 flex items-center justify-between gap-4">
             <Link href="/share" className="text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">
               Share straight from your phone instead
@@ -240,6 +250,8 @@ ImportsIndex.layout = AppLayout
 function ImportRow({ item, fresh = false, index = 0 }: { item: Import; fresh?: boolean; index?: number }) {
   const label = item.recipe_title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
   const [entranceDelay] = useState(() => Math.min(index, 4) * 45)
+  const { app, preferences } = usePage().props
+  const [allowAi, setAllowAi] = useState(false)
 
   return (
     <li
@@ -303,15 +315,65 @@ function ImportRow({ item, fresh = false, index = 0 }: { item: Import; fresh?: b
             </Link>
             <button
               type="button"
-              onClick={() => router.post(`/imports/${item.id}/retry`, {}, { preserveScroll: true })}
+              onClick={() =>
+                router.post(
+                  `/imports/${item.id}/retry`,
+                  { allow_ai: allowAi, automatic_ai: preferences.ai_mode === 'automatic' },
+                  { preserveScroll: true, onSuccess: () => setAllowAi(false) },
+                )
+              }
               className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
             >
               Try again
             </button>
           </div>
         )}
+        {item.status === 'failed' && app.claude_configured && (
+          <AiPermission automatic={preferences.ai_mode === 'automatic'} checked={allowAi} onChange={setAllowAi} />
+        )}
       </div>
     </li>
+  )
+}
+
+function AiPermission({
+  automatic,
+  checked,
+  onChange,
+  disabled = false,
+}: {
+  automatic: boolean
+  checked: boolean
+  onChange: (value: boolean) => void
+  disabled?: boolean
+}) {
+  return (
+    <div className="mt-4 rounded-xl border border-hairline p-4 text-sm">
+      {automatic ? (
+        <p>
+          Claude will be used if local extraction needs help.{' '}
+          <Link href="/settings#imports" className="underline underline-offset-4">
+            Change this preference
+          </Link>
+        </p>
+      ) : (
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={checked}
+            disabled={disabled}
+            onChange={(event) => onChange(event.target.checked)}
+            className="mt-1 rounded border-hairline bg-paper text-ink focus:ring-ink"
+          />
+          <span className="font-medium">Allow Claude for this import if needed</span>
+        </label>
+      )}
+      <p className="mt-2 text-graphite">
+        {automatic || checked
+          ? 'Page text, recipe data and image links, or pasted recipe text, may be sent to Anthropic. API charges may apply.'
+          : 'Unchecked: extraction stays local. Pages without recipe data and pasted text will need manual entry or permission to use Claude.'}
+      </p>
+    </div>
   )
 }
 

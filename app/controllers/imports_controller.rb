@@ -11,6 +11,7 @@ class ImportsController < InertiaController
     return create_manual_recipe if params.key?(:manual_recipe)
 
     batch = ImportBatch.new(params[:input], origin: "web")
+    batch.imports.each { |import| import.ai_allowed = ai_allowed? }
     unless batch.valid?
       return redirect_to imports_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
     end
@@ -41,11 +42,19 @@ class ImportsController < InertiaController
     if import.status == "failed" && !ImportBudget.charge(1, store: cache_store)
       return redirect_to imports_path, alert: "Too many imports. Wait a minute before retrying."
     end
-    import.retry!
+    import.retry!(ai_allowed: ai_allowed?)
     redirect_to imports_path, notice: "Retrying."
   end
 
   private
+
+  def ai_allowed?
+    # Capture what the submitting page allowed. A changed cookie in another tab
+    # must not turn an unchecked, local-only submission into a Claude request.
+    explicit = params[:allow_ai].in?([ true, "true", "1" ])
+    automatic = params[:automatic_ai].in?([ true, "true", "1" ]) && browser_preferences.ai_mode == "automatic"
+    explicit || automatic
+  end
 
   def render_index(review: nil)
     inertia_meta.add(title: "Add a recipe")

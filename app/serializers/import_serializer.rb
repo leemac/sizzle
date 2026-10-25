@@ -9,6 +9,7 @@ module ImportSerializer
       url: import.url,
       text_preview: import.text&.truncate(140),
       status: import.status,
+      ai_allowed: import.ai_allowed?,
       error: import.error,
       recipe_id: import.recipe_id,
       recipe_title: import.recipe&.title,

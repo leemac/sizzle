@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   get "share", to: "share#show"
   get "share/shortcut", to: "share#shortcut"
   resources :shortcut_connections, path: "share/connections", only: %i[create destroy]
+  resource :settings, only: %i[show update]
+  post "settings/export", to: "cookbook_exports#create", as: :cookbook_export
   resource :appearance, only: %i[show update]
   resources :themes, only: %i[new create edit update destroy]
 

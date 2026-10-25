@@ -17,9 +17,9 @@ module Recipe::Filterable
   }.freeze
 
   class_methods do
-    def filter_by(filters)
-      filters = filters.to_h.symbolize_keys.slice(*FILTER_KEYS).compact_blank
-      scope = active.order(created_at: :desc)
+    def filter_by(filters = {}, sort: "newest", **criteria)
+      filters = filters.to_h.merge(criteria).symbolize_keys.slice(*FILTER_KEYS).compact_blank
+      scope = active
       scope = scope.search(filters[:q]) if filters[:q]
       scope = scope.favorites if ActiveModel::Type::Boolean.new.cast(filters[:favorites])
       scope = scope.where(course: filters[:course]) if filters[:course]
@@ -28,11 +28,17 @@ module Recipe::Filterable
       scope = scope.where("total_minutes <= ?", filters[:max_minutes].to_i) if filters[:max_minutes]
       scope = scope.where(HAS_DIET, filters[:diet]) if filters[:diet]
       scope = scope.where(HAS_MEAL_TIME, filters[:meal]) if filters[:meal]
-      if filters[:season]
-        scope = scope.where(IN_SEASON, filters[:season])
-          .reorder(Arel.sql("json_array_length(recipes.seasons) = 0"), created_at: :desc)
+      scope = scope.where(IN_SEASON, filters[:season]) if filters[:season]
+      order = case sort
+      when "alphabetical" then Arel.sql("recipes.title COLLATE NOCASE ASC, recipes.id DESC")
+      when "recently_cooked" then Arel.sql("(SELECT MAX(cooked_at) FROM cooks WHERE cooks.recipe_id = recipes.id) DESC, recipes.id DESC")
+      when "never_cooked" then Arel.sql("CASE WHEN recipes.cooks_count = 0 THEN 0 ELSE 1 END ASC, recipes.created_at DESC, recipes.id DESC")
+      else { created_at: :desc, id: :desc }
       end
-      scope
+      # Keep the season's recipes ahead of all-year ones, then apply this
+      # browser's chosen order within each group (also replacing search rank).
+      seasonal_order = Arel.sql("json_array_length(recipes.seasons) = 0") if filters[:season]
+      scope.reorder(seasonal_order).order(order)
     end
 
     def facets

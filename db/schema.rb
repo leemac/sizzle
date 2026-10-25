@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_180000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "active_job_id"
+    t.boolean "ai_allowed", default: true, null: false
     t.index ["created_at"], name: "index_imports_on_created_at"
     t.index ["recipe_id"], name: "index_imports_on_recipe_id"
     t.index ["status"], name: "index_imports_on_status"
