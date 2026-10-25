@@ -183,7 +183,6 @@ export default function SetupShow({ setup, step }: Props) {
       <p className="mt-5 text-center text-xs text-graphite">
         Sizzle has no login. Keep it on a private network unless you’ve added access protection.
       </p>
-      <p className="mt-2 text-center text-xs text-graphite">Sizzle {setup.version}</p>
     </div>
   )
 }

@@ -15,6 +15,7 @@ class PagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "recipes/index", inertia.component
+    assert_equal "dev", inertia.props[:app]["version"]
     card = inertia.props[:recipes].sole
     assert_equal "Chickpea Curry", card[:title]
     assert_match %r{\A/rails/active_storage/}, card[:image_url]

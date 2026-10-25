@@ -7,7 +7,7 @@ export type FlashData = {
 }
 
 export type SharedProps = {
-  app: { claude_configured: boolean }
+  app: { claude_configured: boolean; version: string }
 }
 
 export type SetupStatus = {
