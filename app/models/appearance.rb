@@ -12,14 +12,15 @@ class Appearance
   attribute :theme_id, :string
   attribute :mode, :string
 
-  validates :theme_id, inclusion: { in: ->(_) { Theme.all.map(&:id) }, message: "Choose a theme" }
+  validate :theme_exists
   validates :mode, inclusion: { in: MODES, message: "Choose light, dark or auto" }
 
   def self.from_cookies(cookies)
     new(theme_id: cookies[THEME_COOKIE], mode: cookies[MODE_COOKIE])
   end
 
-  def theme = Theme.find(theme_id) || Theme.default
+  # The chosen theme, built-in or custom. A deleted or unknown one falls back to the default.
+  def theme = chosen_theme || Theme.default
   def effective_mode = MODES.include?(mode) ? mode : "auto"
 
   # True once this browser has picked both a theme and a mode.
@@ -47,5 +48,18 @@ class Appearance
 
   def as_props
     { theme: theme.id, mode: effective_mode, chosen: chosen? }
+  end
+
+  private
+
+  def chosen_theme
+    return @chosen_theme if defined?(@chosen_theme) && @chosen_theme_id == theme_id
+
+    @chosen_theme_id = theme_id
+    @chosen_theme = Theme.find(theme_id)
+  end
+
+  def theme_exists
+    errors.add(:theme_id, "Choose a theme") unless chosen_theme
   end
 end

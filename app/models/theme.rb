@@ -1,6 +1,7 @@
-# A colour theme from config/themes.json. Each theme sets the same role tokens
-# for light and dark. The file is validated strictly on load because its ids and
-# colours are written into the page's <style> and <html> attributes.
+# A colour theme. The built-in ones come from config/themes.json; people can add
+# their own in the editor (CustomTheme). Each sets the same role tokens for light
+# and dark. Both are validated strictly because their ids and colours are written
+# into the page's <style> and <html> attributes.
 class Theme
   class InvalidConfig < StandardError; end
 
@@ -9,15 +10,18 @@ class Theme
   ID_FORMAT = /\A[a-z][a-z0-9-]{0,39}\z/
   COLOR_FORMAT = /\A#\h{6}\z/
 
-  attr_reader :id, :name, :description, :light, :dark
+  attr_reader :id, :name, :description, :light, :dark, :custom_id
 
-  def initialize(id:, name:, description:, light:, dark:)
+  def initialize(id:, name:, description:, light:, dark:, custom_id: nil)
     @id = id
     @name = name
     @description = description
     @light = light
     @dark = dark
+    @custom_id = custom_id
   end
+
+  def custom? = custom_id.present?
 
   def tokens(mode) = mode == "dark" ? dark : light
 
@@ -32,10 +36,36 @@ class Theme
   end
 
   class << self
-    def all = config.fetch(:themes)
+    def builtin = config.fetch(:themes)
+    def all = builtin + CustomTheme.order(:created_at).map(&:to_theme)
     def default = config.fetch(:default)
-    def find(id) = all.find { |theme| theme.id == id }
-    def stylesheet = @stylesheet ||= all.map(&:css).join("\n")
+
+    def find(id)
+      return if id.blank?
+
+      builtin.find { |theme| theme.id == id } || CustomTheme.find_by_theme_id(id)&.to_theme
+    end
+
+    def stylesheet = [ builtin_stylesheet, custom_stylesheet ].join("\n")
+
+    # The built-in themes never change while the app runs, so their CSS is built once.
+    def builtin_stylesheet = @builtin_stylesheet ||= builtin.map(&:css).join("\n")
+
+    # Custom themes change as people save them, so the page refreshes this part after each visit.
+    def custom_stylesheet = CustomTheme.order(:created_at).map { |custom| custom.to_theme.css }.join("\n")
+
+    # What's wrong with a light or dark palette, or nil if it's fine.
+    def palette_problem(colors)
+      return "needs colours" unless colors.is_a?(Hash)
+
+      missing = TOKENS - colors.keys
+      extra = colors.keys - TOKENS
+      return "is missing #{missing.join(', ')}" if missing.any?
+      return "has unknown tokens #{extra.join(', ')}" if extra.any?
+
+      bad = colors.find { |_token, value| !(value.is_a?(String) && value.match?(COLOR_FORMAT)) }
+      "#{bad.first} must be a #rrggbb colour" if bad
+    end
 
     # Parses and checks a themes document. Raises InvalidConfig with what to fix.
     def load(json)
@@ -63,6 +93,7 @@ class Theme
 
       id = attributes["id"]
       raise InvalidConfig, "Theme id #{id.inspect} must be lowercase letters, digits and dashes" unless id.is_a?(String) && id.match?(ID_FORMAT)
+      raise InvalidConfig, "Theme id #{id} is reserved for themes made in the editor" if id.start_with?(CustomTheme::ID_PREFIX)
 
       %w[name description].each do |field|
         value = attributes[field]
@@ -74,16 +105,9 @@ class Theme
     end
 
     def palette(id, mode, colors)
-      raise InvalidConfig, "Theme #{id} needs #{mode} colours" unless colors.is_a?(Hash)
+      problem = palette_problem(colors)
+      raise InvalidConfig, "Theme #{id} #{mode} #{problem}" if problem
 
-      missing = TOKENS - colors.keys
-      extra = colors.keys - TOKENS
-      raise InvalidConfig, "Theme #{id} #{mode} is missing #{missing.join(', ')}" if missing.any?
-      raise InvalidConfig, "Theme #{id} #{mode} has unknown tokens #{extra.join(', ')}" if extra.any?
-
-      colors.each do |token, value|
-        raise InvalidConfig, "Theme #{id} #{mode} #{token} must be a #rrggbb colour" unless value.is_a?(String) && value.match?(COLOR_FORMAT)
-      end
       colors.transform_values(&:downcase).freeze
     end
   end

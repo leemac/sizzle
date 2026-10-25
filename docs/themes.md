@@ -31,7 +31,19 @@ no code changes.
 
 Name a component's colours by role (`bg-action text-on-action`), never by hue or hex.
 
-## Adding or changing a theme
+## Making a theme in the app
+
+Anyone using Sizzle can open Appearance, pick a theme and choose **Customize** to start a copy of
+it in the theme editor. The editor has a colour picker and a hex box for every role in light and
+dark, a live preview, and readability warnings for the same pairs the tests check. Saving switches
+that browser to the new theme, and everyone else using the server can pick it too. Custom themes
+can be edited or deleted later; anyone using a deleted one goes back to the default.
+
+Custom themes are stored in the `custom_themes` table, not in `themes.json`, and are capped at 50
+per server. Their colours go through the same `#rrggbb` checks as the built-in ones, because they
+end up in the page's stylesheet. Readability warnings don't block saving: it's your cookbook.
+
+## Adding or changing a built-in theme
 
 1. Add an entry to `themes.json`. The `id` is lowercase letters, digits and dashes; it ends up in
    a cookie and an HTML attribute. Every token must be a `#rrggbb` colour, for both light and dark.

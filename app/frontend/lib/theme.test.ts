@@ -1,6 +1,27 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
-import { applyAppearance, rememberLook, savedLook, schemeFor, themeStyle } from './theme'
+import { applyAppearance, applyCustomThemes, rememberLook, savedLook, schemeFor, themeStyle } from './theme'
+
+describe('applyCustomThemes', () => {
+  afterEach(() => {
+    document.head.innerHTML = ''
+  })
+
+  it('replaces the server-rendered custom theme CSS with the latest', () => {
+    document.head.innerHTML = '<style id="sizzle-custom-themes">:root[data-theme=custom-1]{}</style>'
+
+    applyCustomThemes(':root[data-theme=custom-2]{--color-action:#5b2a86}')
+
+    expect(document.querySelectorAll('#sizzle-custom-themes')).toHaveLength(1)
+    expect(document.getElementById('sizzle-custom-themes')?.textContent).toContain('custom-2')
+  })
+
+  it('adds the tag when the page has none', () => {
+    applyCustomThemes(':root[data-theme=custom-3]{}')
+
+    expect(document.getElementById('sizzle-custom-themes')?.textContent).toBe(':root[data-theme=custom-3]{}')
+  })
+})
 
 describe('schemeFor', () => {
   it('uses the chosen mode, or the device preference for auto', () => {

@@ -6,7 +6,9 @@ class AppearancesControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal({ "theme" => "sunny-side-up", "mode" => "auto", "chosen" => false }, inertia.props[:appearance])
     assert_select "html[data-theme=sunny-side-up][data-mode=auto]"
-    assert_select "head style", text: Theme.stylesheet
+    assert_select "head style:not([id])", text: Theme.builtin_stylesheet
+    assert_select "head style#sizzle-custom-themes", text: ""
+    assert_equal "", inertia.props[:theme_css]
   end
 
   test "the appearance page lists every theme with its colours" do

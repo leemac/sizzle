@@ -17,6 +17,8 @@ export type Appearance = {
 export type SharedProps = {
   app: { claude_configured: boolean }
   appearance: Appearance
+  /** CSS for custom themes (see Theme.custom_stylesheet). */
+  theme_css: string
 }
 
 export type ThemeToken =
@@ -34,12 +36,25 @@ export type ThemeToken =
   | 'danger'
   | 'on-danger'
 
+export type ThemeColors = Record<ThemeToken, string>
+
 export type ThemeOption = {
   id: string
   name: string
   description: string
-  light: Record<ThemeToken, string>
-  dark: Record<ThemeToken, string>
+  light: ThemeColors
+  dark: ThemeColors
+  /** Set for themes made in the editor; built-in themes can't be edited. */
+  custom_id: number | null
+}
+
+/** What the theme editor edits: a saved custom theme (id set) or a new one. */
+export type ThemeDraft = {
+  id: number | null
+  name: string
+  description: string
+  light: ThemeColors
+  dark: ThemeColors
 }
 
 export type SetupStatus = {

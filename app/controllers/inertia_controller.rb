@@ -5,4 +5,6 @@
 class InertiaController < ApplicationController
   inertia_share app: -> { { claude_configured: Sizzle.claude_configured? } }
   inertia_share appearance: -> { helpers.appearance.as_props }
+  # CSS for themes made in the editor, so one saved after this page loaded still shows.
+  inertia_share theme_css: -> { Theme.custom_stylesheet }
 end

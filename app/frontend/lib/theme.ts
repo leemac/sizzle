@@ -50,6 +50,20 @@ export function rememberLook({ theme, mode }: Look, root: HTMLElement = document
   applyAppearance(root, theme, mode)
 }
 
+/**
+ * Swaps in the CSS for custom themes. The server renders it into <head> on the first
+ * load; a theme saved later only reaches the page through this.
+ */
+export function applyCustomThemes(css: string, doc: Document = document) {
+  let style = doc.getElementById('sizzle-custom-themes')
+  if (!style) {
+    style = doc.createElement('style')
+    style.id = 'sizzle-custom-themes'
+    doc.head.append(style)
+  }
+  if (style.textContent !== css) style.textContent = css
+}
+
 const darkQuery = '(prefers-color-scheme: dark)'
 
 function subscribe(onChange: () => void) {

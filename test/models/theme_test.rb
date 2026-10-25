@@ -18,12 +18,12 @@ class ThemeTest < ActiveSupport::TestCase
   end
 
   test "ships the six themes with the original look as the default" do
-    assert_equal [ "Sunny side up", "Squid ink", "Hot sauce", "Pesto", "Beet it", "Blue plate special" ], Theme.all.map(&:name)
+    assert_equal [ "Sunny side up", "Squid ink", "Hot sauce", "Pesto", "Beet it", "Blue plate special" ], Theme.builtin.map(&:name)
     assert_equal "sunny-side-up", Theme.default.id
   end
 
   test "every shipped theme is readable in light and dark" do
-    failures = Theme.all.flat_map do |theme|
+    failures = Theme.builtin.flat_map do |theme|
       %w[light dark].flat_map do |mode|
         colors = theme.tokens(mode)
         CONTRAST_PAIRS.filter_map do |foreground, background, minimum|
@@ -36,9 +36,11 @@ class ThemeTest < ActiveSupport::TestCase
     assert_empty failures
   end
 
-  test "the stylesheet keys every theme and mode on html attributes" do
+  test "the stylesheet keys every theme and mode on html attributes, custom ones included" do
+    custom = CustomTheme.create!(name: "Midnight snack", light: Theme.default.light, dark: Theme.default.dark)
     css = Theme.stylesheet
 
+    assert_includes Theme.all.map(&:id), custom.theme_id
     Theme.all.each do |theme|
       assert_includes css, ":root[data-theme=#{theme.id}]{--color-porcelain:#{theme.light['porcelain']};"
       assert_includes css, ":root[data-theme=#{theme.id}][data-mode=dark]{--color-porcelain:#{theme.dark['porcelain']};"

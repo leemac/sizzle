@@ -51,7 +51,8 @@
 </picture>
 
 You pick a look when you set Sizzle up, and can change it any time from the Appearance button in
-the header. Themes live in [`config/themes.json`](config/themes.json); see
+the header. Want something else? **Customize** any theme in the built-in theme editor and save it
+as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
 [docs/themes.md](docs/themes.md) to add one.
 
 ## Install

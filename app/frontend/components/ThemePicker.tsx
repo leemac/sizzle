@@ -1,4 +1,4 @@
-import { useForm, usePage } from '@inertiajs/react'
+import { Link, useForm, usePage } from '@inertiajs/react'
 import { useEffect } from 'react'
 import FieldError from '@/components/FieldError'
 import Icon from '@/components/Icon'
@@ -27,6 +27,7 @@ export default function ThemePicker({ themes, submitLabel, next }: Props) {
   const prefersDark = usePrefersDark()
   const scheme = schemeFor(form.data.mode || 'auto', prefersDark)
   const ready = form.data.theme !== '' && form.data.mode !== ''
+  const current = themes.find((theme) => theme.id === (form.data.theme || appearance.theme))
 
   useEffect(() => {
     const look = savedLook()
@@ -93,7 +94,12 @@ export default function ThemePicker({ themes, submitLabel, next }: Props) {
                 <ThemePreview tokens={theme[scheme]} />
                 <span className="flex items-start justify-between gap-3 px-1 pb-1">
                   <span>
-                    <span className="block font-display text-lg font-semibold">{theme.name}</span>
+                    <span className="block font-display text-lg font-semibold">
+                      {theme.name}
+                      {theme.custom_id !== null && (
+                        <span className="ml-2 align-middle font-sans text-xs font-normal text-graphite">Custom</span>
+                      )}
+                    </span>
                     <span className="block text-sm text-graphite">{theme.description}</span>
                   </span>
                   <span
@@ -107,6 +113,25 @@ export default function ThemePicker({ themes, submitLabel, next }: Props) {
           })}
         </div>
         <FieldError name="theme" error={form.errors.theme} />
+        {!next && current && (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href={`/themes/new?from=${encodeURIComponent(current.id)}`}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm ring-1 ring-hairline hover:ring-ink/30"
+            >
+              <Icon name="edit" className="size-4" />
+              Customize {current.name}
+            </Link>
+            {current.custom_id !== null && (
+              <Link
+                href={`/themes/${current.custom_id}/edit`}
+                className="inline-flex items-center rounded-full px-4 py-2 text-sm ring-1 ring-hairline hover:ring-ink/30"
+              >
+                Edit {current.name}
+              </Link>
+            )}
+          </div>
+        )}
       </fieldset>
 
       <div className="flex flex-wrap items-center gap-4">

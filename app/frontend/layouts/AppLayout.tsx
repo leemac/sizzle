@@ -2,7 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
-import { rememberLook } from '@/lib/theme'
+import { applyCustomThemes, rememberLook } from '@/lib/theme'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { flash, url } = usePage()
@@ -14,7 +14,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   // The server renders the saved look on first load. Later server responses keep it in
   // step; history restores don't fire "success", so an old page can't bring back an old look.
-  useEffect(() => router.on('success', (event) => rememberLook(event.detail.page.props.appearance)), [])
+  useEffect(
+    () =>
+      router.on('success', (event) => {
+        applyCustomThemes(event.detail.page.props.theme_css)
+        rememberLook(event.detail.page.props.appearance)
+      }),
+    [],
+  )
 
   return (
     <div className="min-h-dvh pb-[env(safe-area-inset-bottom)]">

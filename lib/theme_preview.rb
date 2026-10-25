@@ -29,7 +29,7 @@ module ThemePreview
     LABELS.each_key { |scheme| File.write(path(scheme), svg(scheme)) }
   end
 
-  def svg(scheme, themes = Theme.all)
+  def svg(scheme, themes = Theme.builtin)
     height = (themes.size.fdiv(COLUMNS).ceil * ROW_HEIGHT) - 24
     cards = themes.each_with_index.map do |theme, index|
       card(theme, x: (index % COLUMNS) * (CARD_WIDTH + GAP), y: (index / COLUMNS) * ROW_HEIGHT, labels: LABELS.fetch(scheme))
