@@ -31,6 +31,10 @@ class RecipeDraft
       fragment.css("script, style").remove
       text = fragment.text.squish.truncate(limit)
       [ key, text ] if text.present?
+    rescue ArgumentError
+      # HTML5 limits can reject hostile markup inside a meta attribute. Metadata
+      # is optional: skip that field rather than failing the recipe import.
+      nil
     end.to_h
   end
 

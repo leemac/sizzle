@@ -23,6 +23,8 @@ export type SharedProps = {
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string
   preferences: BrowserPreferences
+  /** Failed imports that haven't been dismissed. */
+  failed_import_count: number
 }
 
 export type RecipeSort = 'newest' | 'alphabetical' | 'recently_cooked' | 'never_cooked'
@@ -191,6 +193,8 @@ export type Import = {
   status: ImportStatus
   ai_allowed: boolean
   error: string | null
+  /** A dismissed failure no longer counts in the header. */
+  dismissed: boolean
   recipe_id: number | null
   recipe_title: string | null
   recipe_image_url: string | null

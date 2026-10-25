@@ -12,6 +12,7 @@ module ImportSerializer
       status: import.status,
       ai_allowed: import.ai_allowed?,
       error: import.error,
+      dismissed: import.dismissed_at.present?,
       recipe_id: import.recipe_id,
       recipe_title: import.recipe&.title,
       recipe_image_url: import.recipe && RecipeSerializer.cover_image_url(import.recipe),

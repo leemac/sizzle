@@ -46,6 +46,23 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal import.source_metadata, ImportSerializer.call(import)[:source_metadata]
   end
 
+  test "deeply nested description metadata cannot abort a valid structured import" do
+    document = Nokogiri::HTML5.parse(file_fixture_html("recipe_page.html"))
+    description = Nokogiri::XML::Node.new("meta", document)
+    description["property"] = "og:description"
+    document.at_css("head").add_child(description)
+    description["content"] = ("<div>" * 1000) + "Description" + ("</div>" * 1000)
+    stub_request(:get, URL).to_return(body: document.to_html, headers: { "Content-Type" => "text/html" })
+    import = url_import
+    recipe = run_import(import)
+
+    assert_equal "done", import.reload.status
+    assert_equal "Weeknight Chickpea Curry", recipe.title
+    assert_equal "Weeknight Chickpea Curry", import.source_metadata.fetch("title")
+    assert_not import.source_metadata.key?("description")
+    assert_empty @extractor.pages, "structured recipe extraction should still succeed without Claude"
+  end
+
   test "copies source metadata to the saved recipe" do
     import = url_import
     recipe = run_import(import)

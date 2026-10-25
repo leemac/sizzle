@@ -16,6 +16,13 @@ class SourceMetadataTest < ActiveSupport::TestCase
     assert_not metadata.key?("site_name")
   end
 
+  test "malformed optional markup is skipped without losing other fields" do
+    nested = ("<div>" * 1000) + "Description" + ("</div>" * 1000)
+    page = Struct.new(:title, :site_name, :description).new("Recipe", "Kitchen", nested)
+
+    assert_equal({ "title" => "Recipe", "site_name" => "Kitchen" }, RecipeDraft.source_metadata(page))
+  end
+
   test "empty metadata stays empty" do
     page = Struct.new(:title, :site_name, :description).new(nil, " ", nil)
     assert_empty RecipeDraft.source_metadata(page)
