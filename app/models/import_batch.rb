@@ -7,7 +7,7 @@ class ImportBatch
   # Every link is a fetch and possibly a Claude call; keep one paste bounded.
   MAX_LINKS = 20
 
-  attr_reader :imports
+  attr_reader :imports, :url_counts
 
   validate :within_link_limit
   validate :every_import_valid
@@ -15,6 +15,7 @@ class ImportBatch
   def initialize(input, origin:)
     super()
     links = input.to_s.split
+    @url_counts = links.tally
     @imports = if links.many? && links.all? { |link| link.match?(Import::LINK) }
       links.uniq.first(MAX_LINKS + 1).map { |url| Import.new(kind: "url", url:, origin:) }
     else

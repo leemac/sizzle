@@ -1,10 +1,11 @@
 import { Link, router, useForm, usePage, usePoll } from '@inertiajs/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import ManualRecipeForm from '@/components/ManualRecipeForm'
+import ImportDuplicateReview from '@/components/ImportDuplicateReview'
 import AppLayout from '@/layouts/AppLayout'
 import { RECIPE_LINK_EXAMPLES, useRotatingPlaceholder } from '@/lib/useRotatingPlaceholder'
-import type { Import } from '@/types'
+import type { Import, ImportReview, SourceDuplicate } from '@/types'
 
 // With AI set up, the box also takes a pasted recipe, so the last example says so.
 const LINK_OR_TEXT_EXAMPLES = [...RECIPE_LINK_EXAMPLES, 'Or paste the whole recipe…']
@@ -13,13 +14,19 @@ export default function ImportsIndex({
   imports,
   mode,
   source_url,
+  duplicate_review,
+  source_duplicate,
 }: {
   imports: Import[]
   mode: 'import' | 'manual'
   source_url: string | null
+  duplicate_review: ImportReview | null
+  source_duplicate: SourceDuplicate | null
 }) {
   const { app } = usePage().props
   const form = useForm({ input: '' })
+  const input = useRef<HTMLTextAreaElement>(null)
+  const [review, setReview] = useState(duplicate_review)
   const [focused, setFocused] = useState(false)
   const example = useRotatingPlaceholder(app.claude_configured ? LINK_OR_TEXT_EXAMPLES : RECIPE_LINK_EXAMPLES, {
     paused: focused,
@@ -33,9 +40,23 @@ export default function ImportsIndex({
     return stop
   }, [pending, start, stop])
 
+  const send = (selected?: string[]) => {
+    form.transform((data) =>
+      review && selected ? { ...data, review_token: review.token, selected_urls: selected } : data,
+    )
+    form.post('/imports', {
+      preserveScroll: true,
+      onSuccess: (page) => {
+        const nextReview = page.props.duplicate_review as ImportReview | null
+        setReview(nextReview)
+        form.setDefaults({ input: '' })
+        if (!nextReview) form.setData('input', '')
+      },
+    })
+  }
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
-    form.post('/imports', { preserveScroll: true, onSuccess: () => form.reset() })
+    send()
   }
 
   return (
@@ -64,7 +85,7 @@ export default function ImportsIndex({
       </nav>
 
       {mode === 'manual' ? (
-        <ManualRecipeForm sourceUrl={source_url} />
+        <ManualRecipeForm sourceUrl={source_url} duplicate={source_duplicate} />
       ) : (
         <form onSubmit={submit} className="mt-8">
           <p className="mb-4 text-sm text-graphite">
@@ -93,11 +114,15 @@ export default function ImportsIndex({
           </p>
           <textarea
             id="input"
+            ref={input}
             aria-describedby={`input-help${form.errors.input ? ' input-error' : ''}`}
             aria-invalid={!!form.errors.input}
             rows={4}
             value={form.data.input}
-            onChange={(event) => form.setData('input', event.target.value)}
+            onChange={(event) => {
+              form.setData('input', event.target.value)
+              setReview(null)
+            }}
             placeholder={example.placeholder}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -114,6 +139,7 @@ export default function ImportsIndex({
             </Link>
             <button
               type="submit"
+              hidden={!!review}
               disabled={form.processing || form.data.input.trim() === ''}
               className="rounded-full bg-yolk px-6 py-3 font-semibold text-[#18181b] hover:brightness-95 disabled:opacity-50"
             >
@@ -121,6 +147,19 @@ export default function ImportsIndex({
             </button>
           </div>
         </form>
+      )}
+
+      {mode === 'import' && review && (
+        <ImportDuplicateReview
+          key={review.token}
+          review={review}
+          processing={form.processing}
+          onConfirm={send}
+          onCancel={() => {
+            setReview(null)
+            input.current?.focus()
+          }}
+        />
       )}
 
       {imports.length > 0 && (
@@ -143,7 +182,7 @@ function ImportRow({ item }: { item: Import }) {
   const label = item.recipe_title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
 
   return (
-    <li className="flex items-start justify-between gap-4 py-4">
+    <li id={`import-${item.id}`} className="flex scroll-mt-8 items-start justify-between gap-4 py-4">
       <div className="min-w-0">
         {item.recipe_id ? (
           <Link href={`/recipes/${item.recipe_id}`} className="block truncate font-medium hover:underline">

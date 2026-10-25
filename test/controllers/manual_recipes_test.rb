@@ -116,6 +116,16 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert_nil inertia.props[:source_url]
   end
 
+  test "a duplicate source offers the saved recipe including archived matches" do
+    saved = Recipe.create!(title: "Saved rice", source_url: "https://example.com/rice", archived_at: Time.current)
+    assert_no_difference "Recipe.count" do
+      post imports_url, params: { manual_recipe: fields.merge(source_url: "https://example.com/rice?utm_source=ig") }
+    end
+    follow_redirect!(headers: inertia_headers)
+    assert_equal({ "id" => saved.id, "title" => saved.title, "archived" => true }, inertia.props[:source_duplicate])
+    assert saved.reload.archived?
+  end
+
   test "manual submissions retain Rails CSRF protection" do
     original = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true

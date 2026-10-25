@@ -16,6 +16,10 @@ module RecipeSerializer
     }
   end
 
+  def source_duplicate(recipe)
+    { id: recipe.id, title: recipe.title, archived: recipe.archived? }
+  end
+
   def detail(recipe)
     card(recipe).merge(
       description: recipe.description,
