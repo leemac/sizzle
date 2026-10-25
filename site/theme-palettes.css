@@ -1,176 +1,91 @@
 /* Theme preview palettes from config/themes.json on agent/themes (f10854a). */
-.themes:has(input[name='preview-theme'][value='sunny-side-up']:checked):has(
-    input[name='preview-mode'][value='light']:checked
-  ) {
-  --preview-porcelain: #f6f6f3;
-  --preview-paper: #ffffff;
-  --preview-ink: #18181b;
-  --preview-graphite: #6e6e73;
-  --preview-hairline: #e3e3de;
-  --preview-action: #ffc21a;
-  --preview-on-action: #18181b;
-  --preview-active: #ffc21a;
-  --preview-on-active: #18181b;
-  --preview-mark: #fff1c2;
+
+.themes:has(input[name='preview-mode'][value='light']:checked) {
+  color-scheme: light;
 }
 
-.themes:has(input[name='preview-theme'][value='sunny-side-up']:checked):has(
-    input[name='preview-mode'][value='dark']:checked
-  ) {
-  --preview-porcelain: #141416;
-  --preview-paper: #1d1d20;
-  --preview-ink: #f2f2ee;
-  --preview-graphite: #9d9da3;
-  --preview-hairline: #2e2e33;
-  --preview-action: #ffc21a;
-  --preview-on-action: #18181b;
-  --preview-active: #ffc21a;
-  --preview-on-active: #18181b;
-  --preview-mark: #4a3a0c;
+.themes:has(input[name='preview-mode'][value='dark']:checked) {
+  color-scheme: dark;
 }
 
-.themes:has(input[name='preview-theme'][value='squid-ink']:checked):has(
-    input[name='preview-mode'][value='light']:checked
-  ) {
-  --preview-porcelain: #f7f6f2;
-  --preview-paper: #fffefb;
-  --preview-ink: #1c1a16;
-  --preview-graphite: #6b675e;
-  --preview-hairline: #e6e2d8;
-  --preview-action: #1c1a16;
-  --preview-on-action: #fffefb;
-  --preview-active: #ffcd3c;
-  --preview-on-active: #1c1a16;
-  --preview-mark: #ffe89a;
+.themes:has(input[name='preview-mode'][value='system']:checked) {
+  color-scheme: light dark;
 }
 
-.themes:has(input[name='preview-theme'][value='squid-ink']:checked):has(
-    input[name='preview-mode'][value='dark']:checked
-  ) {
-  --preview-porcelain: #131210;
-  --preview-paper: #1c1a17;
-  --preview-ink: #f3f0e8;
-  --preview-graphite: #a19c90;
-  --preview-hairline: #2f2c27;
-  --preview-action: #f3f0e8;
-  --preview-on-action: #131210;
-  --preview-active: #ffcd3c;
-  --preview-on-active: #1c1a16;
-  --preview-mark: #4d3d0a;
+.themes:has(input[name='preview-theme'][value='sunny-side-up']:checked) {
+  --preview-porcelain: light-dark(#f6f6f3, #141416);
+  --preview-paper: light-dark(#ffffff, #1d1d20);
+  --preview-ink: light-dark(#18181b, #f2f2ee);
+  --preview-graphite: light-dark(#6e6e73, #9d9da3);
+  --preview-hairline: light-dark(#e3e3de, #2e2e33);
+  --preview-action: light-dark(#ffc21a, #ffc21a);
+  --preview-on-action: light-dark(#18181b, #18181b);
+  --preview-active: light-dark(#ffc21a, #ffc21a);
+  --preview-on-active: light-dark(#18181b, #18181b);
+  --preview-mark: light-dark(#fff1c2, #4a3a0c);
 }
 
-.themes:has(input[name='preview-theme'][value='hot-sauce']:checked):has(
-    input[name='preview-mode'][value='light']:checked
-  ) {
-  --preview-porcelain: #f8f7f5;
-  --preview-paper: #ffffff;
-  --preview-ink: #1d1715;
-  --preview-graphite: #6f6460;
-  --preview-hairline: #e8e2de;
-  --preview-action: #d63a22;
-  --preview-on-action: #ffffff;
-  --preview-active: #d63a22;
-  --preview-on-active: #ffffff;
-  --preview-mark: #ffd9cf;
+.themes:has(input[name='preview-theme'][value='squid-ink']:checked) {
+  --preview-porcelain: light-dark(#f7f6f2, #131210);
+  --preview-paper: light-dark(#fffefb, #1c1a17);
+  --preview-ink: light-dark(#1c1a16, #f3f0e8);
+  --preview-graphite: light-dark(#6b675e, #a19c90);
+  --preview-hairline: light-dark(#e6e2d8, #2f2c27);
+  --preview-action: light-dark(#1c1a16, #f3f0e8);
+  --preview-on-action: light-dark(#fffefb, #131210);
+  --preview-active: light-dark(#ffcd3c, #ffcd3c);
+  --preview-on-active: light-dark(#1c1a16, #1c1a16);
+  --preview-mark: light-dark(#ffe89a, #4d3d0a);
 }
 
-.themes:has(input[name='preview-theme'][value='hot-sauce']:checked):has(
-    input[name='preview-mode'][value='dark']:checked
-  ) {
-  --preview-porcelain: #161211;
-  --preview-paper: #201b19;
-  --preview-ink: #f5efec;
-  --preview-graphite: #a89c97;
-  --preview-hairline: #332b28;
-  --preview-action: #f0573c;
-  --preview-on-action: #1d1715;
-  --preview-active: #f0573c;
-  --preview-on-active: #1d1715;
-  --preview-mark: #5a2219;
+.themes:has(input[name='preview-theme'][value='hot-sauce']:checked) {
+  --preview-porcelain: light-dark(#f8f7f5, #161211);
+  --preview-paper: light-dark(#ffffff, #201b19);
+  --preview-ink: light-dark(#1d1715, #f5efec);
+  --preview-graphite: light-dark(#6f6460, #a89c97);
+  --preview-hairline: light-dark(#e8e2de, #332b28);
+  --preview-action: light-dark(#d63a22, #f0573c);
+  --preview-on-action: light-dark(#ffffff, #1d1715);
+  --preview-active: light-dark(#d63a22, #f0573c);
+  --preview-on-active: light-dark(#ffffff, #1d1715);
+  --preview-mark: light-dark(#ffd9cf, #5a2219);
 }
 
-.themes:has(input[name='preview-theme'][value='pesto']:checked):has(input[name='preview-mode'][value='light']:checked) {
-  --preview-porcelain: #f4f5f1;
-  --preview-paper: #ffffff;
-  --preview-ink: #17201a;
-  --preview-graphite: #5f6a62;
-  --preview-hairline: #dfe4dc;
-  --preview-action: #1f6b47;
-  --preview-on-action: #ffffff;
-  --preview-active: #1f6b47;
-  --preview-on-active: #ffffff;
-  --preview-mark: #d6ecd2;
+.themes:has(input[name='preview-theme'][value='pesto']:checked) {
+  --preview-porcelain: light-dark(#f4f5f1, #111613);
+  --preview-paper: light-dark(#ffffff, #19201b);
+  --preview-ink: light-dark(#17201a, #eef2ec);
+  --preview-graphite: light-dark(#5f6a62, #9aa79e);
+  --preview-hairline: light-dark(#dfe4dc, #2a332d);
+  --preview-action: light-dark(#1f6b47, #6fcf97);
+  --preview-on-action: light-dark(#ffffff, #0f1a13);
+  --preview-active: light-dark(#1f6b47, #6fcf97);
+  --preview-on-active: light-dark(#ffffff, #0f1a13);
+  --preview-mark: light-dark(#d6ecd2, #1f3d2a);
 }
 
-.themes:has(input[name='preview-theme'][value='pesto']:checked):has(input[name='preview-mode'][value='dark']:checked) {
-  --preview-porcelain: #111613;
-  --preview-paper: #19201b;
-  --preview-ink: #eef2ec;
-  --preview-graphite: #9aa79e;
-  --preview-hairline: #2a332d;
-  --preview-action: #6fcf97;
-  --preview-on-action: #0f1a13;
-  --preview-active: #6fcf97;
-  --preview-on-active: #0f1a13;
-  --preview-mark: #1f3d2a;
+.themes:has(input[name='preview-theme'][value='beet-it']:checked) {
+  --preview-porcelain: light-dark(#f7f5f5, #151013);
+  --preview-paper: light-dark(#ffffff, #1f181c);
+  --preview-ink: light-dark(#1f1519, #f5edf0);
+  --preview-graphite: light-dark(#6d6166, #ab9ca3);
+  --preview-hairline: light-dark(#e8e0e3, #33282d);
+  --preview-action: light-dark(#8e2453, #f07aab);
+  --preview-on-action: light-dark(#ffffff, #1f1519);
+  --preview-active: light-dark(#8e2453, #f07aab);
+  --preview-on-active: light-dark(#ffffff, #1f1519);
+  --preview-mark: light-dark(#f7d9e5, #4d1c33);
 }
 
-.themes:has(input[name='preview-theme'][value='beet-it']:checked):has(
-    input[name='preview-mode'][value='light']:checked
-  ) {
-  --preview-porcelain: #f7f5f5;
-  --preview-paper: #ffffff;
-  --preview-ink: #1f1519;
-  --preview-graphite: #6d6166;
-  --preview-hairline: #e8e0e3;
-  --preview-action: #8e2453;
-  --preview-on-action: #ffffff;
-  --preview-active: #8e2453;
-  --preview-on-active: #ffffff;
-  --preview-mark: #f7d9e5;
-}
-
-.themes:has(input[name='preview-theme'][value='beet-it']:checked):has(
-    input[name='preview-mode'][value='dark']:checked
-  ) {
-  --preview-porcelain: #151013;
-  --preview-paper: #1f181c;
-  --preview-ink: #f5edf0;
-  --preview-graphite: #ab9ca3;
-  --preview-hairline: #33282d;
-  --preview-action: #f07aab;
-  --preview-on-action: #1f1519;
-  --preview-active: #f07aab;
-  --preview-on-active: #1f1519;
-  --preview-mark: #4d1c33;
-}
-
-.themes:has(input[name='preview-theme'][value='blue-plate-special']:checked):has(
-    input[name='preview-mode'][value='light']:checked
-  ) {
-  --preview-porcelain: #f5f6f8;
-  --preview-paper: #ffffff;
-  --preview-ink: #141821;
-  --preview-graphite: #626a78;
-  --preview-hairline: #dfe3ea;
-  --preview-action: #2a4fc9;
-  --preview-on-action: #ffffff;
-  --preview-active: #2a4fc9;
-  --preview-on-active: #ffffff;
-  --preview-mark: #dbe4ff;
-}
-
-.themes:has(input[name='preview-theme'][value='blue-plate-special']:checked):has(
-    input[name='preview-mode'][value='dark']:checked
-  ) {
-  --preview-porcelain: #10131a;
-  --preview-paper: #181c25;
-  --preview-ink: #eef1f7;
-  --preview-graphite: #9aa2b1;
-  --preview-hairline: #2a303c;
-  --preview-action: #7c9cff;
-  --preview-on-action: #0f1422;
-  --preview-active: #7c9cff;
-  --preview-on-active: #0f1422;
-  --preview-mark: #22305c;
+.themes:has(input[name='preview-theme'][value='blue-plate-special']:checked) {
+  --preview-porcelain: light-dark(#f5f6f8, #10131a);
+  --preview-paper: light-dark(#ffffff, #181c25);
+  --preview-ink: light-dark(#141821, #eef1f7);
+  --preview-graphite: light-dark(#626a78, #9aa2b1);
+  --preview-hairline: light-dark(#dfe3ea, #2a303c);
+  --preview-action: light-dark(#2a4fc9, #7c9cff);
+  --preview-on-action: light-dark(#ffffff, #0f1422);
+  --preview-active: light-dark(#2a4fc9, #7c9cff);
+  --preview-on-active: light-dark(#ffffff, #0f1422);
+  --preview-mark: light-dark(#dbe4ff, #22305c);
 }

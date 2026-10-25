@@ -11,15 +11,17 @@
     <meta property="og:title" content="Sizzle" />
     <meta property="og:description" content="Every recipe you love, minus the life story. A self-hosted cookbook." />
     <meta property="og:url" content="https://sizzle.mckinnon.dev/" />
-    <meta name="theme-color" content="#f6f6f3" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f3" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141416" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Bump ?v= whenever these files change: GitHub Pages caches them for hours. -->
-    <link rel="stylesheet" href="/styles.css?v=8" />
-    <link rel="stylesheet" href="/theme-palettes.css?v=1" />
+    <link rel="stylesheet" href="/styles.css?v=13" />
+    <link rel="stylesheet" href="/theme-palettes.css?v=2" />
     <script type="module" src="/sizzle-logo.js?v=2"></script>
-    <script type="module" src="/marketing.js?v=1"></script>
+    <script type="module" src="/marketing.js?v=2"></script>
   </head>
   <body>
     <!-- GitHub mark (Primer Octicons, MIT), drawn in the current text colour. -->
@@ -77,16 +79,240 @@
         </div>
 
         <figure class="hero-screen">
-          <div class="phone-screen">
-            <img
-              src="/images/recipe-390@2x.webp?v=1"
-              alt="Coconut vegetable korma in Sizzle, with a recipe photo, favorite button and Made today status."
-              width="390"
-              height="1000"
-              fetchpriority="high"
-            />
+          <div class="season-previews" aria-live="polite">
+            <div class="season-preview" data-season="autumn">
+              <div class="recipe-stack">
+                <div class="phone-screen phone-screen--left">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-banana-bread-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-banana-bread-390@2x.webp?v=2"
+                      alt="Brown butter banana bread in Sizzle."
+                      width="390"
+                      height="1000"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--right">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-cookies-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-cookies-390@2x.webp?v=2"
+                      alt="Chocolate chunk cookies with flaky salt in Sizzle."
+                      width="390"
+                      height="1000"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--front">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-soup-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-soup-390@2x.webp?v=2"
+                      alt="Roasted carrot and ginger soup in Sizzle, with its photo, description and cooking times."
+                      width="390"
+                      height="1000"
+                      fetchpriority="high"
+                    />
+                  </picture>
+                </div>
+              </div>
+              <p class="season-note">Roasted carrot soup. Banana bread. Chocolate cookies.</p>
+            </div>
+            <div class="season-preview" data-season="winter">
+              <div class="recipe-stack">
+                <div class="phone-screen phone-screen--left">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-cookies-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-cookies-390@2x.webp?v=2"
+                      alt="Chocolate chunk cookies with flaky salt in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--right">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-banana-bread-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-banana-bread-390@2x.webp?v=2"
+                      alt="Brown butter banana bread in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--front">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-ramen-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-ramen-390@2x.webp?v=2"
+                      alt="Miso ramen with salmon and soft-boiled eggs in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+              </div>
+              <p class="season-note">A bowl of ramen. Cookies warm from the oven. Banana bread.</p>
+            </div>
+            <div class="season-preview" data-season="spring">
+              <div class="recipe-stack">
+                <div class="phone-screen phone-screen--left">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-salad-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-salad-390@2x.webp?v=2"
+                      alt="Rainbow chickpea salad with lemon tahini dressing in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--right">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-cookies-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-cookies-390@2x.webp?v=2"
+                      alt="Chocolate chunk cookies with flaky salt in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--front">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-salmon-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-salmon-390@2x.webp?v=2"
+                      alt="Lemon salmon with cucumber salsa in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+              </div>
+              <p class="season-note">Lemon salmon. A crisp chickpea salad. Cookies to finish.</p>
+            </div>
+            <div class="season-preview" data-season="summer">
+              <div class="recipe-stack">
+                <div class="phone-screen phone-screen--left">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-tacos-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-tacos-390@2x.webp?v=2"
+                      alt="Smoky sweetcorn and black bean tacos in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--right">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-pancakes-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-pancakes-390@2x.webp?v=2"
+                      alt="Blueberry buttermilk pancakes in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div class="phone-screen phone-screen--front">
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcset="/images/hero-berry-tarts-390@2x-dark.webp?v=2"
+                      width="390"
+                      height="1000"
+                    />
+                    <img
+                      src="/images/hero-berry-tarts-390@2x.webp?v=2"
+                      alt="Little summer berry lattice tarts in Sizzle."
+                      width="390"
+                      height="1000"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+              </div>
+              <p class="season-note">Summer berry tarts. Sweetcorn tacos. Blueberry pancakes.</p>
+            </div>
           </div>
-          <figcaption>From your collection. Ready for your kitchen.</figcaption>
+          <fieldset class="season-picker">
+            <legend>Something for every season</legend>
+            <div class="season-choices">
+              <label><input type="radio" name="hero-season" value="autumn" checked /><span>Autumn</span></label>
+              <label><input type="radio" name="hero-season" value="winter" /><span>Winter</span></label>
+              <label><input type="radio" name="hero-season" value="spring" /><span>Spring</span></label>
+              <label><input type="radio" name="hero-season" value="summer" /><span>Summer</span></label>
+            </div>
+          </fieldset>
+          <figcaption>Real app views. Sample recipes with licensed food photography.</figcaption>
         </figure>
       </section>
 
@@ -135,14 +361,22 @@
           </p>
         </div>
         <figure data-reveal class="feature-shot padded-shot">
-          <img
-            src="/images/import-1280@2x.webp?v=1"
-            alt="The real Add a recipe form with two example links, the Write a recipe tab, and the Import button."
-            width="672"
-            height="496"
-            loading="lazy"
-            decoding="async"
-          />
+          <picture>
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcset="/images/import-1280@2x-dark.webp?v=2"
+              width="672"
+              height="496"
+            />
+            <img
+              src="/images/import-1280@2x.webp?v=2"
+              alt="The real Add a recipe form with two example links, the Write a recipe tab, and the Import button."
+              width="672"
+              height="496"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
           <figcaption>Two example links, ready to import. One link per line.</figcaption>
         </figure>
       </section>
@@ -157,9 +391,21 @@
         </div>
         <figure data-reveal class="feature-shot wide-shot">
           <picture>
-            <source media="(max-width: 480px)" srcset="/images/gallery-390@2x.webp?v=1" width="390" height="575" />
+            <source
+              media="(max-width: 480px) and (prefers-color-scheme: dark)"
+              srcset="/images/gallery-390@2x-dark.webp?v=2"
+              width="390"
+              height="575"
+            />
+            <source media="(max-width: 480px)" srcset="/images/gallery-390@2x.webp?v=2" width="390" height="575" />
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcset="/images/gallery-1280@2x-dark.webp?v=2"
+              width="1280"
+              height="740"
+            />
             <img
-              src="/images/gallery-1280@2x.webp?v=1"
+              src="/images/gallery-1280@2x.webp?v=2"
               alt="Sizzle’s photo grid, with recipe search, Favorites, course filters, time filters and recipe photos."
               width="1280"
               height="740"
@@ -179,9 +425,21 @@
           </div>
           <figure data-reveal class="feature-shot list-shot">
             <picture>
-              <source media="(max-width: 480px)" srcset="/images/list-390@2x.webp?v=1" width="390" height="1000" />
+              <source
+                media="(max-width: 480px) and (prefers-color-scheme: dark)"
+                srcset="/images/list-390@2x-dark.webp?v=2"
+                width="390"
+                height="1000"
+              />
+              <source media="(max-width: 480px)" srcset="/images/list-390@2x.webp?v=2" width="390" height="1000" />
+              <source
+                media="(prefers-color-scheme: dark)"
+                srcset="/images/list-1280@2x-dark.webp?v=2"
+                width="1280"
+                height="1000"
+              />
               <img
-                src="/images/list-1280@2x.webp?v=1"
+                src="/images/list-1280@2x.webp?v=2"
                 alt="Compact list view showing recipe thumbnails, names, cuisines, cooking times and favorite markers."
                 width="1280"
                 height="1000"
@@ -207,9 +465,21 @@
         </div>
         <figure data-reveal class="feature-shot wide-shot padded-shot">
           <picture>
-            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=1" width="358" height="713" />
+            <source
+              media="(max-width: 480px) and (prefers-color-scheme: dark)"
+              srcset="/images/cooking-390@2x-dark.webp?v=2"
+              width="358"
+              height="713"
+            />
+            <source media="(max-width: 480px)" srcset="/images/cooking-390@2x.webp?v=2" width="358" height="713" />
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcset="/images/cooking-1280@2x-dark.webp?v=2"
+              width="1232"
+              height="753"
+            />
             <img
-              src="/images/cooking-1280@2x.webp?v=1"
+              src="/images/cooking-1280@2x.webp?v=2"
               alt="A close-up of the real Ingredients and Method sections: neutral oil is checked off and the first step is highlighted in yellow."
               width="1232"
               height="753"
@@ -234,9 +504,21 @@
         </div>
         <figure data-reveal class="feature-shot history-shot padded-shot">
           <picture>
-            <source media="(max-width: 480px)" srcset="/images/history-390@2x.webp?v=1" width="358" height="165" />
+            <source
+              media="(max-width: 480px) and (prefers-color-scheme: dark)"
+              srcset="/images/history-390@2x-dark.webp?v=2"
+              width="358"
+              height="165"
+            />
+            <source media="(max-width: 480px)" srcset="/images/history-390@2x.webp?v=2" width="358" height="165" />
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcset="/images/history-1280@2x-dark.webp?v=2"
+              width="500"
+              height="164"
+            />
             <img
-              src="/images/history-1280@2x.webp?v=1"
+              src="/images/history-1280@2x.webp?v=2"
               alt="Recipe history for the sample Coconut vegetable korma: Made once, last made today, with the recipe’s author and added date."
               width="500"
               height="164"
@@ -317,7 +599,8 @@
             <fieldset class="theme-modes">
               <legend>Preview in</legend>
               <div class="mode-choices">
-                <label><input type="radio" name="preview-mode" value="light" checked />Light</label>
+                <label><input type="radio" name="preview-mode" value="system" checked />System</label>
+                <label><input type="radio" name="preview-mode" value="light" />Light</label>
                 <label><input type="radio" name="preview-mode" value="dark" />Dark</label>
               </div>
             </fieldset>
