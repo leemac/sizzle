@@ -74,8 +74,8 @@ for `amd64` and `arm64`.
    docker compose up -d
    ```
 
-Open `http://<your-server>:3000` and choose **Setup** for a walkthrough, then **Share from your
-phone** to add the iOS Shortcut.
+Open `http://<your-server>:3000` to start your cookbook, then choose **Share from your phone** to
+add the iOS Shortcut.
 
 > [!IMPORTANT]
 > Sizzle has no login yet. Keep it on your home network or a private network like Tailscale, and

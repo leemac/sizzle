@@ -132,9 +132,14 @@ export default function ImportsIndex({
                   write a recipe
                 </Link>{' '}
                 or{' '}
-                <Link href="/setup?step=claude" className="underline underline-offset-4">
+                <a
+                  href="https://github.com/leemac/sizzle#install"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-4"
+                >
                   set up optional AI
-                </Link>
+                </a>
                 .
               </>
             )}
