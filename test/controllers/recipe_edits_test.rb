@@ -29,6 +29,24 @@ class RecipeEditsTest < ActionDispatch::IntegrationTest
     assert_equal "1 chickpeas", form[:fields]["ingredients"]
     assert_equal "", form[:fields]["servings"]
     assert_equal Recipe::COURSES, form[:courses]
+    assert_equal [], form[:fields][:meal_times]
+  end
+
+  test "saves meal times and seasons in Sizzle's order and rejects unknown ones" do
+    patch recipe_url(@recipe), params: { recipe: fields(meal_times: %w[dinner lunch], seasons: %w[winter autumn]) }
+
+    assert_redirected_to recipe_url(@recipe)
+    assert_equal [ %w[lunch dinner], %w[autumn winter] ], @recipe.reload.values_at(:meal_times, :seasons)
+    get edit_recipe_url(@recipe)
+    assert_equal %w[lunch dinner], inertia.props[:recipe][:fields][:meal_times]
+
+    patch recipe_url(@recipe), params: { recipe: fields(meal_times: %w[lunch elevenses]) }
+    assert_redirected_to edit_recipe_url(@recipe)
+    follow_redirect!(headers: inertia_headers)
+    assert inertia.props[:errors]["meal_times"]
+
+    patch recipe_url(@recipe), params: { recipe: fields(meal_times: [], seasons: []) }, as: :json
+    assert_equal [ [], [] ], @recipe.reload.values_at(:meal_times, :seasons)
   end
 
   test "saving changes updates the recipe and its search entry" do

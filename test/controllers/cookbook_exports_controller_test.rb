@@ -22,7 +22,8 @@ class CookbookExportsControllerTest < ActionDispatch::IntegrationTest
   test "exports saved and archived recipes, images and cooking history without import text or credentials" do
     recipe = Recipe.create!(title: "../../Kitchen notes", notes: "Less salt next time", rating: 4,
       ingredients: [ { "quantity" => 2, "unit" => "tbsp", "item" => "oil" } ],
-      steps: [ { "text" => "Warm the oil" } ], favorited_at: Time.current, archived_at: Time.current)
+      steps: [ { "text" => "Warm the oil" } ], favorited_at: Time.current, archived_at: Time.current,
+      meal_times: %w[lunch dinner], seasons: %w[winter])
     recipe.cooked!(at: 1.day.ago)
     bytes = sample_jpeg
     recipe.cover.attach(io: StringIO.new(bytes), filename: "../../.env.jpg", content_type: "image/jpeg")
@@ -44,6 +45,8 @@ class CookbookExportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal recipe.title, exported["title"]
     assert_equal recipe.notes, exported["notes"]
     assert_equal recipe.rating, exported["rating"]
+    assert_equal recipe.meal_times, exported["meal_times"]
+    assert_equal recipe.seasons, exported["seasons"]
     assert exported["archived_at"]
     assert exported["favorited_at"]
     assert_equal 1, exported["cooks"].size

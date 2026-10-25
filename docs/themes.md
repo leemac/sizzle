@@ -31,6 +31,11 @@ no code changes.
 
 Name a component's colours by role (`bg-action text-on-action`), never by hue or hex.
 
+The logo mark is the one exception. It is brand art, so it looks the same in every theme: the egg
+icon (`public/icon.svg`) keeps its yolk and white, and the hover flame under the wordmark's "zz"
+stays blue (`.sizzle-logo__flame`). The wordmark's letters and steam use `currentColor`, so they
+still follow `ink`. Keep anything else out of this exception.
+
 ## Making a theme in the app
 
 The theme editor is off by default. Turn it on with `SIZZLE_THEME_EDITOR=true` (see

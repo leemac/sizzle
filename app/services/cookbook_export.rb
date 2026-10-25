@@ -24,7 +24,7 @@ class CookbookExport
   FIELDS = %w[id title description author source_url source_name source_host servings yield_text
               prep_minutes cook_minutes total_minutes cuisine course main_ingredient diets tags
               ingredients steps tips notes rating created_at updated_at edited_at archived_at
-              favorited_at video_metadata].freeze
+              favorited_at video_metadata meal_times seasons].freeze
 
   # Only file reads and the HTTP body write run inside this timeout. No database
   # work or application mutations can be interrupted. A short Content-Length

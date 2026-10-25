@@ -21,6 +21,8 @@ const recipe = {
   cook_minutes: 10,
   main_ingredient: 'chickpeas',
   diets: ['vegan'],
+  meal_times: ['dinner'],
+  seasons: [],
   tags: [],
   tips: [],
   notes: null,

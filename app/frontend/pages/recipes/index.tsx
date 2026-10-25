@@ -54,6 +54,7 @@ export default function RecipesIndex({
   }, [pending, start, stop])
 
   const filtered = Object.values(filters).some(Boolean)
+  const moment = filters.meal && filters.season ? { meal: filters.meal, season: filters.season } : null
 
   return (
     <>
@@ -113,6 +114,15 @@ export default function RecipesIndex({
         <>
           <FilterBar filters={filters} facets={facets} />
 
+          {moment && recipes.length > 0 && (
+            <p className="mt-6 text-sm text-graphite">
+              <span className="font-medium text-ink">
+                {moment.meal.charAt(0).toUpperCase() + moment.meal.slice(1)} ideas for {moment.season}
+              </span>
+              : seasonal picks first, then recipes that work all year.
+            </p>
+          )}
+
           <section aria-label="Recipes" className={`mt-8 grid ${GRIDS[layout]}`}>
             {page === 1 && pending_imports.map((item) => <PendingTile key={item.id} item={item} layout={layout} />)}
             {recipes.map((recipe) =>
@@ -125,7 +135,11 @@ export default function RecipesIndex({
           </section>
 
           {recipes.length === 0 && filtered && (
-            <p className="mt-16 text-center text-graphite">No recipes match those filters.</p>
+            <p className="mt-16 text-center text-graphite">
+              {moment
+                ? `No ${moment.meal} recipes for ${moment.season} yet. Edit a recipe and tick “${moment.meal}” under “Good for” to see it here.`
+                : 'No recipes match those filters.'}
+            </p>
           )}
         </>
       )}

@@ -1,10 +1,12 @@
 import { Link, useForm } from '@inertiajs/react'
+import ChoiceChips from '@/components/ChoiceChips'
 import FieldError, { inputClass } from '@/components/FieldError'
 import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
+import { MEAL_TIMES, SEASONS } from '@/lib/mealMoment'
 import type { RecipeEditForm, RecipeEditInput } from '@/types'
 
-type FieldName = keyof RecipeEditInput
+type FieldName = Exclude<keyof RecipeEditInput, 'meal_times' | 'seasons'>
 
 export default function RecipeEdit({ recipe }: { recipe: RecipeEditForm }) {
   const form = useForm<RecipeEditInput>(recipe.fields)
@@ -109,6 +111,27 @@ export default function RecipeEdit({ recipe }: { recipe: RecipeEditForm }) {
             <input maxLength={60} {...field('main_ingredient')} />
             <FieldError name="main_ingredient" error={form.errors.main_ingredient} />
           </div>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <ChoiceChips
+            name="meal_times"
+            legend="Good for"
+            hint="When you’d most likely make it."
+            options={MEAL_TIMES}
+            value={form.data.meal_times}
+            onChange={(value) => form.setData('meal_times', value)}
+            error={form.errors.meal_times}
+          />
+          <ChoiceChips
+            name="seasons"
+            legend="Best in"
+            hint="Leave empty if it’s good all year."
+            options={SEASONS}
+            value={form.data.seasons}
+            onChange={(value) => form.setData('seasons', value)}
+            error={form.errors.seasons}
+          />
         </div>
 
         <div>

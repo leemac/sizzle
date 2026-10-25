@@ -41,6 +41,8 @@ async function galleryFixture(page: Page, props: Record<string, unknown> = {}) {
       cuisines: [{ value: 'Indian', count: 1 }],
       main_ingredients: [{ value: 'chickpeas', count: 1 }],
       diets: [{ value: 'vegan', count: 1 }],
+      meal_times: [{ value: 'dinner', count: 1 }],
+      seasons: ['spring', 'summer', 'autumn', 'winter'],
       max_minutes: [30, 60, 120],
     },
     app: { ...data.props.app, claude_configured: true },

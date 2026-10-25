@@ -13,6 +13,8 @@ const facets: Facets = {
   cuisines: [],
   diets: [],
   main_ingredients: [],
+  meal_times: [],
+  seasons: [],
   max_minutes: [],
 }
 let container: HTMLDivElement

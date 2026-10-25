@@ -34,7 +34,7 @@ class RecipesController < InertiaController
 
   def update
     recipe = Recipe.find(params[:id])
-    form = RecipeEdit.new(recipe, params.expect(recipe: RecipeEdit::FIELDS))
+    form = RecipeEdit.new(recipe, params.expect(recipe: RecipeEdit.permitted_fields))
     if form.save
       redirect_to recipe_path(recipe), notice: "Changes saved."
     else
