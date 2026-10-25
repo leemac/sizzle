@@ -5,8 +5,6 @@
 class RecipeEdit < ManualRecipe
   FIELDS = %i[title description ingredients steps servings prep_minutes cook_minutes total_minutes
               source_url cuisine course main_ingredient tips notes].freeze
-  HEADING = /\A#+(\s+|\z)/ # "# Sauce", but not "#10 can tomatoes"
-  MAX_SECTION_LENGTH = 300 # same as imported sections (RecipeDraft)
   MAX_TIP_LENGTH = 1000
   MAX_NOTES_LENGTH = 10_000
 
@@ -29,7 +27,6 @@ class RecipeEdit < ManualRecipe
   validates :course, inclusion: { in: Recipe::COURSES, message: "isn't one of the courses Sizzle knows" }, allow_blank: true
   validates :tips, length: { maximum: Import::MAX_TEXT_LENGTH }
   validates :notes, length: { maximum: MAX_NOTES_LENGTH }
-  validate :usable_sections_and_tips
 
   def self.for(recipe)
     new(recipe,
@@ -126,14 +123,7 @@ class RecipeEdit < ManualRecipe
 
   # Each line with the section heading above it; headings themselves aren't entries.
   def sectioned_lines(text)
-    section = nil
-    RecipeText.lines(text).filter_map do |line|
-      if line.match?(HEADING)
-        section = line.sub(HEADING, "").presence&.truncate(MAX_SECTION_LENGTH)
-        next
-      end
-      [ section, line ]
-    end
+    RecipeText.sectioned_lines(text)
   end
 
   def parsed_ingredients
@@ -148,10 +138,10 @@ class RecipeEdit < ManualRecipe
     sectioned_lines(steps).map { |section, line| { "section" => section, "text" => line } }
   end
 
-  def usable_sections_and_tips
+  def usable_sections
     return if errors.any?
 
-    errors.add(:ingredients, "needs at least one ingredient, not only headings") if sectioned_lines(ingredients).empty?
+    super
     errors.add(:steps, "needs at least one step, not only headings") if sectioned_lines(steps).empty?
     tip_lines = RecipeText.lines(tips)
     errors.add(:tips, "must have at most #{RecipeText::MAX_ITEMS} lines") if tip_lines.length > RecipeText::MAX_ITEMS

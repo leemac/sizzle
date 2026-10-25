@@ -4,13 +4,37 @@ import Icon from '@/components/Icon'
 import AppLayout from '@/layouts/AppLayout'
 import { formatAmount, formatDay, formatMinutes, formatTimestamp, groupBySection, isToday, timeAgo } from '@/lib/format'
 import type { RecipeDetail } from '@/types'
+import { scaleIngredient } from '@/lib/scaleIngredient'
 
 export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
+  const [servingChoice, setServingChoice] = useState<{
+    recipeId: number
+    base: number | null
+    value: string
+    multiplier: number
+  } | null>(null)
+  const choice = servingChoice?.recipeId === recipe.id && servingChoice.base === recipe.servings ? servingChoice : null
+  const servings = choice?.value ?? String(recipe.servings ?? '')
+  const targetServings = Number(servings)
+  const validServings = Number.isInteger(targetServings * 2) && targetServings >= 0.5 && targetServings <= 10000
+  const scale = recipe.servings ? (validServings ? targetServings / recipe.servings : 1) : (choice?.multiplier ?? 1)
+  const changeServings = (value: string) =>
+    setServingChoice({ recipeId: recipe.id, base: recipe.servings, value, multiplier: 1 })
+  const multiply = (multiplier: number) =>
+    setServingChoice({
+      recipeId: recipe.id,
+      base: recipe.servings,
+      value: recipe.servings ? String(recipe.servings * multiplier) : '',
+      multiplier,
+    })
   const stats = [
     ['Prep', formatMinutes(recipe.prep_minutes)],
     ['Cook', formatMinutes(recipe.cook_minutes)],
     ['Total', formatMinutes(recipe.total_minutes)],
-    ['Serves', recipe.servings ? String(recipe.servings) : recipe.yield_text],
+    [
+      scale !== 1 && !recipe.servings ? 'Original yield' : 'Serves',
+      recipe.servings ? String(validServings ? targetServings : recipe.servings) : recipe.yield_text,
+    ],
   ].filter((stat): stat is [string, string] => Boolean(stat[1]))
 
   return (
@@ -83,7 +107,71 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
       </header>
 
       <div className="mt-14 grid gap-14 border-t border-hairline pt-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <Ingredients recipe={recipe} />
+        <Ingredients key={recipe.id} recipe={recipe} scale={scale}>
+          <div role="group" aria-label="Ingredient quantities" className="mt-4 flex flex-wrap gap-2">
+            {(
+              [
+                [0.5, '½×', 'Half quantities'],
+                [1, '1×', 'Original quantities'],
+                [2, '2×', 'Double quantities'],
+              ] as const
+            ).map(([multiplier, label, name]) => (
+              <button
+                key={multiplier}
+                type="button"
+                aria-label={name}
+                aria-pressed={scale === multiplier}
+                disabled={!!recipe.servings && recipe.servings * multiplier > 10000}
+                onClick={() => multiply(multiplier)}
+                className={`min-h-11 min-w-14 rounded-full px-4 py-2 text-sm tabular-nums disabled:opacity-50 ${scale === multiplier ? 'bg-yolk font-medium text-[#18181b]' : 'bg-paper ring-1 ring-hairline hover:ring-ink/30'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {recipe.servings ? (
+            <div className="mt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label htmlFor="recipe-servings" className="text-sm font-medium">
+                  Servings
+                </label>
+                <input
+                  id="recipe-servings"
+                  type="number"
+                  min={0.5}
+                  max={10000}
+                  step={0.5}
+                  value={servings}
+                  onChange={(event) => changeServings(event.target.value)}
+                  className="w-24 rounded-xl border-hairline bg-paper px-3 py-2 text-base focus:border-ink focus:ring-0"
+                  aria-invalid={!validServings}
+                  aria-describedby="servings-hint"
+                />
+                {servings !== String(recipe.servings) && (
+                  <button
+                    type="button"
+                    onClick={() => changeServings(String(recipe.servings))}
+                    className="rounded-full px-3 py-2 text-sm ring-1 ring-hairline hover:bg-paper"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+              <p id="servings-hint" className="mt-2 text-sm text-graphite">
+                {validServings
+                  ? `Original recipe serves ${recipe.servings}. Quantities adjust for this view.`
+                  : 'Enter servings from ½ to 10,000, in half-serving increments.'}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-graphite">Add servings in Edit recipe to choose a serving count.</p>
+          )}
+          {scale !== 1 && (
+            <p role="status" className="mt-2 text-sm text-graphite">
+              Only ingredient quantities adjust. Amounts without a number stay unchanged.
+            </p>
+          )}
+        </Ingredients>
         <Steps recipe={recipe} />
       </div>
 
@@ -127,9 +215,9 @@ function RecipeAtmosphere({ url }: { url: string }) {
   )
 }
 
-function Ingredients({ recipe }: { recipe: RecipeDetail }) {
+function Ingredients({ recipe, scale, children }: { recipe: RecipeDetail; scale: number; children: React.ReactNode }) {
   const [checked, setChecked] = useState<Set<number>>(new Set())
-  const indexed = recipe.ingredients.map((ingredient, index) => ({ ...ingredient, index }))
+  const indexed = recipe.ingredients.map((ingredient, index) => ({ ...scaleIngredient(ingredient, scale), index }))
   const hasAmounts = recipe.ingredients.some((ingredient) => Boolean(formatAmount(ingredient)))
 
   const toggle = (index: number) =>
@@ -143,7 +231,8 @@ function Ingredients({ recipe }: { recipe: RecipeDetail }) {
   return (
     <section className="lg:sticky lg:top-24 lg:self-start">
       <h2 className="font-display text-2xl font-semibold">Ingredients</h2>
-      {recipe.yield_text && <p className="mt-1 text-sm text-graphite">{recipe.yield_text}</p>}
+      {recipe.yield_text && scale === 1 && <p className="mt-1 text-sm text-graphite">{recipe.yield_text}</p>}
+      {children}
 
       {groupBySection(indexed).map(([section, items]) => (
         <div key={section ?? ''} className="mt-6">

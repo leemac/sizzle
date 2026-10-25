@@ -5,6 +5,8 @@ module RecipeText
   MAX_ITEMS = 200
   MAX_INGREDIENT_LENGTH = 2000
   MAX_STEP_LENGTH = 10_000
+  HEADING = /\A#+(\s+|\z)/ # "# Sauce", but not "#10 can tomatoes"
+  MAX_SECTION_LENGTH = 300
 
   def plain(value)
     return "" unless value.is_a?(String)
@@ -18,6 +20,17 @@ module RecipeText
 
   def lines(value)
     plain(value).lines.map(&:strip).reject(&:empty?)
+  end
+
+  def sectioned_lines(value)
+    section = nil
+    lines(value).filter_map do |line|
+      if line.match?(HEADING)
+        section = line.sub(HEADING, "").presence&.truncate(MAX_SECTION_LENGTH)
+        next
+      end
+      [ section, line ]
+    end
   end
 
   def ingredient(text)

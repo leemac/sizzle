@@ -46,6 +46,30 @@ class ManualRecipesTest < ActionDispatch::IntegrationTest
     assert inertia.props[:errors]["steps"]
   end
 
+  test "ingredient groups are plain bounded headings and a bare hash ends a group" do
+    post imports_url, params: { manual_recipe: fields.merge(
+      ingredients: "# <b>Rice</b><script>bad()</script>\n1 cup rice\n# #{'x' * 400}\n1 cup coconut milk\n#\n#10 can tomatoes"
+    ) }
+
+    recipe = Recipe.last
+    assert_redirected_to recipe_url(recipe)
+    rice, milk, tomatoes = recipe.ingredients
+    assert_equal "Rice", rice["section"]
+    assert_equal 300, milk["section"].length
+    assert_nil tomatoes["section"]
+    assert_equal [ "1 cup rice", "1 cup coconut milk", "#10 can tomatoes" ], recipe.ingredients.map { |line| line["item"] }
+    follow_redirect!(headers: inertia_headers)
+    assert_equal "Rice", inertia.props[:recipe]["ingredients"].first["section"]
+  end
+
+  test "ingredient headings alone do not create a recipe" do
+    assert_no_difference "Recipe.count" do
+      post imports_url, params: { manual_recipe: fields.merge(ingredients: "# Sauce\n# Finish") }
+    end
+    follow_redirect!(headers: inertia_headers)
+    assert_includes inertia.props[:errors]["ingredients"], "needs at least one ingredient"
+  end
+
   test "rejects excessive or malformed content and invalid numbers" do
     [ { title: "x" * 301 }, { ingredients: Array.new(201, "rice").join("\n") },
       { steps: "x" * 10_001 }, { servings: "-1" }, { cook_minutes: "tomorrow" },

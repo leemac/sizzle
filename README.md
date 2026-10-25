@@ -23,7 +23,7 @@
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
-<img src="docs/images/cookbook.jpg" alt="The Sizzle cookbook: a grid of drink recipes with photos, filtered by course">
+<img src="docs/images/cookbook.webp" alt="The Sizzle cookbook: a photo grid of curry, salmon, tacos and chocolate chunk cookies">
 
 > [!WARNING]
 > Sizzle is very early in development. Expect rough edges and breaking changes between releases.
