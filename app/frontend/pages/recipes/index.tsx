@@ -1,6 +1,7 @@
-import { Head, Link, usePoll } from '@inertiajs/react'
+import { Link, usePoll } from '@inertiajs/react'
 import { useEffect } from 'react'
 import FilterBar from '@/components/FilterBar'
+import Icon, { type IconName } from '@/components/Icon'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import LayoutToggle from '@/components/LayoutToggle'
 import RecipeRow from '@/components/RecipeRow'
@@ -53,15 +54,16 @@ export default function RecipesIndex({
 
   return (
     <>
-      <Head title="Sizzle" />
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-graphite">
-            {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
-          </p>
-          {total_count > 0 && <LayoutToggle value={layout} onChange={setLayout} />}
-        </div>
+        {total_count > 0 && (
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-graphite">
+              {total_count} {total_count === 1 ? 'recipe' : 'recipes'}
+            </p>
+            <LayoutToggle value={layout} onChange={setLayout} />
+          </div>
+        )}
       </div>
 
       {failed_imports.length > 0 && (
@@ -113,6 +115,40 @@ export default function RecipesIndex({
 
 RecipesIndex.layout = AppLayout
 
+const FIRST_STEPS: { href: string; icon: IconName; title: string; hint: string }[] = [
+  { href: '/imports', icon: 'link', title: 'Import a link', hint: 'From a recipe site' },
+  { href: '/imports?mode=manual', icon: 'edit', title: 'Write a recipe', hint: 'A family favourite' },
+  { href: '/share', icon: 'share', title: 'Share from your phone', hint: 'Save as you browse' },
+]
+
+function EmptyCookbook() {
+  return (
+    <section aria-labelledby="empty-heading">
+      <h2 id="empty-heading" className="text-graphite">
+        No recipes yet.
+      </h2>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
+        {FIRST_STEPS.map(({ href, icon, title, hint }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="flex h-full items-center gap-4 rounded-photo bg-paper p-4 ring-1 ring-hairline hover:ring-ink/30 sm:flex-col sm:items-start sm:p-5"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-yolk-soft">
+                <Icon name={icon} className="size-5" />
+              </span>
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="mt-0.5 block text-sm text-graphite">{hint}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 function PendingTile({ item, layout }: { item: Import; layout: GalleryLayout }) {
   const label = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : 'Pasted recipe'
 
@@ -149,30 +185,5 @@ function PageLink({ filters, page, label }: { filters: RecipeFilters; page: numb
     >
       {label}
     </Link>
-  )
-}
-
-function EmptyCookbook() {
-  return (
-    <div className="mx-auto max-w-xl py-16 sm:py-24">
-      <h2 className="font-display text-5xl leading-[0.95] font-semibold text-balance sm:text-7xl">
-        Every recipe you love, minus the life story.
-      </h2>
-      <p className="mt-6 text-lg text-graphite">
-        Share a recipe page from your phone or paste a link. Sizzle keeps the ingredients, the steps and the best photo,
-        and drops the ads and the scrolling.
-      </p>
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Link href="/setup" className="rounded-full bg-yolk px-5 py-3 font-semibold text-[#18181b] hover:brightness-95">
-          Set up Sizzle
-        </Link>
-        <Link href="/imports" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">
-          Add your first recipe
-        </Link>
-        <Link href="/share" className="rounded-full px-5 py-3 ring-1 ring-hairline hover:ring-ink/30">
-          Set up sharing from your phone
-        </Link>
-      </div>
-    </div>
   )
 }

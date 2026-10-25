@@ -5,6 +5,7 @@ require "webmock/minitest"
 require "inertia_rails/minitest"
 require_relative "support/fake_resolver"
 require_relative "support/fake_extractor"
+require_relative "support/youtube_watch_page"
 
 # No test may touch the real network. Stub HTTP with WebMock and DNS with FakeResolver.
 WebMock.disable_net_connect!

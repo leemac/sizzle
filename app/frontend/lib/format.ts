@@ -62,3 +62,49 @@ export function groupBySection<T extends { section: string | null }>(items: T[])
   }
   return [...groups.entries()]
 }
+
+const startOfDay = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime()
+
+/** Whole calendar days from `iso` to `now`, in the viewer's time zone. */
+function daysAgo(iso: string, now: Date): number {
+  return Math.round((startOfDay(now) - startOfDay(new Date(iso))) / 86_400_000)
+}
+
+export function isToday(iso: string, now: Date = new Date()): boolean {
+  return daysAgo(iso, now) === 0
+}
+
+const RELATIVE_UNITS = [
+  ['year', 365 * 86_400],
+  ['month', 30 * 86_400],
+  ['day', 86_400],
+  ['hour', 3_600],
+  ['minute', 60],
+] as const
+
+/** "Just now", "5 minutes ago", "3 days ago", "2 months ago". */
+export function timeAgo(iso: string, now: Date = new Date()): string {
+  const seconds = Math.max(0, (now.getTime() - new Date(iso).getTime()) / 1000)
+  const match = RELATIVE_UNITS.find(([, size]) => seconds >= size)
+  if (!match) return 'Just now'
+  const [unit, size] = match
+  return new Intl.RelativeTimeFormat('en', { numeric: 'always' }).format(-Math.floor(seconds / size), unit)
+}
+
+/** "Oct 24, 2026, 7:22 PM" — the exact time behind a relative one. */
+export function formatTimestamp(iso: string): string {
+  return new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+}
+
+/** "Today", "Yesterday", "Oct 3", or "Oct 3, 2025" outside the current year — in the viewer's time zone. */
+export function formatDay(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso)
+  const days = daysAgo(iso, now)
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric',
+  })
+}

@@ -32,6 +32,8 @@
 
 - **Share from anywhere.** One tap in your iPhone's share sheet sends a recipe page to Sizzle. Or
   paste a link, or the recipe text.
+- **YouTube too.** Share a cooking video and Sizzle reads the recipe from its description, or from
+  the recipe page it links to. Recipes that are only spoken in the video aren't supported yet.
 - **Just the recipe.** Ingredients, steps and the best photo. No ads, pop-ups or life story.
 - **No AI required.** Sizzle reads a site's recipe data, or you write the recipe yourself. Add an
   Anthropic API key to handle pages without recipe data and pasted text.
