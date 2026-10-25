@@ -61,7 +61,7 @@ class ImportPipeline
 
         data = ai_extractor.from_page(page)
       end
-      draft = RecipeDraft.new(data, images: page.images)
+      draft = RecipeDraft.new(data, images: page.images, video: page.video_metadata)
       raise NotARecipe unless draft.recipe?
 
       @import.advance!("saving")

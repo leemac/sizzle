@@ -25,6 +25,7 @@ class Recipe < ApplicationRecord
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validate :diets_are_known
   validate :source_url_is_http, if: :source_url
+  validate :video_recipe_url_is_http
 
   # Strips tracking parameters and fragments so the same page shared twice
   # (once from Instagram, once from Safari) is recognized as a duplicate.
@@ -63,6 +64,23 @@ class Recipe < ApplicationRecord
   end
 
   private
+
+  def video_recipe_url_is_http
+    unless video_metadata.is_a?(Hash)
+      errors.add(:video_metadata, "must be an object")
+      return
+    end
+
+    url = video_metadata["written_recipe_url"]
+    return if url.nil?
+
+    uri = URI.parse(url) if url.is_a?(String) && url.length <= 2048
+    unless uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.nil?
+      errors.add(:video_metadata, "written recipe must be an http(s) URL")
+    end
+  rescue URI::InvalidURIError, TypeError
+    errors.add(:video_metadata, "written recipe must be an http(s) URL")
+  end
 
   # source_url is rendered as a link, so it must never be javascript: or data:.
   def source_url_is_http

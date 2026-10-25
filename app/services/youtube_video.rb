@@ -89,11 +89,32 @@ class YoutubeVideo
       structured_recipe: linked&.structured_recipe,
       text: truncated ? page_text[0, PageScraper::MAX_TEXT_CHARS] : page_text,
       images: images(linked),
-      truncated: truncated || linked&.truncated || false
+      truncated: truncated || linked&.truncated || false,
+      video_metadata: {
+        "id" => @id,
+        "duration_seconds" => duration_seconds(details["lengthSeconds"]),
+        "chapters" => chapter_timestamps(description),
+        "written_recipe_url" => linked&.canonical_url
+      }
     )
   end
 
   private
+
+  def duration_seconds(value)
+    value.to_i if value.is_a?(String) && value.match?(/\A\d{1,7}\z/)
+  end
+
+  # Creator-written timestamps only; don't infer chapters or timings from the recipe steps.
+  def chapter_timestamps(description)
+    description.to_s.each_line.filter_map do |line|
+      match = line.match(/\A\s*(?:[-*•]\s*)?(\d{1,3}:[0-5]\d(?::[0-5]\d)?)\s+(?:[-–—|]\s*)?(.+?)\s*\z/)
+      next unless match
+
+      seconds = match[1].split(":").reduce(0) { |total, part| (total * 60) + part.to_i }
+      { "start_seconds" => seconds, "title" => match[2] }
+    end
+  end
 
   def video_details
     response = @http.get(@url, max_bytes: MAX_HTML_BYTES,

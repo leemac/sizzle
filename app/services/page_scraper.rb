@@ -3,7 +3,11 @@
 # ranked list of candidate images for local extraction or optional AI.
 class PageScraper
   Page = Data.define(:url, :canonical_url, :title, :site_name, :description, :structured_recipe, :text, :images,
-                     :truncated)
+                     :truncated, :video_metadata) do
+    def initialize(video_metadata: nil, **attributes)
+      super(**attributes, video_metadata:)
+    end
+  end
   Image = Data.define(:id, :url, :alt, :source)
 
   MAX_HTML_BYTES = 6.megabytes

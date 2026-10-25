@@ -57,6 +57,28 @@ class YoutubeVideoTest < ActiveSupport::TestCase
     assert_requested :get, WATCH_URL, headers: { "User-Agent" => YoutubeVideo::USER_AGENT, "Cookie" => "SOCS=CAI" }
   end
 
+  test "reads video duration and creator-written timestamps without treating them as cooking times" do
+    stub_watch_page(details: { "lengthSeconds" => "4000" },
+                    description: "Chapters:\n0:00 Intro\n- 01:25 - Make the dough\n1:02:03 Bake\n1:99 Bad timestamp\n")
+    video = fetch.video_metadata
+
+    assert_equal ID, video["id"]
+    assert_equal 4000, video["duration_seconds"]
+    assert_equal [
+      { "start_seconds" => 0, "title" => "Intro" },
+      { "start_seconds" => 85, "title" => "Make the dough" },
+      { "start_seconds" => 3723, "title" => "Bake" }
+    ], video["chapters"]
+  end
+
+  test "missing or malformed duration does not prevent importing the video" do
+    [ nil, 300, {}, "1.5", "-30", "9" * 1000 ].each do |value|
+      stub_watch_page(details: { "lengthSeconds" => value })
+
+      assert_nil fetch.video_metadata["duration_seconds"], value.inspect
+    end
+  end
+
   test "finds the end of the player data even when the description contains braces, quotes and script" do
     description = %(Sauce: {"a": 1} "quoted" \\ back\\slash };var x = {"y": "}"};</script><b>bold</b>)
     stub_watch_page(description:)
@@ -125,6 +147,7 @@ class YoutubeVideoTest < ActiveSupport::TestCase
     assert_equal WATCH_URL, page.canonical_url, "the video stays the source"
     assert_equal "Weeknight Chickpea Curry", page.structured_recipe["name"]
     assert_includes page.text, "Linked recipe page (#{RECIPE_URL})"
+    assert_equal RECIPE_URL, page.video_metadata["written_recipe_url"]
     assert_equal "https://cdn.example.com/curry-1200x900.jpg", page.images.first.url
     assert_equal "https://i.ytimg.com/vi/#{ID}/maxresdefault.jpg", page.images[-2].url
     assert_not_requested :get, "https://shop.example.com/book"
@@ -172,6 +195,7 @@ class YoutubeVideoTest < ActiveSupport::TestCase
 
     assert_includes page.text, "Recipe: http://recipes.internal.example/curry"
     assert_nil page.structured_recipe
+    assert_nil page.video_metadata["written_recipe_url"]
     assert_not_requested :get, "http://recipes.internal.example/curry"
   end
 
@@ -181,6 +205,17 @@ class YoutubeVideoTest < ActiveSupport::TestCase
     page = fetch
 
     assert_nil page.structured_recipe
+    assert_nil page.video_metadata["written_recipe_url"]
     assert_includes page.text, "Recipe: #{RECIPE_URL}"
+  end
+
+  test "a linked page cannot turn the written recipe link into a script or another site's URL" do
+    stub_watch_page(description: "Recipe: #{RECIPE_URL}")
+    [ "javascript:alert(1)", "https://evil.example/recipe" ].each do |canonical|
+      stub_request(:get, RECIPE_URL).to_return(body: %(<link rel="canonical" href="#{canonical}"><main>Recipe</main>),
+                                             headers: { "Content-Type" => "text/html" })
+
+      assert_equal RECIPE_URL, fetch.video_metadata["written_recipe_url"]
+    end
   end
 end
