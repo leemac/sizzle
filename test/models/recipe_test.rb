@@ -94,4 +94,33 @@ class RecipeTest < ActiveSupport::TestCase
     assert_not Recipe.new(title: "Recipe", video_metadata: []).valid?
     assert Recipe.new(title: "Recipe", video_metadata: { "written_recipe_url" => "https://example.com/recipe" }).valid?
   end
+
+  test "filters by meal time, with this season's recipes ahead of all-year ones" do
+    all_year = create_recipe(title: "Toasted sandwich", meal_times: %w[lunch], created_at: 1.day.ago)
+    autumn = create_recipe(title: "Squash soup", meal_times: %w[lunch dinner], seasons: %w[autumn winter], created_at: 2.days.ago)
+    create_recipe(title: "Berry salad", meal_times: %w[lunch], seasons: %w[summer])
+    create_recipe(title: "Porridge", meal_times: %w[breakfast], seasons: %w[autumn])
+    create_recipe(title: "Old soup", meal_times: %w[lunch], archived_at: Time.current)
+
+    assert_equal [ autumn, all_year ], Recipe.filter_by(meal: "lunch", season: "autumn").to_a
+    assert_equal 3, Recipe.filter_by(meal: "lunch").count
+    assert_empty Recipe.filter_by(meal: "lunch'; DROP TABLE recipes; --")
+    assert_equal [ { value: "breakfast", count: 1 }, { value: "lunch", count: 3 }, { value: "dinner", count: 1 } ],
+                 Recipe.facets[:meal_times]
+    assert_equal Recipe::SEASONS, Recipe.facets[:seasons]
+  end
+
+  test "rejects unknown meal times and seasons" do
+    assert_not Recipe.new(title: "x", meal_times: [ "elevenses" ]).valid?
+    assert_not Recipe.new(title: "x", seasons: [ "monsoon" ]).valid?
+    assert_not Recipe.new(title: "x", seasons: "summer").valid?
+    assert Recipe.new(title: "x", meal_times: %w[lunch dinner], seasons: %w[winter]).valid?
+  end
+
+  test "reads seasons from free text, treating all four as all year" do
+    assert_equal %w[summer autumn], Recipe.seasons_from([ "Fall", " summer ", "grilling", 3, nil ])
+    assert_empty Recipe.seasons_from(%w[spring summer autumn winter])
+    assert_equal %w[lunch dinner], Recipe.meal_times_for_course("main")
+    assert_empty Recipe.meal_times_for_course("sauce")
+  end
 end

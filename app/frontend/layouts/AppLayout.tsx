@@ -2,9 +2,12 @@ import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
+import SosButton from '@/components/SosButton'
+import type { RecipeFilters } from '@/types'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { flash, url, props } = usePage()
+  const { flash, url, props, component } = usePage()
+  const inGallery = component === 'recipes/index'
   const message = flash.notice ?? flash.alert
   const [dismissed, setDismissed] = useState(false)
 
@@ -29,6 +32,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             >
               Share from your phone
             </Link>
+            <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
             <Link
               href="/imports"
               className="inline-flex items-center gap-1.5 rounded-full bg-yolk px-4 py-2 text-sm font-semibold text-[#18181b] hover:brightness-95"

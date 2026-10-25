@@ -24,6 +24,18 @@ class RecipeDraftTest < ActiveSupport::TestCase
     assert Recipe.new(attributes).valid?
   end
 
+  test "keeps known meal times and seasons, guessing meal times from the course when none are given" do
+    attributes = draft("meal_times" => [ "dinner", "elevenses", 3, { "x" => 1 } ], "seasons" => [ "Winter", "monsoon", nil ]).attributes
+
+    assert_equal %w[dinner], attributes[:meal_times]
+    assert_equal %w[winter], attributes[:seasons]
+    assert_equal %w[lunch dinner], draft.attributes[:meal_times]
+    assert_equal %w[breakfast], draft("course" => "breakfast", "meal_times" => "breakfast").attributes[:meal_times]
+    assert_empty draft("course" => "sauce").attributes[:meal_times]
+    assert_empty draft("seasons" => %w[spring summer autumn winter]).attributes[:seasons]
+    assert Recipe.new(attributes).valid?
+  end
+
   test "is only a recipe when Claude says so and there's a title" do
     assert draft.recipe?
     assert_not draft("is_recipe" => false).recipe?

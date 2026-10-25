@@ -30,6 +30,7 @@ class RecipeDraft
   end
 
   def attributes
+    course = text(@data["course"], 20).presence_in(Recipe::COURSES)
     {
       title:,
       description: text(@data["description"], 2000),
@@ -40,8 +41,10 @@ class RecipeDraft
       cook_minutes: minutes(@data["cook_minutes"]),
       total_minutes: minutes(@data["total_minutes"]),
       cuisine: text(@data["cuisine"], 100),
-      course: text(@data["course"], 20).presence_in(Recipe::COURSES),
+      course:,
       diets: strings(@data["diets"], 30) & Recipe::DIETS,
+      meal_times: meal_times(course),
+      seasons: Recipe.seasons_from(strings(@data["seasons"], 20)),
       main_ingredient: text(@data["main_ingredient"], 60)&.downcase,
       tags: strings(@data["tags"], 40).map(&:downcase).uniq.first(MAX_TAGS),
       ingredients: ingredients,
@@ -80,6 +83,12 @@ class RecipeDraft
   end
 
   private
+
+  # The source's meal times, or a guess from the course when it gives none.
+  def meal_times(course)
+    given = Recipe::MEAL_TIMES & strings(@data["meal_times"], 20)
+    given.presence || Recipe.meal_times_for_course(course)
+  end
 
   def web_url(value)
     return unless value.is_a?(String) && value.length <= 2048

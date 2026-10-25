@@ -3,6 +3,9 @@ class ManualRecipe
   include ActiveModel::Model
   include ActiveModel::Attributes
 
+  FIELDS = %i[title description ingredients steps servings prep_minutes cook_minutes source_url].freeze
+  LIST_FIELDS = { meal_times: Recipe::MEAL_TIMES, seasons: Recipe::SEASONS }.freeze
+
   attribute :title, :string
   attribute :description, :string
   attribute :ingredients, :string
@@ -11,6 +14,8 @@ class ManualRecipe
   attribute :prep_minutes, :string
   attribute :cook_minutes, :string
   attribute :source_url, :string
+  attribute :meal_times, default: -> { [] }
+  attribute :seasons, default: -> { [] }
   attr_reader :recipe, :duplicate_recipe
 
   validates :title, presence: true, length: { maximum: 300 }
@@ -23,6 +28,7 @@ class ManualRecipe
   validates :source_url, length: { maximum: 2048 }
   validate :usable_content
   validate :usable_sections
+  validate :known_list_values
   validate :source_url_is_new_web_link, if: -> { source_url.present? }
 
   def save
@@ -35,12 +41,31 @@ class ManualRecipe
       ingredients: RecipeText.sectioned_lines(ingredients).map { |section, line| RecipeText.ingredient(line).merge("section" => section) },
       steps: RecipeText.lines(steps).map { |line| { "section" => nil, "text" => line } },
       servings: servings.presence&.to_i, prep_minutes: prep, cook_minutes: cook,
-      total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence
+      total_minutes: (prep + cook if prep && cook), source_url: source_url.to_s.strip.presence,
+      **list_attributes
     )
     true
   end
 
+  # For a strong-parameters permit list: the plain fields, then the lists.
+  def self.permitted_fields
+    [ *self::FIELDS, LIST_FIELDS.transform_values { [] } ]
+  end
+
   private
+
+  # Ticked options in Sizzle's own order.
+  def list_attributes
+    LIST_FIELDS.to_h { |field, known| [ field, known & public_send(field) ] }
+  end
+
+  def known_list_values
+    LIST_FIELDS.each do |field, known|
+      values = public_send(field)
+      errors.add(field, "isn't a list") unless values.is_a?(Array)
+      errors.add(field, "includes an option Sizzle doesn't know") if values.is_a?(Array) && (values - known).any?
+    end
+  end
 
   def usable_content
     return if errors.any?

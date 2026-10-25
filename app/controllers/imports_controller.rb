@@ -77,7 +77,7 @@ class ImportsController < InertiaController
   end
 
   def create_manual_recipe
-    form = ManualRecipe.new(params.expect(manual_recipe: %i[title description ingredients steps servings prep_minutes cook_minutes source_url]))
+    form = ManualRecipe.new(params.expect(manual_recipe: ManualRecipe.permitted_fields))
     if form.save
       redirect_to recipe_path(form.recipe), notice: "Recipe saved."
     else

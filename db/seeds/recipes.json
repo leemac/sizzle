@@ -14,6 +14,14 @@
       "gluten-free",
       "dairy-free"
     ],
+    "meal_times": [
+      "lunch",
+      "dinner"
+    ],
+    "seasons": [
+      "autumn",
+      "winter"
+    ],
     "tags": [
       "weeknight",
       "one-pot",
@@ -179,6 +187,13 @@
       "dairy-free",
       "low-carb"
     ],
+    "meal_times": [
+      "dinner"
+    ],
+    "seasons": [
+      "spring",
+      "summer"
+    ],
     "tags": [
       "weeknight",
       "date-night"
@@ -305,6 +320,10 @@
       "vegetarian",
       "nut-free"
     ],
+    "meal_times": [
+      "breakfast"
+    ],
+    "seasons": [],
     "tags": [
       "brunch",
       "family-favourite"
@@ -444,6 +463,11 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "breakfast",
+      "lunch"
+    ],
+    "seasons": [],
     "tags": [
       "quick",
       "brunch"
@@ -551,6 +575,13 @@
       "vegan",
       "gluten-free",
       "dairy-free"
+    ],
+    "meal_times": [
+      "lunch"
+    ],
+    "seasons": [
+      "spring",
+      "summer"
     ],
     "tags": [
       "no-cook",
@@ -719,6 +750,10 @@
       "vegetarian",
       "nut-free"
     ],
+    "meal_times": [
+      "dinner"
+    ],
+    "seasons": [],
     "tags": [
       "weekend",
       "family-favourite"
@@ -830,6 +865,14 @@
       "vegan",
       "gluten-free",
       "dairy-free"
+    ],
+    "meal_times": [
+      "lunch",
+      "dinner"
+    ],
+    "seasons": [
+      "autumn",
+      "winter"
     ],
     "tags": [
       "one-pot",
@@ -969,6 +1012,13 @@
     "diets": [
       "vegetarian",
       "gluten-free"
+    ],
+    "meal_times": [
+      "lunch",
+      "dinner"
+    ],
+    "seasons": [
+      "summer"
     ],
     "tags": [
       "weeknight",
@@ -1131,6 +1181,11 @@
       "vegetarian",
       "nut-free"
     ],
+    "meal_times": [
+      "breakfast",
+      "snack"
+    ],
+    "seasons": [],
     "tags": [
       "make-ahead",
       "weekend"
@@ -1264,6 +1319,10 @@
       "vegetarian",
       "nut-free"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [],
     "tags": [
       "baking-project",
       "make-ahead"
@@ -1403,6 +1462,12 @@
       "vegetarian",
       "nut-free"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [
+      "summer"
+    ],
     "tags": [
       "weekend",
       "summer",
@@ -1522,6 +1587,10 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "lunch"
+    ],
+    "seasons": [],
     "tags": [
       "baking-project",
       "freezer-friendly"
@@ -1638,6 +1707,12 @@
     "diets": [
       "vegetarian"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [
+      "summer"
+    ],
     "tags": [
       "no-cook",
       "treat"
@@ -1725,6 +1800,14 @@
     "diets": [
       "pescatarian",
       "dairy-free"
+    ],
+    "meal_times": [
+      "lunch",
+      "dinner"
+    ],
+    "seasons": [
+      "autumn",
+      "winter"
     ],
     "tags": [
       "comfort-food",
@@ -1866,6 +1949,11 @@
       "gluten-free",
       "nut-free"
     ],
+    "meal_times": [
+      "lunch",
+      "dinner"
+    ],
+    "seasons": [],
     "tags": [
       "sharing",
       "weekend"
@@ -1952,6 +2040,13 @@
     "total_minutes": 35,
     "servings": 4,
     "diets": [],
+    "meal_times": [
+      "dinner"
+    ],
+    "seasons": [
+      "autumn",
+      "winter"
+    ],
     "tags": [
       "weeknight",
       "date-night"
@@ -2093,6 +2188,12 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [
+      "summer"
+    ],
     "tags": [
       "mocktail",
       "caffeine-free",
@@ -2196,6 +2297,12 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [
+      "summer"
+    ],
     "tags": [
       "caffeine-free",
       "make-ahead",
@@ -2298,6 +2405,12 @@
       "gluten-free",
       "dairy-free",
       "nut-free"
+    ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [
+      "summer"
     ],
     "tags": [
       "caffeine-free",
@@ -2411,6 +2524,13 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "breakfast",
+      "snack"
+    ],
+    "seasons": [
+      "summer"
+    ],
     "tags": [
       "quick",
       "no-cook",
@@ -2500,6 +2620,10 @@
       "dairy-free",
       "nut-free"
     ],
+    "meal_times": [
+      "snack"
+    ],
+    "seasons": [],
     "tags": [
       "mocktail",
       "caffeine-free",

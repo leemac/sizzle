@@ -54,6 +54,17 @@ class StructuredRecipeExtractorTest < ActiveSupport::TestCase
     assert_empty extract("suitableForDiet" => [ 123, { "name" => "VeganDiet" }, "https://unrelated.example/VeganDiet" ])["diets"]
   end
 
+  test "reads meal times from the category and seasons from categories and keywords" do
+    result = extract("recipeCategory" => [ "Lunch", "Supper", "Main Course" ], "keywords" => "soup, Autumn, fall,winter")
+
+    assert_equal %w[lunch dinner], result["meal_times"]
+    assert_equal %w[autumn winter], result["seasons"]
+    assert_equal %w[summer], extract("keywords" => [ "Summer", 3, { "a" => "spring" } ])["seasons"]
+    assert_empty extract("recipeCategory" => { "name" => "Lunch" }, "keywords" => 42)["meal_times"]
+    draft = RecipeDraft.new(extract("recipeCategory" => "Dinner", "keywords" => "Summer"))
+    assert_equal [ %w[dinner], %w[summer] ], draft.attributes.values_at(:meal_times, :seasons)
+  end
+
   test "does not invent optional metadata from invalid values or ranges" do
     result = extract("recipeYield" => "4–6 servings", "author" => { "url" => "https://example.com" },
                      "prepTime" => "ten minutes", "cookTime" => "PT999999M", "totalTime" => "PT",

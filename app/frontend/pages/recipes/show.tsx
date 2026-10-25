@@ -38,6 +38,10 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
       recipe.servings ? String(validServings ? targetServings : recipe.servings) : recipe.yield_text,
     ],
   ].filter((stat): stat is [string, string] => Boolean(stat[1]))
+  const timing = [
+    recipe.meal_times.length > 0 && `Good for ${recipe.meal_times.join(', ')}`,
+    recipe.seasons.length > 0 && `Best in ${recipe.seasons.join(', ')}`,
+  ].filter(Boolean)
 
   return (
     <article>
@@ -95,8 +99,13 @@ export default function RecipeShow({ recipe }: { recipe: RecipeDetail }) {
             </dl>
           )}
 
-          {recipe.diets.length + recipe.tags.length > 0 && (
+          {timing.length + recipe.diets.length + recipe.tags.length > 0 && (
             <div className="mt-8 flex flex-wrap items-center gap-2">
+              {timing.length > 0 && (
+                <span className="rounded-full bg-paper px-3 py-1 text-sm ring-1 ring-hairline">
+                  {timing.join(' · ')}
+                </span>
+              )}
               {[...recipe.diets, ...recipe.tags].map((tag) => (
                 <span key={tag} className="rounded-full px-3 py-1 text-sm ring-1 ring-hairline">
                   {tag}

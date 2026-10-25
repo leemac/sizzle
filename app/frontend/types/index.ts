@@ -10,6 +10,10 @@ export type SharedProps = {
   app: { claude_configured: boolean; version: string }
 }
 
+export type MealTime = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
+
 export type ManualRecipeInput = {
   title: string
   description: string
@@ -19,6 +23,8 @@ export type ManualRecipeInput = {
   prep_minutes: string
   cook_minutes: string
   source_url: string
+  meal_times: MealTime[]
+  seasons: Season[]
 }
 
 export type RecipeCard = {
@@ -62,6 +68,8 @@ export type RecipeDetail = RecipeCard & {
   cook_minutes: number | null
   main_ingredient: string | null
   diets: string[]
+  meal_times: MealTime[]
+  seasons: Season[]
   tags: string[]
   ingredients: Ingredient[]
   steps: Step[]
@@ -147,6 +155,8 @@ export type Facets = {
   cuisines: FacetCount[]
   main_ingredients: FacetCount[]
   diets: FacetCount[]
+  meal_times: FacetCount[]
+  seasons: Season[]
   max_minutes: number[]
 }
 
@@ -158,4 +168,6 @@ export type RecipeFilters = {
   diet?: string
   main?: string
   max_minutes?: string
+  meal?: string
+  season?: string
 }
