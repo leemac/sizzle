@@ -1,4 +1,6 @@
 class ImportsController < InertiaController
+  IMPORTS_PER_MINUTE = 30
+
   rate_limit to: 30, within: 1.minute, only: %i[create retry]
 
   def index
@@ -13,7 +15,9 @@ class ImportsController < InertiaController
     return create_manual_recipe if params.key?(:manual_recipe)
 
     batch = ImportBatch.new(params[:input], origin: "web")
-    if batch.save
+    if batch.valid? && !charge_import_budget(batch.imports.size)
+      redirect_to imports_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
+    elsif batch.save
       count = batch.imports.size
       notice = count == 1 ? "Importing… this usually takes under a minute." : "Importing #{count} recipes… this usually takes a minute or two."
       redirect_to imports_path, notice:
@@ -28,6 +32,18 @@ class ImportsController < InertiaController
   end
 
   private
+
+  # Every queued import is a fetch and maybe a Claude call, so each link
+  # counts against the budget, not just each request. A rejected batch
+  # gives its links back.
+  def charge_import_budget(count)
+    key = "import-budget:#{request.remote_ip}"
+    used = cache_store.increment(key, count, expires_in: 1.minute)
+    return true if used.nil? || used <= IMPORTS_PER_MINUTE
+
+    cache_store.decrement(key, count)
+    false
+  end
 
   def create_manual_recipe
     form = ManualRecipe.new(params.expect(manual_recipe: %i[title description ingredients steps servings prep_minutes cook_minutes source_url]))

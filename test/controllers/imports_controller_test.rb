@@ -40,6 +40,30 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "every link counts against the per-minute import budget" do
+    previous = ImportsController.cache_store
+    ImportsController.cache_store = ActiveSupport::Cache::MemoryStore.new
+    links = ->(prefix, count) { Array.new(count) { |index| "https://example.com/#{prefix}#{index}" }.join("\n") }
+
+    assert_difference("Import.count", 20) { post imports_url, params: { input: links.("a", 20) } }
+
+    # 20 more would go over 30: nothing is queued, and the batch doesn't use up the budget.
+    assert_no_enqueued_jobs do
+      assert_no_difference("Import.count") { post imports_url, params: { input: links.("b", 20) } }
+    end
+    follow_redirect!
+    assert_match "more than 30 imports in a minute", inertia.props[:errors][:input]
+
+    assert_difference("Import.count", 10) { post imports_url, params: { input: links.("c", 10) } }
+    assert_no_difference("Import.count") { post imports_url, params: { input: "https://example.com/one-more" } }
+
+    travel 61.seconds do
+      assert_difference("Import.count", 1) { post imports_url, params: { input: "https://example.com/next-minute" } }
+    end
+  ensure
+    ImportsController.cache_store = previous
+  end
+
   test "gallery import uses structured recipe data without AI and appears as a recipe" do
     original_key = ENV.delete("ANTHROPIC_API_KEY")
     url = "https://samskitchen.example.com/chickpea-curry"
