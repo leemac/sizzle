@@ -7,6 +7,7 @@ const PATHS = {
   back: 'M15 18l-6-6 6-6',
   external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
   play: 'M9 6v12l10-6Z',
+  youtube: 'M21 8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8ZM10 9l5 3-5 3V9Z',
   close: 'M6 6l12 12M18 6 6 18',
   share: 'M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',
   check: 'M5 12.5 10 17 19 7',

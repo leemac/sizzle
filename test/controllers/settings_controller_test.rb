@@ -10,7 +10,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "settings/show", inertia.component
     assert_equal true, inertia.props[:instance][:api_protected]
-    assert_equal "ask", inertia.props[:preferences][:ai_mode]
+    assert_equal "automatic", inertia.props[:preferences][:ai_mode]
     assert_not_includes response.body, "test-configuration-key"
     assert_not_includes response.body, "test-share-token"
     assert_nil Array(response.headers["Set-Cookie"]).join[/sizzle_(sort|ai_mode)=/]
@@ -35,12 +35,12 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to settings_url
     get root_url
     assert_equal "alphabetical", inertia.props[:sort]
-    assert_equal "ask", inertia.props[:preferences][:ai_mode]
+    assert_equal "automatic", inertia.props[:preferences][:ai_mode]
     cookies[:sizzle_sort] = "title; DROP TABLE recipes"
     cookies[:sizzle_ai_mode] = "yes"
     get root_url
     assert_equal "newest", inertia.props[:sort]
-    assert_equal "ask", inertia.props[:preferences][:ai_mode]
+    assert_equal "automatic", inertia.props[:preferences][:ai_mode]
   end
 
   test "cookbook sorting retains filters and redirects only to fixed local routes" do

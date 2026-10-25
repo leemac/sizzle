@@ -26,7 +26,7 @@ export default function ImportsIndex({
   source_duplicate: SourceDuplicate | null
 }) {
   const { app, preferences } = usePage().props
-  const form = useForm({ input: '', allow_ai: false })
+  const form = useForm({ input: '' })
   const input = useRef<HTMLTextAreaElement>(null)
   const [review, setReview] = useState(duplicate_review)
   const [submittedIds, setSubmittedIds] = useState<number[]>([])
@@ -84,10 +84,9 @@ export default function ImportsIndex({
       onSuccess: (page) => {
         const nextReview = page.props.duplicate_review as ImportReview | null
         setReview(nextReview)
-        form.setDefaults({ input: '', allow_ai: false })
+        form.setDefaults({ input: '' })
         if (!nextReview) {
           form.setData('input', '')
-          form.setData('allow_ai', false)
           const ids = (page.props.submitted_import_ids ?? []) as number[]
           if (ids.length) setSubmittedIds((previous) => [...ids, ...previous.filter((id) => !ids.includes(id))])
         }
@@ -102,9 +101,7 @@ export default function ImportsIndex({
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Add a recipe</h1>
-      <p className="mt-3 text-graphite">
-        Import a recipe link or write a recipe yourself. Your cookbook works without AI.
-      </p>
+      <p className="mt-3 text-graphite">Import a recipe link or write a recipe yourself.</p>
 
       <nav aria-label="Add recipe method" className="mt-8 flex gap-2">
         {(
@@ -131,7 +128,17 @@ export default function ImportsIndex({
           <p className="mb-4 text-sm text-graphite">
             Links with recipe data import directly, without AI.{' '}
             {app.claude_configured ? (
-              'Claude can extract other pages and pasted recipe text when needed.'
+              preferences.ai_mode === 'automatic' ? (
+                'Claude extracts other pages and pasted recipe text automatically when needed.'
+              ) : (
+                <>
+                  Claude is turned off for imports in this browser.{' '}
+                  <Link href="/settings#imports" className="underline underline-offset-4">
+                    Change import preferences
+                  </Link>
+                  .
+                </>
+              )
             ) : (
               <>
                 For other pages or unstructured pasted text,{' '}
@@ -178,14 +185,6 @@ export default function ImportsIndex({
             <p id="input-error" role="alert" className="mt-2 text-sm text-danger">
               {form.errors.input}
             </p>
-          )}
-          {app.claude_configured && (
-            <AiPermission
-              automatic={preferences.ai_mode === 'automatic'}
-              checked={form.data.allow_ai}
-              onChange={(value) => form.setData('allow_ai', value)}
-              disabled={form.processing}
-            />
           )}
           <div className="mt-4 flex items-center justify-between gap-4">
             <Link href="/share" className="text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">
@@ -255,7 +254,7 @@ export default function ImportsIndex({
           <h2 id="recent-heading" className="font-display text-2xl font-semibold">
             Recent imports
           </h2>
-          <ul className="mt-4 divide-y divide-hairline">
+          <ul className="mt-4 space-y-3">
             {recent.map((item) => (
               <ImportRow key={item.id} item={item} />
             ))}
@@ -268,6 +267,19 @@ export default function ImportsIndex({
 
 ImportsIndex.layout = AppLayout
 
+function isYoutubeUrl(url: string | null) {
+  if (!url) return false
+  try {
+    const { protocol, hostname } = new URL(url)
+    return (
+      ['http:', 'https:'].includes(protocol) &&
+      (hostname === 'youtu.be' || hostname === 'youtube.com' || hostname.endsWith('.youtube.com'))
+    )
+  } catch {
+    return false
+  }
+}
+
 function ImportRow({
   item,
   fresh = false,
@@ -279,21 +291,21 @@ function ImportRow({
   index?: number
   onRetry?: () => void
 }) {
-  const label = item.recipe_title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
+  const label = item.recipe_title ?? item.source_metadata?.title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
   const [entranceDelay] = useState(() => Math.min(index, 4) * 45)
-  const { app, preferences } = usePage().props
-  const [allowAi, setAllowAi] = useState(false)
+  const { preferences } = usePage().props
+  const card = fresh || item.status === 'failed'
 
   return (
     <li
       id={`import-${item.id}`}
-      className={`flex scroll-mt-24 items-start gap-4 ${fresh ? 'import-card rounded-photo border border-hairline bg-paper p-4 sm:p-5' : 'py-4'}`}
+      className={`flex scroll-mt-24 items-start gap-4 ${card ? 'rounded-photo border border-hairline bg-paper p-4 sm:p-5' : 'py-4'} ${fresh ? 'import-card' : ''}`}
       style={fresh ? { animationDelay: `${entranceDelay}ms` } : undefined}
     >
       {item.status === 'done' && item.recipe_image_url ? (
         <ImportPhoto url={item.recipe_image_url} />
       ) : (
-        fresh && (
+        card && (
           <span
             aria-hidden="true"
             className={`flex size-14 shrink-0 items-center justify-center rounded-photo ${item.status === 'failed' ? 'bg-porcelain text-danger' : 'bg-mark text-ink'}`}
@@ -301,7 +313,7 @@ function ImportRow({
             {item.status === 'done' ? (
               <Icon key="saved" name="check" className="import-saved size-5" />
             ) : item.status === 'failed' ? (
-              <Icon name="link" className="size-5" />
+              <Icon name={isYoutubeUrl(item.url) ? 'youtube' : 'link'} className="size-5" />
             ) : (
               <span className="flex gap-1">
                 {[0, 1, 2].map((dot) => (
@@ -321,8 +333,25 @@ function ImportRow({
           <Link href={`/recipes/${item.recipe_id}`} className="block truncate font-medium hover:underline">
             {label}
           </Link>
+        ) : item.kind === 'url' && item.url && /^https?:\/\//i.test(item.url) ? (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex min-w-0 items-center gap-1.5 font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            <span className="truncate">{label}</span>
+            <Icon name="external" className="size-4 shrink-0" />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
         ) : (
           <p className="truncate font-medium">{label}</p>
+        )}
+        {item.source_metadata?.site_name && (
+          <p className="mt-0.5 text-sm text-graphite">{item.source_metadata.site_name}</p>
+        )}
+        {item.source_metadata?.description && (
+          <p className="mt-1 line-clamp-2 text-sm text-graphite">{item.source_metadata.description}</p>
         )}
         <div className="flex flex-wrap items-center gap-x-2 text-sm text-graphite">
           <ImportStatusLabel status={item.status} showIndicator={!fresh} />
@@ -349,14 +378,8 @@ function ImportRow({
               onClick={() =>
                 router.post(
                   `/imports/${item.id}/retry`,
-                  { allow_ai: allowAi, automatic_ai: preferences.ai_mode === 'automatic' },
-                  {
-                    preserveScroll: true,
-                    onSuccess: () => {
-                      setAllowAi(false)
-                      onRetry?.()
-                    },
-                  },
+                  { automatic_ai: preferences.ai_mode === 'automatic' },
+                  { preserveScroll: true, onSuccess: () => onRetry?.() },
                 )
               }
               className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
@@ -375,52 +398,8 @@ function ImportRow({
             )}
           </div>
         )}
-        {item.status === 'failed' && app.claude_configured && (
-          <AiPermission automatic={preferences.ai_mode === 'automatic'} checked={allowAi} onChange={setAllowAi} />
-        )}
       </div>
     </li>
-  )
-}
-
-function AiPermission({
-  automatic,
-  checked,
-  onChange,
-  disabled = false,
-}: {
-  automatic: boolean
-  checked: boolean
-  onChange: (value: boolean) => void
-  disabled?: boolean
-}) {
-  return (
-    <div className="mt-4 rounded-xl border border-hairline p-4 text-sm">
-      {automatic ? (
-        <p>
-          Claude will be used if local extraction needs help.{' '}
-          <Link href="/settings#imports" className="underline underline-offset-4">
-            Change this preference
-          </Link>
-        </p>
-      ) : (
-        <label className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            checked={checked}
-            disabled={disabled}
-            onChange={(event) => onChange(event.target.checked)}
-            className="mt-1 rounded border-hairline bg-paper text-ink focus:ring-ink"
-          />
-          <span className="font-medium">Allow Claude for this import if needed</span>
-        </label>
-      )}
-      <p className="mt-2 text-graphite">
-        {automatic || checked
-          ? 'Page text, recipe data and image links, or pasted recipe text, may be sent to Anthropic. API charges may apply.'
-          : 'Unchecked: extraction stays local. Pages without recipe data and pasted text will need manual entry or permission to use Claude.'}
-      </p>
-    </div>
   )
 }
 

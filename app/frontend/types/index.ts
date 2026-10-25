@@ -115,11 +115,18 @@ export type Step = {
   text: string
 }
 
+export type SourceMetadata = {
+  title?: string
+  site_name?: string
+  description?: string
+}
+
 export type RecipeDetail = RecipeCard & {
   description: string | null
   author: string | null
   source_url: string | null
   source_name: string | null
+  source_metadata: SourceMetadata
   youtube_url: string | null
   youtube_duration_seconds: number | null
   youtube_chapters: VideoChapter[]
@@ -180,6 +187,7 @@ export type Import = {
   id: number
   kind: 'url' | 'text'
   origin: 'web' | 'share' | 'email'
+  source_metadata: SourceMetadata
   url: string | null
   text_preview: string | null
   status: ImportStatus

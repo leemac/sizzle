@@ -215,6 +215,17 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_not Import.last.ai_allowed?, "turning automatic AI off must also stop stale pages in history or other tabs"
   end
 
+  test "new browser submissions and retries allow automatic AI by default" do
+    get imports_url
+    assert_equal "automatic", inertia.props[:preferences][:ai_mode]
+    post imports_url, params: { input: "https://example.com/default-ai", automatic_ai: true }
+    import = Import.last
+    assert import.ai_allowed?
+    import.fail!("Interrupted")
+    post retry_import_url(import), params: { automatic_ai: true }
+    assert import.reload.ai_allowed?
+  end
+
   test "permission applies to every link in a batch and is checked again on retries" do
     post imports_url, params: { input: "https://example.com/a\nhttps://example.com/b", allow_ai: true }
     assert Import.last(2).all?(&:ai_allowed?)

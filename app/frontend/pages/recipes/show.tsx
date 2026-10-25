@@ -419,7 +419,7 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
 
 /** Where the recipe came from and its history, under the photo. */
 function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
-  const source = sourceLabel(recipe.source_name, recipe.source_host)
+  const source = sourceLabel(recipe.source_metadata?.site_name || recipe.source_name, recipe.source_host)
   const count = recipe.cooks_count
   const stats: [string, string | null, (string | null)?][] = [
     ['Made', count === 0 ? 'Not yet' : count === 1 ? 'Once' : `${count} times`],
@@ -448,6 +448,24 @@ function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: st
             </>
           )}
         </p>
+      )}
+      {recipe.source_url && recipe.source_metadata?.title && (
+        <div className="mb-4 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline">
+          <p className="mb-1 text-graphite">Original source</p>
+          <a
+            href={recipe.source_url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-start gap-2 font-medium hover:underline"
+          >
+            <Icon name={recipe.youtube_url ? 'youtube' : 'link'} className="mt-0.5 size-4 shrink-0" />
+            <span className="min-w-0 flex-1 break-words">{recipe.source_metadata.title}</span>
+            <Icon name="external" className="mt-0.5 size-4 shrink-0" />
+          </a>
+          {recipe.source_metadata.description && (
+            <p className="mt-2 line-clamp-3 text-graphite">{recipe.source_metadata.description}</p>
+          )}
+        </div>
       )}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline sm:grid-cols-4 lg:grid-cols-2">
         {stats.map(

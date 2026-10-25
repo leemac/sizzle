@@ -160,7 +160,7 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
                 value={form.data.ai_mode}
                 onChange={(event) => form.setData('ai_mode', event.target.value as BrowserPreferences['ai_mode'])}
               >
-                <option value="ask">Ask for permission on each import</option>
+                <option value="ask">Use local recipe data only</option>
                 <option value="automatic">Use Claude automatically when needed</option>
               </select>
               <FieldError name="ai_mode" error={form.errors.ai_mode} />

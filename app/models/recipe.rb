@@ -64,7 +64,13 @@ class Recipe < ApplicationRecord
     self.source_host = nil
   end
 
+  before_update :clear_source_metadata, if: :will_save_change_to_source_url?
+
   private
+
+  def clear_source_metadata
+    self.source_metadata = {}
+  end
 
   def video_recipe_url_is_http
     unless video_metadata.is_a?(Hash)
