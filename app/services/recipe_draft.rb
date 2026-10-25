@@ -122,7 +122,7 @@ class RecipeDraft
   end
 
   def text(value, max)
-    value.strip.presence&.truncate(max) if value.is_a?(String)
+    RecipeText.visible(value).strip.presence&.truncate(max) if value.is_a?(String)
   end
 
   def strings(values, max)

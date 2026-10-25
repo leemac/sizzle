@@ -9,6 +9,7 @@ class RecipeExtractor
   NULLABLE_STRING = { type: %w[string null] }.freeze
   NULLABLE_INTEGER = { type: %w[integer null] }.freeze
   NULLABLE_NUMBER = { type: %w[number null] }.freeze
+  MAX_STRUCTURED_DATA_CHARS = 30_000
 
   SCHEMA = {
     type: "object",
@@ -116,10 +117,15 @@ class RecipeExtractor
   def from_page(page)
     parts = []
     parts << %(<source url="#{escape(page.canonical_url)}" site="#{escape(page.site_name)}">#{escape(page.title)}</source>)
-    parts << "<structured_data>\n#{JSON.pretty_generate(page.structured_recipe)}\n</structured_data>" if page.structured_recipe
+    if page.structured_recipe
+      # Written by the page, so it's as untrusted as the text, and page_text's cap doesn't cover it.
+      json = strip_wrapper_tags(JSON.pretty_generate(page.structured_recipe))
+      truncated = json.length > MAX_STRUCTURED_DATA_CHARS
+      parts << "<structured_data#{' truncated="true"' if truncated}>\n#{json.first(MAX_STRUCTURED_DATA_CHARS)}\n</structured_data>"
+    end
     if page.images.any?
       lines = page.images.map { |image| "#{image.id}: #{image.url} (from #{image.source}#{", alt: #{image.alt}" if image.alt.present?})" }
-      parts << "<image_candidates>\n#{lines.join("\n")}\n</image_candidates>"
+      parts << "<image_candidates>\n#{strip_wrapper_tags(lines.join("\n"))}\n</image_candidates>"
     end
     parts << "<page_text#{' truncated="true"' if page.truncated}>\n#{strip_wrapper_tags(page.text)}\n</page_text>"
 

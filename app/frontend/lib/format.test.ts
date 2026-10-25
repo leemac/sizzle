@@ -7,6 +7,7 @@ import {
   formatQuantity,
   groupBySection,
   isToday,
+  sourceLabel,
   timeAgo,
 } from './format'
 
@@ -116,5 +117,22 @@ describe('timeAgo', () => {
 
   it("doesn't show future times from a fast clock", () => {
     expect(timeAgo(ago(-30), now)).toBe('Just now')
+  })
+})
+
+describe('sourceLabel', () => {
+  it('always shows the real host next to the name a page gives itself', () => {
+    expect(sourceLabel('Serious Eats', 'evil.example')).toBe('Serious Eats (evil.example)')
+  })
+
+  it('shows the host alone when there is no name or the name is the host', () => {
+    expect(sourceLabel(null, 'samskitchen.com')).toBe('samskitchen.com')
+    expect(sourceLabel('', 'samskitchen.com')).toBe('samskitchen.com')
+    expect(sourceLabel('SamsKitchen.com', 'samskitchen.com')).toBe('samskitchen.com')
+  })
+
+  it('falls back to the name when there is no source link', () => {
+    expect(sourceLabel("Grandma's cards", null)).toBe("Grandma's cards")
+    expect(sourceLabel(null, null)).toBeNull()
   })
 })

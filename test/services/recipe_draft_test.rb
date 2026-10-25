@@ -53,6 +53,18 @@ class RecipeDraftTest < ActiveSupport::TestCase
     assert Recipe.new(attributes).valid?
   end
 
+  test "removes control characters, zero-width spaces and bidi overrides but keeps emoji and line breaks" do
+    attributes = draft(
+      "title" => "Pad‮ Thai​\u0000",
+      "description" => "Line one\nLine two \u{1F469}‍\u{1F373}",
+      "steps" => [ { "text" => "⁦Boil⁩ the﻿ noodles." } ]
+    ).attributes
+
+    assert_equal "Pad Thai", attributes[:title]
+    assert_equal "Line one\nLine two \u{1F469}‍\u{1F373}", attributes[:description]
+    assert_equal "Boil the noodles.", attributes[:steps].sole["text"]
+  end
+
   test "caps list sizes" do
     attributes = draft(
       "ingredients" => [ { "item" => "salt" } ] * 500,
