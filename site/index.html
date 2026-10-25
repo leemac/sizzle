@@ -18,10 +18,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
     <!-- After changing CSS or JS, run node bin/update-marketing-assets.mjs; tests verify the content hashes. -->
-    <link rel="stylesheet" href="/styles.css?v=965ac0af8c72" />
+    <link rel="stylesheet" href="/styles.css?v=230f32bf6299" />
     <link rel="stylesheet" href="/theme-palettes.css?v=be69a199ef7b" />
     <script type="module" src="/sizzle-logo.js?v=900303db4471"></script>
-    <script type="module" src="/marketing.js?v=9810cc0087d7"></script>
+    <script type="module" src="/marketing.js?v=ffe1a11d3fc4"></script>
   </head>
   <body>
     <!-- GitHub mark (Primer Octicons, MIT), drawn in the current text colour. -->
@@ -71,7 +71,8 @@
             steps and the best photo. The ads, pop-ups and life story stay behind.
           </p>
           <div class="actions">
-            <a class="button primary" href="#install">Install Sizzle</a>
+            <a class="button primary" href="#try">Try on your computer</a>
+            <a class="button" href="#install">Install on your server</a>
             <a class="button" href="https://github.com/leemac/sizzle"
               ><svg class="icon" aria-hidden="true"><use href="#github-mark" /></svg>View the source</a
             >
@@ -657,6 +658,47 @@
         </div>
       </section>
 
+      <section class="selfhost" id="try" aria-labelledby="try-heading">
+        <div>
+          <h2 id="try-heading">Try your first cookbook</h2>
+          <p>
+            With Docker running, start a local trial. No account or AI key is needed. Only this computer can connect,
+            and the trial keeps its recipes in a separate storage volume.
+          </p>
+          <p>
+            Write a recipe or load the optional sample cookbook, try cooking mode, then download your recipes from
+            Settings. Phone sharing can wait until you install on your server.
+          </p>
+          <p>
+            <a href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#try-on-your-computer"
+              >Sample recipes and trial guide</a
+            >
+          </p>
+        </div>
+        <div class="install">
+          <div class="code-block">
+            <button class="copy-code" type="button" hidden aria-label="Copy trial command">Copy</button>
+            <pre tabindex="0"><code>docker run -d --name sizzle-try \
+  -p 127.0.0.1:3001:80 \
+  --read-only --security-opt no-new-privileges:true \
+  --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 \
+  --tmpfs /tmp:mode=1777 \
+  -v sizzle-try-storage:/rails/storage \
+  ghcr.io/leemac/sizzle:latest</code></pre>
+            <p class="copy-status fineprint" role="status"></p>
+          </div>
+          <p>Allow a moment for startup, then open <a href="http://localhost:3001">http://localhost:3001</a>.</p>
+          <p>
+            Stop with <code>docker stop sizzle-try</code>; resume with <code>docker start sizzle-try</code>. Both keep
+            your recipes. The
+            <a href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#stop-resume-or-remove-the-trial"
+              >removal guide</a
+            >
+            explains how to delete the trial and its data.
+          </p>
+        </div>
+      </section>
+
       <section class="selfhost" id="install" aria-labelledby="install-heading">
         <div>
           <h2 id="install-heading">Yours, on your own server</h2>
@@ -677,19 +719,45 @@
           </ul>
         </div>
         <div class="install">
+          <h3>1. Download the files</h3>
+          <p>With Docker and Compose installed:</p>
           <div class="code-block">
-            <button class="copy-code" type="button" hidden aria-label="Copy installation commands">Copy</button>
-            <pre tabindex="0"><code><span class="dim"># with Docker and Compose installed</span>
-mkdir sizzle &amp;&amp; cd sizzle
+            <button class="copy-code" type="button" hidden aria-label="Copy download commands">Copy</button>
+            <pre tabindex="0"><code>mkdir sizzle &amp;&amp; cd sizzle
 url=https://github.com/leemac/sizzle/releases/latest/download
 curl -fsSLO $url/docker-compose.yml
-curl -fsSL $url/env.example -o .env
-<span class="dim"># edit .env: set SIZZLE_API_TOKEN</span>
-docker compose up -d
-<span class="dim"># open http://&lt;your-server&gt;:3000</span></code></pre>
+curl -fsSL $url/env.example -o .env</code></pre>
+            <p class="copy-status fineprint" role="status"></p>
           </div>
-          <p class="copy-status fineprint" role="status"></p>
-          <p class="fineprint"><a href="https://github.com/leemac/sizzle#install">Full installation guide</a></p>
+          <h3>2. Set your share token</h3>
+          <div class="code-block">
+            <button class="copy-code" type="button" hidden aria-label="Copy token generation command">Copy</button>
+            <pre tabindex="0"><code>openssl rand -hex 32</code></pre>
+            <p class="copy-status fineprint" role="status"></p>
+          </div>
+          <p>
+            Open <code>.env</code> in a text editor, paste the generated value after <code>SIZZLE_API_TOKEN=</code>, and
+            save. This protects sharing requests, not the web UI. Leave the Anthropic key empty to try without AI.
+          </p>
+          <h3>3. Start your cookbook</h3>
+          <div class="code-block">
+            <button class="copy-code" type="button" hidden aria-label="Copy startup command">Copy</button>
+            <pre tabindex="0"><code>docker compose up -d --wait</code></pre>
+            <p class="copy-status fineprint" role="status"></p>
+          </div>
+          <p>
+            When the health check passes, open <code>http://&lt;your-server&gt;:3000</code>. On the server itself, use
+            <a href="http://localhost:3000">http://localhost:3000</a>.
+          </p>
+          <p class="fineprint">
+            <a href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#install"
+              >Full installation guide</a
+            >
+            ·
+            <a href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#troubleshooting"
+              >Troubleshooting</a
+            >
+          </p>
         </div>
       </section>
 

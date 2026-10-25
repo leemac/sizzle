@@ -17,6 +17,7 @@
 
 <p align="center">
   <a href="https://sizzle.mckinnon.dev">Website</a> ·
+  <a href="#try-on-your-computer">Try it locally</a> ·
   <a href="#install">Install</a> ·
   <a href="docs/self-hosting.md">Self-hosting</a> ·
   <a href="https://github.com/leemac/sizzle/issues">Roadmap</a> ·
@@ -60,6 +61,29 @@ from the Appearance button in the header. Want something else? Set `SIZZLE_THEME
 **Customize** any theme and save it as your own. Built-in themes live in [`config/themes.json`](config/themes.json); see
 [docs/themes.md](docs/themes.md) to add one.
 
+## Try on your computer
+
+With Docker running, start a separate trial at **http://localhost:3001**. No account or AI key
+is needed. Only this computer can connect; the trial has its own storage volume.
+
+```sh
+docker run -d --name sizzle-try \
+  -p 127.0.0.1:3001:80 \
+  --read-only --security-opt no-new-privileges:true \
+  --tmpfs /rails/tmp:uid=1000,gid=1000,mode=0755 \
+  --tmpfs /tmp:mode=1777 \
+  -v sizzle-try-storage:/rails/storage \
+  ghcr.io/leemac/sizzle:latest
+```
+
+Allow a moment for the first start, then open the address above. You can write a recipe or
+optionally [load the bundled sample cookbook](docs/self-hosting.md#try-on-your-computer).
+Browse a recipe, try cooking mode, and use **Settings → Your data → Download cookbook**.
+
+`docker stop sizzle-try` stops the trial and keeps your recipes; `docker start sizzle-try`
+resumes it. See the [trial guide](docs/self-hosting.md#stop-resume-or-remove-the-trial)
+for removal instructions. To use Sizzle from your phone, follow the server installation below.
+
 ## Install
 
 You need Docker with Compose on a home server, NAS, Raspberry Pi 4/5 or VPS. Images are published
@@ -73,9 +97,15 @@ for `amd64` and `arm64`.
    curl -fsSL https://github.com/leemac/sizzle/releases/latest/download/env.example -o .env
    ```
 
-2. Edit `.env`:
+2. Generate a share API token:
 
-   - `SIZZLE_API_TOKEN`: protects the share API. Generate one with `openssl rand -hex 32`.
+   ```sh
+   openssl rand -hex 32
+   ```
+
+   Open `.env` in a text editor and paste the generated value after `SIZZLE_API_TOKEN=`.
+   Save the file before continuing. This token protects the share API, not the web UI.
+
    - `SIZZLE_HOSTS`: only if you'll open Sizzle at a domain name like `recipes.example.com`.
      IP addresses, bare hostnames and `.local`, `.lan`, `.home.arpa` and `.ts.net` names work
      without it.
@@ -86,11 +116,15 @@ for `amd64` and `arm64`.
 3. Start it:
 
    ```sh
-   docker compose up -d
+   docker compose up -d --wait
    ```
 
-Open `http://<your-server>:3000` to start your cookbook, then choose **Share from your phone** to
-add the iOS Shortcut.
+When the command succeeds, open `http://<your-server>:3000` (or `http://localhost:3000` on the
+server itself). Write a recipe or import a recipe link first, then choose **Share from your phone**
+to set up sharing. If startup fails, see [troubleshooting](docs/self-hosting.md#troubleshooting).
+
+After changing `.env`, run `docker compose up -d --force-recreate --wait` to apply the settings.
+`docker compose restart` does not reload `.env`.
 
 > [!IMPORTANT]
 > Sizzle has no login yet. Keep it on your home network or a private network like Tailscale, and
