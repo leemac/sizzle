@@ -4,7 +4,7 @@ import Icon from '@/components/Icon'
 import SizzleLogo from '@/components/SizzleLogo'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { flash, url } = usePage()
+  const { flash, url, props } = usePage()
   const message = flash.notice ?? flash.alert
   const [dismissed, setDismissed] = useState(false)
 
@@ -12,10 +12,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   useEffect(() => router.on('flash', () => setDismissed(false)), [])
 
   return (
-    <div className="min-h-dvh pb-[env(safe-area-inset-bottom)]">
+    <div className="flex min-h-dvh flex-col pb-[env(safe-area-inset-bottom)]">
       <header className="sticky top-0 z-20 border-b border-hairline bg-porcelain/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-[0.3em] font-display text-[1.7rem] leading-none font-[750] tracking-[-0.045em]"
+          >
+            <img src="/icon.svg" alt="" width={32} height={32} className="size-[1.15em] shrink-0" />
             <SizzleLogo />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
@@ -56,7 +60,28 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto max-w-7xl px-4 pt-6 pb-24 sm:px-6 sm:pt-10">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 sm:pt-10">{children}</main>
+      <footer className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 pb-6 text-xs text-graphite sm:px-6">
+        <a
+          href={
+            props.app.version === 'dev'
+              ? 'https://github.com/leemac/sizzle'
+              : `https://github.com/leemac/sizzle/releases/tag/${encodeURIComponent(`v${props.app.version}`)}`
+          }
+          target="_blank"
+          rel="noreferrer"
+          aria-label={
+            props.app.version === 'dev' ? 'View Sizzle on GitHub' : `View release notes for Sizzle ${props.app.version}`
+          }
+          className="footer-link"
+        >
+          Sizzle {props.app.version === 'dev' ? 'dev' : `v${props.app.version}`}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a href="https://mckinnon.dev" target="_blank" rel="noreferrer" className="footer-link">
+          By Lee
+        </a>
+      </footer>
     </div>
   )
 }

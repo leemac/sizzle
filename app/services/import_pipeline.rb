@@ -43,8 +43,7 @@ class ImportPipeline
 
   def import_url
     # Every form of a YouTube link (youtu.be, shorts, &t=) is stored as one watch URL.
-    shared_url = video_id ? YoutubeVideo.watch_url(video_id) : @import.url
-    if (existing = Recipe.find_by(source_url: Recipe.normalize_url(shared_url)))
+    if (existing = Recipe.find_by(source_url: Import.source_key(@import.url)))
       return restore(existing)
     end
 
@@ -62,7 +61,7 @@ class ImportPipeline
 
         data = ai_extractor.from_page(page)
       end
-      draft = RecipeDraft.new(data, images: page.images)
+      draft = RecipeDraft.new(data, images: page.images, video: page.video_metadata)
       raise NotARecipe unless draft.recipe?
 
       @import.advance!("saving")

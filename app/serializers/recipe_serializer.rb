@@ -12,16 +12,33 @@ module RecipeSerializer
       total_minutes: recipe.total_minutes,
       source_host: recipe.source_host,
       favorite: recipe.favorite?,
-      image_url: image_path(recipe.cover, :card)
+      image_url: cover_image_url(recipe)
     }
   end
 
+  def cover_image_url(recipe)
+    image_path(recipe.cover, :card)
+  end
+
+  def source_duplicate(recipe)
+    { id: recipe.id, title: recipe.title, archived: recipe.archived? }
+  end
+
   def detail(recipe)
+    video_id = YoutubeVideo.id_from_url(recipe.source_url)
+    video = video_id && recipe.video_metadata["id"] == video_id ? recipe.video_metadata : {}
+
     card(recipe).merge(
       description: recipe.description,
       author: recipe.author,
       source_url: recipe.source_url,
       source_name: recipe.source_name,
+      youtube_url: video_id && YoutubeVideo.watch_url(video_id),
+      youtube_duration_seconds: video["duration_seconds"],
+      youtube_chapters: Array(video["chapters"]).map do |chapter|
+        chapter.merge("url" => "#{YoutubeVideo.watch_url(video_id)}&t=#{chapter.fetch('start_seconds')}s")
+      end,
+      written_recipe_url: video["written_recipe_url"],
       servings: recipe.servings,
       yield_text: recipe.yield_text,
       prep_minutes: recipe.prep_minutes,

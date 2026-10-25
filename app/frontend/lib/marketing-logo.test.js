@@ -42,6 +42,8 @@ it('animates the marketing wordmark while preserving its accessible home link', 
   expect(logo.getAttribute('aria-label')).toBe('Sizzle')
   expect(logo.getAttribute('href')).toBe('/')
   expect(logo.querySelectorAll('rect')).toHaveLength(60)
+  expect(logo.querySelector('img').getAttribute('src')).toBe('/icon.svg')
+  expect(logo.querySelector('img').getAttribute('alt')).toBe('')
   const initial = positions()
   for (const time of [1000, 1050]) {
     const [id, callback] = [...frames][0]

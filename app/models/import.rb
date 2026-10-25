@@ -6,6 +6,7 @@ class Import < ApplicationRecord
   STATUSES = %w[queued fetching extracting saving done failed].freeze
   PENDING_STATUSES = %w[queued fetching extracting saving].freeze
   MAX_TEXT_LENGTH = 100_000
+  LINK = %r{\Ahttps?://\S+\z}i
 
   belongs_to :recipe, optional: true
 
@@ -25,11 +26,18 @@ class Import < ApplicationRecord
   # anything else is treated as recipe text.
   def self.from_input(input, origin:)
     input = input.to_s.strip
-    if input.match?(%r{\Ahttps?://\S+\z}i)
+    if input.match?(LINK)
       new(kind: "url", url: input, origin:)
     else
       new(kind: "text", text: input, origin:)
     end
+  end
+
+  # Match the worker's identity without fetching the page. Tracking links and
+  # the different YouTube URL forms all refer to the same source.
+  def self.source_key(url)
+    video_id = YoutubeVideo.id_from_url(url)
+    Recipe.normalize_url(video_id ? YoutubeVideo.watch_url(video_id) : url)
   end
 
   def pending?

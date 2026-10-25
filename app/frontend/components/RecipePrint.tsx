@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import Icon from '@/components/Icon'
-import { formatAmount, groupBySection, recipeStats } from '@/lib/format'
+import { formatAmount, formatQuantity, groupBySection } from '@/lib/format'
 import { fitToPage } from '@/lib/print'
+import { scaleIngredient } from '@/lib/scaleIngredient'
 import type { RecipeDetail } from '@/types'
 
 /**
  * A "Print recipe" button, plus the one-page sheet that prints in place of the page.
  * The sheet mounts just before printing — from the button or the browser's own Print —
  * and is fitted to the page then, so it never sits in the page while you're cooking.
+ * It prints the servings chosen on the page: the same `stats`, and amounts times `scale`.
  */
-export default function RecipePrint({ recipe }: { recipe: RecipeDetail }) {
+export default function RecipePrint({ recipe, stats, scale }: PrintProps) {
   const [printing, setPrinting] = useState(false)
   const sheet = useRef<HTMLDivElement>(null)
 
@@ -40,22 +42,26 @@ export default function RecipePrint({ recipe }: { recipe: RecipeDetail }) {
           Print<span className="sr-only sm:not-sr-only"> recipe</span>
         </span>
       </button>
-      {printing && createPortal(<PrintSheet recipe={recipe} ref={sheet} />, document.body)}
+      {printing && createPortal(<PrintSheet recipe={recipe} stats={stats} scale={scale} ref={sheet} />, document.body)}
     </>
   )
 }
 
+type PrintProps = { recipe: RecipeDetail; stats: [string, string][]; scale: number }
+
 const sentenceCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
 
-function PrintSheet({ recipe, ref }: { recipe: RecipeDetail; ref: React.Ref<HTMLDivElement> }) {
-  const stats = recipeStats(recipe)
+function PrintSheet({ recipe, stats, scale, ref }: PrintProps & { ref: React.Ref<HTMLDivElement> }) {
   const kicker = [recipe.cuisine, recipe.course]
     .filter((value): value is string => Boolean(value))
     .map(sentenceCase)
     .join(' · ')
   const source = recipe.source_name || recipe.source_host
   const labels = [...recipe.diets, ...recipe.tags].map(sentenceCase).join(' · ')
-  const indexedIngredients = recipe.ingredients.map((ingredient, index) => ({ ...ingredient, index }))
+  const indexedIngredients = recipe.ingredients.map((ingredient, index) => ({
+    ...scaleIngredient(ingredient, scale),
+    index,
+  }))
   const indexedSteps = recipe.steps.map((step, index) => ({ ...step, index }))
   const hasAmounts = recipe.ingredients.some((ingredient) => Boolean(formatAmount(ingredient)))
 
@@ -89,7 +95,15 @@ function PrintSheet({ recipe, ref }: { recipe: RecipeDetail; ref: React.Ref<HTML
       <div className="print-sheet__body">
         <section className="print-sheet__shopping">
           <h2 className="print-sheet__heading">Ingredients</h2>
-          {recipe.servings && recipe.yield_text && <p className="print-sheet__yield">{recipe.yield_text}</p>}
+          {scale !== 1 ? (
+            <p className="print-sheet__yield">
+              {recipe.servings
+                ? `Scaled from the original ${recipe.servings} servings`
+                : `Quantities scaled ×${formatQuantity(scale)}`}
+            </p>
+          ) : (
+            recipe.servings && recipe.yield_text && <p className="print-sheet__yield">{recipe.yield_text}</p>
+          )}
           <div className="print-sheet__groups print-sheet__groups--ingredients">
             {groupBySection(indexedIngredients).map(([section, items]) => (
               <div key={section ?? ''}>

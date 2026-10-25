@@ -23,7 +23,7 @@
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
-<img src="docs/images/cookbook.jpg" alt="The Sizzle cookbook: a grid of drink recipes with photos, filtered by course">
+<img src="docs/images/cookbook.webp" alt="The Sizzle cookbook: a photo grid of curry, salmon, tacos and chocolate chunk cookies">
 
 > [!WARNING]
 > Sizzle is very early in development. Expect rough edges and breaking changes between releases.
@@ -31,14 +31,18 @@
 ## Features
 
 - **Share from anywhere.** One tap in your iPhone's share sheet sends a recipe page to Sizzle. Or
-  paste a link, or the recipe text.
+  paste several links at once, or the recipe text. Sharing guides cover iPhone, Android and computers.
 - **YouTube too.** Share a cooking video and Sizzle reads the recipe from its description, or from
-  the recipe page it links to. Recipes that are only spoken in the video aren't supported yet.
+  the recipe page it links to. Open the original video from the method, with its duration,
+  description timestamps and written-recipe link when available. Recipes that are only spoken
+  in the video aren't supported yet.
 - **Just the recipe.** Ingredients, steps and the best photo. No ads, pop-ups or life story.
 - **No AI required.** Sizzle reads a site's recipe data, or you write the recipe yourself. Add an
   Anthropic API key to handle pages without recipe data and pasted text.
-- **Fast to browse.** A photo-first gallery with full-text search and filters for course, cuisine,
-  diet, main ingredient and time.
+- **Fast to browse.** A photo grid or compact list with full-text search and filters for course,
+  cuisine, diet, main ingredient and time.
+- **Remember what you cook.** Save favorites and use “I made this” to track when and how often
+  you cook each recipe.
 - **Yours.** One small container with SQLite on your own server. No accounts, no tracking.
 
 ## Install

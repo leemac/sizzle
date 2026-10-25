@@ -61,8 +61,9 @@ class YoutubeImportPipelineTest < ActiveSupport::TestCase
   end
 
   test "imports without AI when the description links to a page with recipe data" do
-    stub_watch_page(description: "Full recipe: #{RECIPE_URL}")
-    stub_request(:get, RECIPE_URL).to_return(body: file_fixture_html("recipe_page.html"), headers: { "Content-Type" => "text/html" })
+    stub_watch_page(description: "Full recipe: #{RECIPE_URL}\n0:00 Intro\n1:30 Simmer", details: { "lengthSeconds" => "300" })
+    html = file_fixture_html("recipe_page.html").sub('"recipeIngredient":', '"totalTime":"PT30M","recipeIngredient":')
+    stub_request(:get, RECIPE_URL).to_return(body: html, headers: { "Content-Type" => "text/html" })
     stub_request(:get, "https://cdn.example.com/curry-1200x900.jpg").to_return(body: sample_jpeg, headers: { "Content-Type" => "image/jpeg" })
     import = run_import(WATCH_URL)
 
@@ -70,6 +71,10 @@ class YoutubeImportPipelineTest < ActiveSupport::TestCase
     assert_equal "Weeknight Chickpea Curry", import.recipe.title
     assert_equal WATCH_URL, import.recipe.source_url
     assert_equal "Emma's Goodies", import.recipe.source_name
+    assert_equal 300, import.recipe.video_metadata["duration_seconds"]
+    assert_equal [ 0, 90 ], import.recipe.video_metadata["chapters"].pluck("start_seconds")
+    assert_equal RECIPE_URL, import.recipe.video_metadata["written_recipe_url"]
+    assert_equal 30, import.recipe.total_minutes, "video length does not replace the recipe's cooking time"
     assert_not_requested :get, MAXRES_URL
   end
 

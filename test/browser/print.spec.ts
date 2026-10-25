@@ -47,6 +47,23 @@ test('the print button opens the browser print dialog with the sheet ready', asy
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
 
+test('the printout uses the servings chosen on the page, in ink on white', async ({ page }) => {
+  await createRecipe(page, 'Doubled rice', ['1 cup rice', '1 onion'], ['Simmer everything.'])
+  await page.getByRole('button', { name: 'Double quantities', exact: true }).click()
+  await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
+
+  const sheet = page.getByTestId('print-sheet')
+  await expect(sheet).toContainText('Serves8')
+  await expect(sheet).toContainText('Scaled from the original 4 servings')
+  await expect(sheet).not.toContainText('1 cup rice')
+  // The app is dark; paper isn't.
+  const colors = await sheet.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return [style.color, style.backgroundColor]
+  })
+  expect(colors).toEqual(['rgb(24, 24, 27)', 'rgb(255, 255, 255)'])
+})
+
 test('imported text with one enormous word still wraps inside the paper', async ({ page }) => {
   await createRecipe(page, 'Unbroken stew', ['1 onion', 'y'.repeat(300)], ['Simmer everything.', 'x'.repeat(400)])
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))

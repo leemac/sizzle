@@ -1,4 +1,4 @@
-import type { Ingredient, RecipeDetail } from '@/types'
+import type { Ingredient } from '@/types'
 
 /** 95 → "1 hr 35 min", 30 → "30 min". */
 export function formatMinutes(minutes: number | null | undefined): string | null {
@@ -26,6 +26,7 @@ export function formatQuantity(value: number | null | undefined): string {
   if (value == null) return ''
   const whole = Math.floor(value)
   const fraction = value - whole
+  if (value > 0 && value < 0.02) return String(Number(value.toPrecision(2)))
   if (fraction < 0.02) return String(whole)
   if (fraction > 0.98) return String(whole + 1)
 
@@ -36,17 +37,6 @@ export function formatQuantity(value: number | null | undefined): string {
 
 // Abbreviations read the same in the singular and plural ("2 tbsp", not "2 tbsps").
 const INVARIANT_UNITS = new Set(['tsp', 'tbsp', 'fl oz', 'ml', 'l', 'g', 'kg', 'oz', 'lb', 'pinch of'])
-
-/** The time and serving figures shown with a recipe, skipping any it doesn't have. */
-export function recipeStats(recipe: RecipeDetail): [string, string][] {
-  const stats: [string, string | null][] = [
-    ['Prep', formatMinutes(recipe.prep_minutes)],
-    ['Cook', formatMinutes(recipe.cook_minutes)],
-    ['Total', formatMinutes(recipe.total_minutes)],
-    ['Serves', recipe.servings ? String(recipe.servings) : recipe.yield_text],
-  ]
-  return stats.filter((stat): stat is [string, string] => Boolean(stat[1]))
-}
 
 /** "cup" → "cups" when the amount is more than one; abbreviations stay as they are. */
 export function pluralizeUnit(unit: string, amount: number): string {

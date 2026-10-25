@@ -8,6 +8,13 @@
  * so it can be measured. In print it replaces everything else on the page.
  */
 .print-sheet {
+  /* Paper is always the light palette, whatever theme the app is showing. */
+  --color-paper: #ffffff;
+  --color-ink: #18181b;
+  --color-graphite: #6e6e73;
+  --color-hairline: #e3e3de;
+  --color-yolk: #ffc21a;
+
   position: absolute;
   top: 0;
   left: -200vw;
@@ -343,9 +350,13 @@
     margin: 0.5in 0;
   }
 
-  html,
-  body {
-    background: var(--color-paper);
+  html:has(> body > .print-sheet) {
+    color-scheme: light;
+  }
+
+  html:has(> body > .print-sheet),
+  body:has(> .print-sheet) {
+    background: #ffffff;
   }
 
   body:has(> .print-sheet) > :not(.print-sheet) {
