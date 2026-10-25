@@ -21,6 +21,25 @@ add and delete recipes. So:
   set `SIZZLE_API_TOKEN`.
 - Set `SIZZLE_API_TOKEN` anyway. It's cheap protection for the share API.
 
+### Optional shortcut pairing
+
+`SIZZLE_SHORTCUT_PAIRING=true` enables installing and connecting a prebuilt iPhone shortcut.
+It is off by default. Like the recipe UI, pairing and disconnecting are available to anyone
+who can reach the web UI; keep it on your trusted network or behind authentication.
+Creating a connection requires a CSRF-protected POST. Its random pairing code expires after
+five minutes and can be redeemed only once, through a JSON-only, rate-limited endpoint.
+The returned credential can only submit imports through `/api/shortcut_imports`; it cannot
+read imports, change recipes, or use the existing token-protected script API. Only digests
+are stored on the server. Disconnecting immediately invalidates the credential. Switching
+the feature off disables pairing and device imports, including existing connections.
+
+The distributed shortcut contains no credentials. Pairing happens after installation; the
+shortcut saves its connection in `Shortcuts/sizzle-connection.json` in iCloud Drive. Treat
+that file as a credential: it can sync to other devices on the same Apple account. Apple
+may ask permission to use Files and contact the server. Use HTTPS or a trusted private
+network for pairing and imports. An authenticating reverse proxy must also permit the
+shortcut's requests; pairing does not bypass proxy authentication.
+
 What Sizzle does defend against, because it processes content from the open web and email:
 
 | Risk | Defence |
