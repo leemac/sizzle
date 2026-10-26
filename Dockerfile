@@ -6,13 +6,11 @@
 #   docker build -t sizzle .
 #   docker run -d -p 3000:80 -v sizzle-storage:/rails/storage -e ANTHROPIC_API_KEY=... sizzle
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.3.6
-ARG NODE_VERSION=22
+# Explicit tags and multi-platform digests let Dependabot propose runtime and base-image updates.
+# Keep the Ruby tag in sync with .ruby-version and both build stages on the same Debian release.
+FROM docker.io/library/node:22.23.4-trixie-slim@sha256:8eb619e402eaede1748a3c8173bffab391592812e85136452f781741c7242ddf AS node
 
-FROM docker.io/library/node:$NODE_VERSION-slim AS node
-
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+FROM docker.io/library/ruby:3.4.12-slim-trixie@sha256:dd852d6dd55f5d283839e940aeb0394bb5f5a4f51295a4eee545f732c46d1b41 AS base
 
 # Rails app lives here
 WORKDIR /rails
@@ -41,7 +39,7 @@ RUN apt-get update -qq && \
 
 # Install application gems
 COPY vendor/* ./vendor/
-COPY Gemfile Gemfile.lock ./
+COPY .ruby-version Gemfile Gemfile.lock ./
 
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \

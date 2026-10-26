@@ -95,3 +95,36 @@ that isn't logged in to ghcr.io:
 ```sh
 docker pull ghcr.io/leemac/sizzle:0.0.1
 ```
+
+## Maintain Ruby and the container base
+
+Ruby is pinned in `.ruby-version` and the Dockerfile's Ruby `FROM` tag. Bundler reads the
+same `.ruby-version`; CI's Ruby jobs do too. `test/lib/runtime_versions_test.rb` rejects
+version drift and checks that the Ruby and Node build stages use the same Debian release.
+
+The current baseline is Ruby 3.4.12 on Debian Trixie slim. Ruby 3.4 receives normal maintenance;
+Ruby 3.3 is security-only ([upstream status](https://www.ruby-lang.org/en/downloads/branches/)).
+Ruby 4 is a separate compatibility decision. Node remains on major 22 for the build only.
+Both official images have explicit patch tags and multi-platform digests. Avoid generic
+`slim` tags: their Debian release can change, and copying Node between distributions can
+introduce incompatible native libraries.
+
+The existing weekly Docker Dependabot job reads these literal `FROM` references, proposing
+version upgrades and digest refreshes when an image is rebuilt. It does not synchronize
+`.ruby-version`. When reviewing a Ruby update:
+
+1. Check upstream support, release notes and availability of both amd64 and arm64 images.
+2. Update `.ruby-version` to match the proposed Ruby tag, install that Ruby locally, and run
+   `bundle update --ruby`. Check that unrelated gem versions did not change.
+3. Keep both image distribution suffixes aligned. Resolve each digest from the **multi-platform
+   index**, not a single-architecture manifest. For a Node major upgrade, update CI as well.
+4. Run `bin/ci`. The two native container CI jobs must also pass: they prepare SQLite, serve
+   the gallery, exercise a real Active Storage JPEG-to-WebP variant, and verify non-root,
+   read-only, no-new-privileges, jemalloc and blocked untrusted image loaders.
+5. Review and merge the update PR, then use the normal approved release process. Dependabot
+   does not merge or deploy anything. Digest-only updates still need the container checks.
+
+Self-hosters receive Ruby, Debian libraries and gems in the next released image; no host Ruby
+installation or Compose changes are required. This runtime update introduces no application
+migration. Follow the normal complete-storage backup procedure before upgrading. Never
+replace an existing published version to refresh its base image.

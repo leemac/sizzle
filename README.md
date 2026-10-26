@@ -137,7 +137,7 @@ version, upgrades, backups and building from source.
 ## Develop
 
 ```sh
-bin/setup --seed                 # needs Ruby 3.3, Node 22 and libvips
+bin/setup --seed                 # needs the Ruby in .ruby-version, Node 22 and libvips
 bin/dev                          # http://localhost:3000
 npx playwright install chromium  # once, for browser tests
 bin/ci                           # all checks and tests
