@@ -251,6 +251,9 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
             <CookbookImportForm settings={instance.cookbook_import} buttonClass={linkClass} />
           </Section>
           <Section id="about" title="About this instance" hint="Server configuration is managed by your host.">
+            <Link href="/releases" className={`${linkClass} mb-4`}>
+              What’s new in Sizzle
+            </Link>
             <dl className="divide-y divide-hairline text-sm">
               <Info label="Version" value={app.version === 'dev' ? 'Development' : app.version} />
               <Info label="Claude extraction" value={app.claude_configured ? 'Configured' : 'Not configured'} />

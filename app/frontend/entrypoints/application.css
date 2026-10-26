@@ -357,3 +357,56 @@ a:is(:hover, :focus-visible) .sizzle-logo__flame {
     transform: scale(1);
   }
 }
+
+/* A torn kitchen receipt and a little steam, only when invited. */
+.release-receipt::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -8px;
+  left: -1px;
+  height: 9px;
+  background: var(--color-paper);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    95% 25%,
+    90% 100%,
+    85% 25%,
+    80% 100%,
+    75% 25%,
+    70% 100%,
+    65% 25%,
+    60% 100%,
+    55% 25%,
+    50% 100%,
+    45% 25%,
+    40% 100%,
+    35% 25%,
+    30% 100%,
+    25% 25%,
+    20% 100%,
+    15% 25%,
+    10% 100%,
+    5% 25%,
+    0 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .release-entry {
+    animation: import-arrive 450ms ease-out both;
+  }
+
+  .release-receipt:hover .release-steam {
+    animation: release-steam 1800ms ease-in-out infinite;
+  }
+}
+
+@keyframes release-steam {
+  50% {
+    transform: translateY(-3px);
+    opacity: 0.5;
+  }
+}

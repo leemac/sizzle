@@ -1,0 +1,225 @@
+[
+  {
+    "version": "0.3.1",
+    "date": "2026-10-25",
+    "sections": [
+      {
+        "title": "About this release",
+        "paragraphs": [
+          "Sizzle is early in development. Expect rough edges and breaking changes between releases."
+        ]
+      },
+      {
+        "title": "What's new",
+        "paragraphs": [
+          "Fill the Write a recipe form from pasted, dropped or selected screenshots using Claude. Review and save the result yourself; existing typed fields are preserved. Up to four images, 5 MB each. Screenshots are sent to Anthropic and are not retained by Sizzle.",
+          "Import Sizzle cookbook exports with recipes, photos, notes and cooking history. Existing recipes are skipped rather than overwritten. Enable with SIZZLE_COOKBOOK_IMPORT=true; it is off by default.",
+          "Ingredient icons and a choice of recipe order or grouping by type, remembered in your browser.",
+          "Parse quantities, units and preparation from plain ingredient lines for better serving scaling. An optional dry-run-first backfill task handles existing recipes.",
+          "Source previews on imports and recipes, including titles, descriptions and original links.",
+          "Failed-import header badge, Needs attention section and dismissal; older retries stay visible through completion.",
+          "Web imports default to automatic Claude fallback when configured, after local extraction. Existing saved browser preferences remain effective; Settings can disable Claude. API charges may apply."
+        ]
+      },
+      {
+        "title": "Fixes",
+        "paragraphs": [
+          "Preserve method sections when saving a written recipe.",
+          "Harden extraction against hostile page content and tighten outbound URL protections.",
+          "Ignore malformed optional source metadata rather than failing imports.",
+          "Update image_processing to 2.2.0 with an explicit libvips backend.",
+          "Refresh marketing screenshots and installation guidance, and strengthen manual-recipe/browser tests."
+        ]
+      },
+      {
+        "title": "Upgrade",
+        "paragraphs": [
+          "Four migrations run automatically: source metadata, dismissed-import timestamps, recipe IDs and cookbook-import tracking. No Compose changes are required. Cookbook import is opt-in through SIZZLE_COOKBOOK_IMPORT=true. Screenshot extraction requires ANTHROPIC_API_KEY.",
+          "Before upgrading, stop Sizzle and back up the complete storage volume using the documented stop/copy/start procedure: https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#back-up",
+          "Pin SIZZLE_VERSION=0.3.1, then run docker compose pull and docker compose up -d. Rollback requires restoring the pre-upgrade storage backup and pinning 0.3.0; switching images alone does not reverse migrations."
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "Sizzle has no login; keep it on a trusted network or behind authentication. Existing recipes do not receive source metadata retroactively. Ingredient backfilling is optional and is not performed automatically."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "0.3.0",
+    "date": "2026-10-25",
+    "sections": [
+      {
+        "title": "About this release",
+        "paragraphs": [
+          "Sizzle is early in development. Expect rough edges and breaking changes between releases."
+        ]
+      },
+      {
+        "title": "What's new",
+        "paragraphs": [
+          "Pick a theme and light, dark or automatic mode for each browser. Enable the optional editor to create shared custom themes.",
+          "Use SOS to find recipes for the current meal, with seasonal recipes first. Edit meal times and seasons on your recipes.",
+          "Set cooking text size, screen wake lock, recipe order and Claude import permission in Settings. Download a portable cookbook archive with recipes, photos and cooking history.",
+          "Install and connect the optional prebuilt iPhone Shortcut without copying the server API token; revoke individual connections from Sizzle.",
+          "Printed recipes show when they were added, cooked and printed. The logo gains a hover animation, and the landing page has refreshed seasonal recipe previews."
+        ]
+      },
+      {
+        "title": "Fixes",
+        "paragraphs": [
+          "Share an import budget across web requests, the API and retries; bound image download attempts and redact imported content and URLs from application logs."
+        ]
+      },
+      {
+        "title": "Upgrade",
+        "paragraphs": [
+          "Before upgrading, stop Sizzle, copy the complete storage volume using the backup procedure, then restart it. Do not copy a live SQLite database.",
+          "Set SIZZLE_VERSION=0.3.0 in .env, then run docker compose pull && docker compose up -d. Four migrations run automatically: custom themes, per-import AI permission, shortcut connections, and recipe meal times/seasons. Existing recipes receive initial meal times from their course and seasons from matching tags.",
+          "The Compose files and dependency locks are unchanged. Two optional settings are new and default off: SIZZLE_THEME_EDITOR=true and SIZZLE_SHORTCUT_PAIRING=true. Add either to .env and recreate the container to enable it. Anyone who can reach the web UI can edit shared themes or pair shortcuts when enabled. The existing token-protected script API remains available.",
+          "Web imports now ask for Claude permission by default; browser Settings can allow automatic fallback. Phone and script imports retain the server's AI configuration.",
+          "To roll back, stop Sizzle, restore the complete pre-upgrade storage backup and pin the previous image version. Changing the image alone does not undo database migrations."
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "Sizzle has no login. Keep it on a trusted private network or behind an authenticating reverse proxy.",
+          "Cookbook exports are bounded portable downloads, not complete server backups; importing an export into Sizzle is not yet supported.",
+          "Keeping the screen awake requires browser support and HTTPS or localhost.",
+          "iPhone Shortcut installation and manual execution have been confirmed; end-to-end pairing and recipe import on a physical iPhone remain unverified. The shortcut stores one cookbook connection per Apple account in iCloud Drive; reverse-proxy authentication may need additional setup."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "0.2.0",
+    "date": "2026-10-25",
+    "sections": [
+      {
+        "title": "About this release",
+        "paragraphs": [
+          "Sizzle is early in development. Expect rough edges and breaking changes between releases."
+        ]
+      },
+      {
+        "title": "What's new",
+        "paragraphs": [
+          "Group ingredients with headings when writing recipes, and adjust quantities with half/double controls or a target serving count. Scaling leaves the saved recipe unchanged.",
+          "Print a recipe card with your selected servings, designed to fit A4 or Letter. Very long recipes can continue onto more pages.",
+          "Review duplicate links before importing, choose whether to restore archived recipes, and follow progress beside the import form.",
+          "Open YouTube directions from recipes. New imports retain video duration, description chapters, and a written-recipe link when available. Existing recipes get the video link without a metadata backfill.",
+          "Use a dark cookbook with photo-colored recipe headers and a version link in the footer. The marketing site gains seasonal recipe stacks and screenshots that follow system appearance."
+        ]
+      },
+      {
+        "title": "Fixes",
+        "paragraphs": [
+          "Recognize tracking variants and historical redirect aliases during duplicate review.",
+          "Preserve manual recipe fields when a source link already belongs to a saved recipe.",
+          "Correct quantity scaling for spaced Unicode mixed fractions."
+        ]
+      },
+      {
+        "title": "Upgrade",
+        "paragraphs": [
+          "Before upgrading, stop Sizzle and back up the complete storage volume using the documented stop/copy/start procedure.",
+          "Set SIZZLE_VERSION=0.2.0 in .env, then run docker compose pull and docker compose up -d. Startup automatically adds the recipe video-metadata column. No new settings or Compose changes are required.",
+          "The /setup page has been removed. Optional AI remains configured through ANTHROPIC_API_KEY on the server; the running version appears in the footer.",
+          "To roll back, restore the complete pre-upgrade storage backup and pin the previous image version. Changing the image alone does not undo the migration."
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "There is no login. Keep Sizzle on a private network or behind an authenticating reverse proxy.",
+          "YouTube imports read descriptions and linked recipe pages, not spoken audio.",
+          "Very long unbroken text can overflow the recipe screen on narrow displays."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "0.1.0",
+    "date": "2026-10-25",
+    "sections": [
+      {
+        "title": "About this release",
+        "paragraphs": [
+          "Sizzle is early in development. Expect rough edges and breaking changes between releases. Keep it on a home or private network: there is no login yet."
+        ]
+      },
+      {
+        "title": "What's new",
+        "paragraphs": [
+          "Import several recipe links at once: paste up to 20 links into Add recipe.",
+          "Import recipes from YouTube video descriptions, including a recipe page linked from the description. Recipes that are only spoken in a video are not supported.",
+          "Record when you make a recipe with I made this, see how often and when you last made it, and undo an accidental entry.",
+          "Choose a grid or list for your cookbook; Sizzle remembers the choice in your browser. Gallery cards have a new layout.",
+          "Follow sharing instructions for iPhone, Android, or computer, with clearer server addresses for setting up the iOS Shortcut."
+        ]
+      },
+      {
+        "title": "Improvements and fixes",
+        "paragraphs": [
+          "Page titles are correct on the first load.",
+          "A simpler empty cookbook and clearer recipe details, including relative added and edited times.",
+          "Updated installation documentation and website previews.",
+          "Development setup installs a pinned secret scanner and fixes its PATH fallback."
+        ]
+      },
+      {
+        "title": "Upgrade from v0.0.1",
+        "paragraphs": [
+          "Back up the complete sizzle-storage volume with Sizzle stopped, following the backup instructions.",
+          "To pin this release, set SIZZLE_VERSION=0.1.0 in your existing .env.",
+          "Run docker compose pull followed by docker compose up -d.",
+          "The database migration runs automatically on startup. It adds cooking-history records, a cook count, and an edited timestamp. No new environment settings or Compose changes are required relative to v0.0.1.",
+          "To roll back, restore your backup and pin SIZZLE_VERSION=0.0.1 before starting Sizzle. Changing only the image version does not reverse a database migration."
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "There is no login. Use a home network or a private network such as Tailscale.",
+          "YouTube imports need a recipe in the description or its linked page; Sizzle does not transcribe videos. Some videos may be unavailable from your server.",
+          "Pages without usable recipe data and unstructured pasted text require the optional Anthropic API key, or manual recipe entry."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "0.0.1",
+    "date": "2026-10-24",
+    "sections": [
+      {
+        "title": "What's Changed",
+        "paragraphs": [
+          "Resolve launch review findings and add regression coverage by @leemac in https://github.com/leemac/sizzle/pull/2",
+          "Replace placeholder seeds with complete recipes and drink samples by @leemac in https://github.com/leemac/sizzle/pull/3",
+          "Add animated pixel wordmark to the app header by @leemac in https://github.com/leemac/sizzle/pull/4",
+          "Add sizzle animation to marketing wordmark by @leemac in https://github.com/leemac/sizzle/pull/6",
+          "Cache-bust marketing site CSS and JS so the logo survives stale caches by @leemac in https://github.com/leemac/sizzle/pull/8",
+          "Add onboarding and make AI recipe extraction optional by @leemac in https://github.com/leemac/sizzle/pull/9",
+          "Marketing site: GitHub mark on links and early-development banner by @leemac in https://github.com/leemac/sizzle/pull/11",
+          "Architecture pass: trust checks, security lint rules, review skill by @leemac in https://github.com/leemac/sizzle/pull/10",
+          "Import recipe URLs from the gallery with Enter or Import by @leemac in https://github.com/leemac/sizzle/pull/5",
+          "Keep the source link on manually written recipes by @leemac in https://github.com/leemac/sizzle/pull/13",
+          "Publish release images to GHCR and install from them by @leemac in https://github.com/leemac/sizzle/pull/14",
+          "Scan for committed secrets with gitleaks by @leemac in https://github.com/leemac/sizzle/pull/15",
+          "Let people favorite recipes by @leemac in https://github.com/leemac/sizzle/pull/16",
+          "Publish versioned multi-platform release images safely by @leemac in https://github.com/leemac/sizzle/pull/18",
+          "Edit a recipe's details and archive recipes by @leemac in https://github.com/leemac/sizzle/pull/17"
+        ]
+      },
+      {
+        "title": "New Contributors",
+        "paragraphs": [
+          "@leemac made their first contribution in https://github.com/leemac/sizzle/pull/2"
+        ]
+      }
+    ]
+  }
+]
