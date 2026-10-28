@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get "weekly-menu", to: "weekly_menus#show" if Rails.env.development?
+
   root "recipes#index"
   resources :releases, only: :index
   resources :recipes, only: %i[show edit update destroy] do

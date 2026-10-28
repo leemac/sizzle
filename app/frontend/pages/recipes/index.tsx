@@ -58,6 +58,11 @@ export default function RecipesIndex({
     <>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Your cookbook</h1>
+        {import.meta.env.DEV && (
+          <Link href="/weekly-menu" className="rounded-full bg-paper px-4 py-2 text-sm ring-1 ring-hairline">
+            Plan your week →
+          </Link>
+        )}
         {total_count > 0 && (
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-sm text-graphite">

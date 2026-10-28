@@ -391,3 +391,119 @@
     padding-block: 0;
   }
 }
+
+/* The weekly menu shares the recipe sheet's masthead, palette and fit-to-page sizing. */
+.weekly-menu-print__intro {
+  padding: 1.5em 0 1.3em;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.weekly-menu-print__intro h1 {
+  margin: 0.1em 0 0.2em;
+  font-family: var(--font-display);
+  font-size: 3em;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.weekly-menu-print__intro > p:last-child {
+  color: var(--color-graphite);
+  font-size: 0.95em;
+}
+.weekly-menu-print__days {
+  columns: 2;
+  column-gap: 2.3em;
+  padding-top: 0.3em;
+  padding-bottom: 1.5em;
+}
+.weekly-menu-print__day {
+  break-inside: avoid;
+  padding: 1em 0;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.weekly-menu-print__day > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+}
+.weekly-menu-print__day h2 {
+  font-family: var(--font-display);
+  font-size: 1.5em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.weekly-menu-print__day > header > span {
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+  padding: 0.2em 0.7em;
+  white-space: nowrap;
+  color: var(--color-graphite);
+  font-size: 0.75em;
+}
+.weekly-menu-print__meal {
+  margin-top: 0.8em;
+}
+.weekly-menu-print__meal h3 {
+  margin-bottom: 0.5em;
+  font-size: 0.67em;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-graphite);
+}
+.weekly-menu-print article {
+  display: flex;
+  gap: 0.75em;
+  margin-top: 0.65em;
+  break-inside: avoid;
+}
+.weekly-menu-print article img {
+  width: 3.4em;
+  height: 3.4em;
+  flex-shrink: 0;
+  border-radius: 0.55em;
+  object-fit: cover;
+}
+.weekly-menu-print article > div {
+  min-width: 0;
+}
+.weekly-menu-print h4 {
+  font-size: 0.96em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.weekly-menu-print__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 0.3em;
+  font-size: 0.75em;
+  line-height: 1.4;
+  color: var(--color-graphite);
+}
+.weekly-menu-print__time {
+  margin-top: 0.35em;
+  font-size: 0.65em;
+  color: var(--color-graphite);
+}
+.weekly-menu-print__note,
+.weekly-menu-print__empty {
+  margin-top: 0.65em;
+  color: var(--color-graphite);
+  font-style: italic;
+  font-size: 0.8em;
+  white-space: pre-wrap;
+}
+@media print {
+  .weekly-menu-print[data-fit='overflow'] .weekly-menu-print__days {
+    columns: auto;
+  }
+}
+
+.print-sheet__site {
+  align-self: flex-start;
+  margin-top: 0.3em;
+  font-size: 0.9em;
+  color: var(--color-graphite);
+  text-decoration: none;
+}
