@@ -16,7 +16,7 @@ ship to a stranger's home network.
 
 ## Stack
 
-- Rails 8.1 (Ruby 3.3) with SQLite for everything: app data, Solid Queue (jobs), Solid Cache.
+- Rails 8.1 (Ruby 3.4; exact version in `.ruby-version`) with SQLite for everything: app data, Solid Queue (jobs), Solid Cache.
 - React 19 + TypeScript via Inertia.js 3 — no separate API for the UI; controllers render pages.
 - Vite (vite_rails) and Tailwind CSS 4. Colour roles are declared in `app/frontend/entrypoints/application.css`;
   each built-in theme's values live in `config/themes.json`, and custom ones in the `custom_themes` table.

@@ -54,7 +54,7 @@ jobs:
     needs: changes
     # Runs unless the change is docs-only; if detection fails, it runs anyway.
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
-    # Ruby 3.3.6 has a prebuilt binary for 24.04, but not newer Ubuntu images.
+    # Use a fixed runner release; ruby/setup-ruby reads .ruby-version.
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -131,11 +131,19 @@ jobs:
       - name: gitleaks (API keys and tokens in any commit)
         run: bin/secret-scan
 
-  docker:
-    name: Docker image boots
+  docker_platforms:
+    name: Docker image (${{ matrix.arch }})
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -154,7 +162,10 @@ jobs:
             # /up proves Rails booted; / proves the database was prepared and the gallery renders.
             if curl -fsS http://localhost:3000/up && curl -fsS -o /dev/null http://localhost:3000/; then
               # The version passed at build time is what the footer reports.
-              curl -fsS http://localhost:3000/ | grep -q '0\.0\.0-ci' && exit 0
+              if curl -fsS http://localhost:3000/ | grep -q '0\.0\.0-ci'; then
+                docker exec -i sizzle ./bin/docker-entrypoint ./bin/rails runner - < test/support/container_smoke.rb
+                exit 0
+              fi
               echo "The footer does not report the build's version"
               break
             fi
@@ -162,3 +173,27 @@ jobs:
           done
           docker logs sizzle
           exit 1
+      - name: Container logs
+        if: failure()
+        run: docker logs sizzle
+      - name: Remove smoke-test container and storage
+        if: always()
+        run: |
+          docker rm -f sizzle || true
+          docker volume rm sizzle-storage || true
+
+  # Keep the existing required-check name: both native jobs must succeed.
+  docker:
+    name: Docker image boots
+    needs: [changes, docker_platforms]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both container checks
+        env:
+          CHANGE_RESULT: ${{ needs.changes.result }}
+          CODE_CHANGED: ${{ needs.changes.outputs.code }}
+          DOCKER_RESULT: ${{ needs.docker_platforms.result }}
+        run: |
+          test "$CHANGE_RESULT" = success
+          test "$DOCKER_RESULT" = success || { test "$CODE_CHANGED" = false && test "$DOCKER_RESULT" = skipped; }
