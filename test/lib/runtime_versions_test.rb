@@ -11,15 +11,27 @@ class RuntimeVersionsTest < ActiveSupport::TestCase
                  "Update .ruby-version and Gemfile.lock when accepting a Ruby image update"
   end
 
-  test "Node build binaries come from the same Debian release as Ruby" do
+  test "Node build binaries and CI use compatible versions" do
     dockerfile = Rails.root.join("Dockerfile").read
     node_image = dockerfile.match(%r{^FROM docker\.io/library/node:(\d+)\.\d+\.\d+-([a-z]+)-slim@sha256:[a-f0-9]{64} AS node$})
     ruby_distro = dockerfile.match(%r{^FROM docker\.io/library/ruby:\d+\.\d+\.\d+-slim-([a-z]+)@})
     assert node_image, "Use a versioned Node image with an explicit Debian release and multi-platform digest"
     assert ruby_distro
     assert_equal ruby_distro[1], node_image[2], "Keep the copied Node binary compatible with the Ruby build stage"
-    ci_node_versions = Rails.root.join(".github/workflows/ci.yml").read.scan(/node-version: (\d+)/).flatten.uniq
-    assert_equal [ node_image[1] ], ci_node_versions, "Keep the Node major version consistent in CI and Docker"
+    node_version = Rails.root.join(".node-version").read.strip
+    assert_match(/\A\d+\z/, node_version, "Keep .node-version set to a Node major version")
+    assert_equal node_version, node_image[1], "Keep the Node major version consistent in CI and Docker"
+
+    jobs = YAML.load_file(Rails.root.join(".github/workflows/ci.yml")).fetch("jobs")
+    node_setup_steps = jobs.values.flat_map do |job|
+      job.fetch("steps", []).select { |step| step["uses"]&.start_with?("actions/setup-node@") }
+    end
+    assert_not_empty node_setup_steps
+    node_setup_steps.each do |step|
+      with = step.fetch("with", {})
+      assert_equal ".node-version", with["node-version-file"], "Read the Node version from .node-version in CI"
+      assert_nil with["node-version"], "Avoid hard-coded Node versions in CI"
+    end
   end
 
   test "the required container check fails closed for failed or cancelled platform jobs" do

@@ -104,7 +104,8 @@ version drift and checks that the Ruby and Node build stages use the same Debian
 
 The current baseline is Ruby 3.4.12 on Debian Trixie slim. Ruby 3.4 receives normal maintenance;
 Ruby 3.3 is security-only ([upstream status](https://www.ruby-lang.org/en/downloads/branches/)).
-Ruby 4 is a separate compatibility decision. Node remains on major 22 for the build only.
+Ruby 4 is a separate compatibility decision. Node is build-only; its major version is in
+`.node-version` and must match the Docker build image.
 Both official images have explicit patch tags and multi-platform digests. Avoid generic
 `slim` tags: their Debian release can change, and copying Node between distributions can
 introduce incompatible native libraries.
@@ -117,7 +118,8 @@ version upgrades and digest refreshes when an image is rebuilt. It does not sync
 2. Update `.ruby-version` to match the proposed Ruby tag, install that Ruby locally, and run
    `bundle update --ruby`. Check that unrelated gem versions did not change.
 3. Keep both image distribution suffixes aligned. Resolve each digest from the **multi-platform
-   index**, not a single-architecture manifest. For a Node major upgrade, update CI as well.
+   index**, not a single-architecture manifest. For a Node major upgrade, update `.node-version`;
+   CI reads that file, and the runtime-version test checks it against the Docker image.
 4. Run `bin/ci`. The two native container CI jobs must also pass: they prepare SQLite, serve
    the gallery, exercise a real Active Storage JPEG-to-WebP variant, and verify non-root,
    read-only, no-new-privileges, jemalloc and blocked untrusted image loaders.

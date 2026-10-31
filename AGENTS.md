@@ -62,6 +62,8 @@ npm run format       # Prettier (frontend); bin/rubocop -a for Ruby
 
 `bin/ci` must pass before you open a pull request. No test may touch the network: HTTP is
 stubbed with WebMock, DNS with `FakeResolver`, Claude with `FakeExtractor`.
+CI and local setup use the Node major in `.node-version`; keep it aligned with the Dockerfile's
+Node build image when accepting a Node major update.
 
 ## Security rules (non-negotiable)
 
