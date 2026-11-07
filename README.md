@@ -143,6 +143,9 @@ npx playwright install chromium  # once, for browser tests
 bin/ci                           # all checks and tests
 ```
 
+With [mise](https://mise.jdx.dev), run `mise trust && mise install` once: `mise.toml` makes mise
+read `.ruby-version`, so it picks the right Ruby even if your global default is older.
+
 Sizzle is built in the open as a software factory: well-specified issues are worked by AI agents
 and reviewed by people. Start with [AGENTS.md](AGENTS.md) for the architecture, conventions and
 security rules, then [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/factory.md](docs/factory.md).

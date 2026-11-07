@@ -1,0 +1,5 @@
+# Local tool versions for mise (https://mise.jdx.dev). Optional: any Ruby/Node manager works.
+# Read the versions from the existing version files rather than repeating them here,
+# so .ruby-version (and .node-version, once present) stay the single source of truth.
+[settings]
+idiomatic_version_file_enable_tools = ["ruby", "node"]
