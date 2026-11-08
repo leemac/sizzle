@@ -54,7 +54,7 @@ group :development do
 end
 
 gem "inertia_rails", "~> 3.23"
-gem "anthropic", "~> 2.4"
+gem "anthropic", "~> 2.5"
 gem "nokogiri", "~> 1.19"
 
 
