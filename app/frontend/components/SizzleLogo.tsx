@@ -91,6 +91,7 @@ export default function SizzleLogo() {
 
     function updateMotion() {
       if (frame !== null) cancelAnimationFrame(frame)
+      // oxlint-disable-next-line react/immutability -- effect-local variable, not render state (false positive)
       frame = null
       previousTime = null
       if (config.animate && !reducedMotion.matches && !document.hidden) frame = requestAnimationFrame(tick)
