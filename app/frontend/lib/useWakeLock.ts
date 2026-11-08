@@ -23,6 +23,7 @@ export function useWakeLock(enabled: boolean) {
         lock = next
         setStatus('active')
         next.addEventListener('release', () => {
+          // oxlint-disable-next-line react/immutability -- effect-local variable, not render state (false positive)
           if (lock === next) lock = null
           if (!disposed) setStatus('unavailable')
         })
