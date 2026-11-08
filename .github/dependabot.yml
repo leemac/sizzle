@@ -15,6 +15,9 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    groups:
+      # init and analyze must run the same version, or CodeQL fails.
+      codeql: { patterns: ["github/codeql-action/*"] }
   # Explicit FROM tags/digests cover runtime upgrades and rebuilt Debian base images.
   # Ruby updates also need .ruby-version + Gemfile.lock synchronized; see docs/releasing.md.
   - package-ecosystem: docker
