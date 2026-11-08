@@ -81,12 +81,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 sm:pt-10">{children}</main>
       <footer className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 pb-6 text-xs text-graphite sm:px-6">
-        <Link href="/releases" aria-label="Sizzle release notes" className="footer-link">
-          Sizzle {props.app.version === 'dev' ? 'dev' : `v${props.app.version}`}
-        </Link>
+        <a href="https://github.com/leemac/sizzle" target="_blank" rel="noreferrer" className="footer-link">
+          <Icon name="github" className="mr-1.5 inline-block size-3.5 align-[-2px]" />
+          Sizzle on GitHub
+        </a>
         <span aria-hidden="true">·</span>
         <a href="https://mckinnon.dev" target="_blank" rel="noreferrer" className="footer-link">
-          By Lee
+          Built by Lee
         </a>
       </footer>
     </div>
