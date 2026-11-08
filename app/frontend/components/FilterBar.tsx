@@ -55,7 +55,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
         />
       </label>
 
-      <div className="relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+      <div className="relative -mx-4 -my-1 flex items-center gap-2 overflow-x-auto px-4 py-1 [scrollbar-width:none] sm:mx-0 sm:my-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:py-0">
         {(facets.favorites > 0 || filters.favorites) && (
           <Chip selected={Boolean(filters.favorites)} onClick={() => set('favorites', '1')}>
             <span className="inline-flex items-center gap-1.5">
@@ -106,7 +106,7 @@ export default function FilterBar({ filters, facets }: { filters: RecipeFilters;
               setQuery('')
               visit({})
             }}
-            className="shrink-0 px-3 py-1.5 text-sm text-graphite underline-offset-4 hover:text-ink hover:underline"
+            className="h-9 shrink-0 px-3 text-sm text-graphite underline-offset-4 hover:text-ink hover:underline"
           >
             Clear
           </button>
@@ -122,7 +122,7 @@ function Chip({ selected, onClick, children }: { selected: boolean; onClick: () 
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors first-letter:uppercase ${
+      className={`h-9 shrink-0 rounded-full px-3.5 text-sm transition-colors first-letter:uppercase ${
         selected ? 'bg-active font-medium text-on-active' : 'bg-paper text-ink ring-1 ring-hairline hover:ring-ink/30'
       }`}
     >
@@ -150,7 +150,7 @@ function FacetSelect({
       <select
         value={value ?? ''}
         onChange={(event) => onChange(event.target.value || undefined)}
-        className={`rounded-full border-0 py-1.5 pr-8 pl-3.5 text-sm ring-1 focus:ring-ink ${
+        className={`h-9 rounded-full border-0 py-0 pr-8 pl-3.5 text-sm ring-1 field-sizing-content focus:ring-ink ${
           value ? 'bg-active font-medium text-on-active ring-active' : 'bg-paper ring-hairline'
         }`}
       >
