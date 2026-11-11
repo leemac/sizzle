@@ -2,6 +2,7 @@ require "test_helper"
 
 class RecipeScreenshotTest < ActiveSupport::TestCase
   PNG = "\x89PNG\r\n\x1A\n".b + "screenshot".b
+  PDF = "%PDF-1.7\nrecipe".b
 
   def upload(bytes = PNG, type: "image/png")
     file = Tempfile.new([ "screenshot", ".png" ], binmode: true)
@@ -98,6 +99,41 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
     assert_match "PNG, JPEG", invalid_message([ upload("\x00\x00\x00\x18ftypheic".b, type: "image/heic") ], extractor)
     assert_match "5 MB", invalid_message([ upload(PNG + ("x" * RecipeScreenshot::MAX_BYTES)) ], extractor)
     assert_empty extractor.screenshots
+  end
+
+  test "sends a PDF to Claude as a document and returns the form's fields" do
+    extractor = FakeExtractor.new
+
+    fields = RecipeScreenshot.new([ upload(PDF, type: "application/pdf") ], extractor:).fields
+
+    assert_equal [ PDF ], extractor.pdfs
+    assert_empty extractor.screenshots
+    assert_equal "Weeknight Chickpea Curry", fields[:title]
+  end
+
+  test "a PDF is recognised by its bytes, one at a time, within the size limit" do
+    extractor = FakeExtractor.new
+
+    assert_equal PDF, RecipeScreenshot.new([ upload(PDF, type: "image/png") ]).pdf
+    assert_match "PNG, JPEG", invalid_message([ upload("<html>%PDF-", type: "application/pdf") ], extractor)
+    assert_match "one PDF", invalid_message([ upload(PDF), upload(PDF) ], extractor)
+    assert_match "one PDF", invalid_message([ upload(PDF), upload ], extractor)
+    assert_match "10 MB", invalid_message([ upload(PDF + ("x" * RecipeScreenshot::MAX_PDF_BYTES)) ], extractor)
+    assert_empty extractor.pdfs
+    assert_empty extractor.screenshots
+  end
+
+  test "a PDF's answer is validated and its failures name the PDF" do
+    hostile = FakeExtractor.new(FakeExtractor.recipe("title" => "x" * 500, "seasons" => [ "monsoon" ]))
+    fields = RecipeScreenshot.new([ upload(PDF) ], extractor: hostile).fields
+    assert_equal 300, fields[:title].length
+    assert_empty fields[:seasons]
+
+    assert_match "No recipe found in that PDF", invalid_message([ upload(PDF) ], FakeExtractor.new(FakeExtractor.recipe("is_recipe" => false)))
+
+    rejecting = FakeExtractor.new
+    rejecting.define_singleton_method(:from_pdf) { |_| raise RecipeExtractor::Rejected, "Claude request failed (400)." }
+    assert_match "couldn't open that PDF", invalid_message([ upload(PDF) ], rejecting)
   end
 
   test "the media type comes from the bytes, not the browser" do
