@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mergeScreenshotFields, screenshotFiles } from './screenshotFill'
+import { MAX_PDF_BYTES, mergeScreenshotFields, screenshotFiles, screenshotFilesError } from './screenshotFill'
 import type { ManualRecipeInput } from '@/types'
 
 const empty: ManualRecipeInput = {
@@ -67,4 +67,20 @@ it('picks out only image files from a paste or drop', () => {
 
   expect(screenshotFiles([png, svg, text])).toEqual([png])
   expect(screenshotFiles(null)).toEqual([])
+})
+
+it('accepts up to four screenshots or one PDF within the size limit', () => {
+  const png = new File(['png'], 'shot.png', { type: 'image/png' })
+  const pdf = new File(['%PDF-1.7'], 'recipe.pdf', { type: 'application/pdf' })
+  const hugePdf = new File(['%PDF-1.7'], 'cookbook.pdf', { type: 'application/pdf' })
+  Object.defineProperty(hugePdf, 'size', { value: MAX_PDF_BYTES + 1 })
+
+  expect(screenshotFiles([png, pdf, new File(['hi'], 'notes.txt', { type: 'text/plain' })])).toEqual([png, pdf])
+  expect(screenshotFilesError([pdf])).toBeNull()
+  expect(screenshotFilesError([png, png, png, png])).toBeNull()
+  expect(screenshotFilesError([])).toContain('or a PDF')
+  expect(screenshotFilesError([pdf, pdf])).toContain('one PDF')
+  expect(screenshotFilesError([pdf, png])).toContain('one PDF')
+  expect(screenshotFilesError([hugePdf])).toContain('10 MB')
+  expect(screenshotFilesError([png, png, png, png, png])).toContain('up to 4')
 })
