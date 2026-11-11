@@ -98,3 +98,25 @@ it('caps how many screenshots are sent at once', () => {
   expect(fetch).not.toHaveBeenCalled()
   expect(container.textContent).toContain('Add up to 4 screenshots at a time.')
 })
+
+it('sends a pasted PDF on its own', async () => {
+  const fetch = respond(200, { fields: { title: 'Coconut rice' } })
+  const onFields = render()
+
+  paste([new File(['%PDF-1.7'], 'recipe.pdf', { type: 'application/pdf' })])
+  expect(container.textContent).toContain('Reading your PDF…')
+  await act(async () => {})
+
+  expect((fetch.mock.calls[0][1].body as FormData).getAll('screenshots[]')).toHaveLength(1)
+  expect(onFields).toHaveBeenCalledWith({ title: 'Coconut rice' })
+})
+
+it('won’t send a PDF together with other files', () => {
+  const fetch = respond(200, {})
+  render()
+
+  paste([new File(['%PDF-1.7'], 'recipe.pdf', { type: 'application/pdf' }), png])
+
+  expect(fetch).not.toHaveBeenCalled()
+  expect(container.querySelector('[role="alert"]')?.textContent).toBe('Add one PDF at a time, without screenshots.')
+})
