@@ -52,6 +52,38 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "text", content.last["type"]
   end
 
+  test "reads a PDF with Claude as a document, with no tools, without saving anything" do
+    pdf = "%PDF-1.7\nrecipe".b
+    upload = Rack::Test::UploadedFile.new(StringIO.new(pdf), "application/pdf", true, original_filename: "recipe.pdf")
+
+    assert_no_difference [ "Recipe.count", "Import.count", "ActiveStorage::Blob.count" ] do
+      post recipe_screenshots_url, params: { screenshots: [ upload ] }
+    end
+
+    assert_response :success
+    assert_equal "Weeknight Chickpea Curry", response.parsed_body["fields"]["title"]
+    request = @requests.sole
+    assert_not request.key?("tools"), "the extraction call must never have tools"
+    content = request["messages"].sole["content"]
+    assert_equal({ "type" => "base64", "media_type" => "application/pdf", "data" => Base64.strict_encode64(pdf) },
+                 content.first["source"])
+    assert_equal "document", content.first["type"]
+    assert_equal "text", content.last["type"]
+  end
+
+  test "a PDF Claude can't open comes back as a message for the form" do
+    stub_request(:post, "https://api.anthropic.com/v1/messages").to_return(
+      status: 400, headers: { "Content-Type" => "application/json" },
+      body: { type: "error", error: { type: "invalid_request_error", message: "Could not process PDF" } }.to_json
+    )
+    upload = Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.7 broken".b), "application/pdf", true, original_filename: "recipe.pdf")
+
+    post recipe_screenshots_url, params: { screenshots: [ upload ] }
+
+    assert_response :unprocessable_content
+    assert_match "couldn't open that PDF", response.parsed_body["error"]
+  end
+
   test "rejects files that aren't images before calling Claude" do
     post recipe_screenshots_url, params: { screenshots: [ screenshot("GIF8 not quite") ] }
 
