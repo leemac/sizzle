@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from '@/components/Icon'
+import { takeHandedOffFiles } from '@/lib/fileHandoff'
 import {
   MAX_SCREENSHOTS,
   PDF_TYPE,
@@ -29,6 +30,7 @@ export default function ScreenshotFill({
   const [status, setStatus] = useState<Status>({ state: 'idle' })
   const [dragging, setDragging] = useState(false)
   const picker = useRef<HTMLInputElement>(null)
+  const section = useRef<HTMLElement>(null)
   const reading = status.state === 'reading'
   const readingRef = useRef(false)
   // Claude takes a while; merge into the form as it is when the answer arrives, not when the upload started.
@@ -80,6 +82,15 @@ export default function ScreenshotFill({
     readRef.current = read
   })
 
+  // A PDF or screenshots dropped in the cookbook's paste box start reading as soon as this form opens. Focus moves
+  // here, not into a field, so the status is announced without opening a phone's keyboard.
+  useEffect(() => {
+    const files = takeHandedOffFiles()
+    if (files.length === 0) return
+    section.current?.focus({ preventScroll: true })
+    readRef.current(files)
+  }, [])
+
   // Pasting or dropping an image or PDF anywhere on the page fills the form; pasting text still goes into the
   // field, and a dropped file doesn't open in place of the page.
   useEffect(() => {
@@ -118,9 +129,11 @@ export default function ScreenshotFill({
 
   return (
     <section
+      ref={section}
+      tabIndex={-1}
       aria-labelledby="screenshot-heading"
       aria-busy={reading}
-      className={`rounded-photo border border-dashed p-4 transition-colors sm:p-5 ${dragging ? 'border-ink bg-porcelain' : 'border-hairline'}`}
+      className={`rounded-photo outline-none border border-dashed p-4 transition-colors sm:p-5 ${dragging ? 'border-ink bg-porcelain' : 'border-hairline'}`}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="min-w-0 flex-1 basis-56">

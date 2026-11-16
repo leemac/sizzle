@@ -54,7 +54,8 @@ for (const width of [390, 1280]) {
       await page.screenshot({ path: testInfo.outputPath(`logo-${colorScheme}-${width}.png`), fullPage: true })
     }
 
-    await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
+    await page.getByRole('link', { name: 'Settings', exact: true }).click()
+    await expect(page).toHaveURL(/\/settings/)
     await logo.click()
     await expect(page).toHaveURL('http://sizzle.test:3211/')
     expect(errors).toEqual([])

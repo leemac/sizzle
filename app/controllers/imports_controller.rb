@@ -13,18 +13,19 @@ class ImportsController < InertiaController
     batch = ImportBatch.new(params[:input], origin: "web")
     batch.imports.each { |import| import.ai_allowed = ai_allowed? }
     unless batch.valid?
-      return redirect_to imports_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
+      return redirect_to after_create_path, inertia: { errors: { input: batch.errors.full_messages.to_sentence } }
     end
 
     review = ImportReview.new(batch)
     if (review.needed? || params[:review_token].present?) && params[:review_token] != review.token
-      return render_index(review:)
+      # The cookbook's paste box has no room for the duplicate choice, so it's made here, with the links kept.
+      return render_index(review:, draft_input: from_cookbook? ? params[:input].to_s : nil)
     end
 
     selected = params.permit(selected_urls: [])[:selected_urls] || [] if params[:review_token].present?
     count = review.imports(selected).size
     if count.positive? && !ImportBudget.charge(count, store: cache_store)
-      redirect_to imports_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
+      redirect_to after_create_path, inertia: { errors: { input: "That would be more than #{IMPORTS_PER_MINUTE} imports in a minute. Wait a minute, or paste fewer links." } }
     else
       restored = review.save(selected)
       flash[:submitted_import_ids] = review.imports(selected).map(&:id)
@@ -33,7 +34,7 @@ class ImportsController < InertiaController
       elsif count.zero?
         "Done. No new imports were needed."
       end
-      redirect_to imports_path, notice:
+      redirect_to after_create_path, notice:
     end
   end
 
@@ -53,6 +54,16 @@ class ImportsController < InertiaController
 
   private
 
+  # Only a fixed name, never a URL from the request, so this can't become an open redirect.
+  def from_cookbook?
+    params[:return_to] == "cookbook"
+  end
+
+  # The cookbook's paste box stays put: its new imports appear as pending tiles right below it.
+  def after_create_path
+    from_cookbook? ? root_path : imports_path
+  end
+
   def ai_allowed?
     # Capture what the submitting page allowed. A changed cookie in another tab
     # must not turn an unchecked, local-only submission into a Claude request.
@@ -61,12 +72,13 @@ class ImportsController < InertiaController
     explicit || automatic
   end
 
-  def render_index(review: nil)
+  def render_index(review: nil, draft_input: nil)
     inertia_meta.add(title: "Add a recipe")
     render inertia: "imports/index", props: {
       imports: recent_imports.map { |import| ImportSerializer.call(import) },
       mode: params[:mode] == "manual" ? "manual" : "import",
       duplicate_review: review && ImportReviewSerializer.call(review),
+      draft_input:,
       submitted_import_ids: Array(flash[:submitted_import_ids]),
       source_duplicate: -> {
         recipe = Recipe.find_by(id: flash[:duplicate_recipe_id])

@@ -17,16 +17,19 @@ export default function ImportsIndex({
   mode,
   source_url,
   duplicate_review,
+  draft_input,
   source_duplicate,
 }: {
   imports: Import[]
   mode: 'import' | 'manual'
   source_url: string | null
   duplicate_review: ImportReview | null
+  // Links pasted on the cookbook page that need a duplicate choice here, so they aren't lost.
+  draft_input: string | null
   source_duplicate: SourceDuplicate | null
 }) {
   const { app, preferences } = usePage().props
-  const form = useForm({ input: '' })
+  const form = useForm({ input: draft_input ?? '' })
   const input = useRef<HTMLTextAreaElement>(null)
   const [review, setReview] = useState(duplicate_review)
   const [submittedIds, setSubmittedIds] = useState<number[]>([])

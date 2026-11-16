@@ -17,7 +17,9 @@ for (const width of [390, 1280]) {
     await page.goto('/')
     expect(await page.evaluate(() => window.isSecureContext)).toBe(false)
     expect(await page.evaluate(() => typeof crypto.subtle)).toBe('undefined')
-    await expect(page.getByRole('link', { name: 'Add recipe', exact: true })).toBeVisible()
+    // The cookbook's paste box is its main action, so the header's Add recipe button only shows elsewhere.
+    await expect(page.getByRole('link', { name: 'Add recipe', exact: true })).toHaveCount(0)
+    await page.getByRole('link', { name: 'Settings', exact: true }).click()
     await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Add a recipe', exact: true })).toBeVisible()
     await page.getByRole('link', { name: 'Share straight from your phone instead' }).click()

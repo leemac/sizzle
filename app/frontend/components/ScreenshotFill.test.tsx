@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import ScreenshotFill from './ScreenshotFill'
+import { handOffFiles } from '@/lib/fileHandoff'
 import type { ScreenshotFields } from '@/lib/screenshotFill'
 
 let container: HTMLDivElement
@@ -119,4 +120,26 @@ it('won’t send a PDF together with other files', () => {
 
   expect(fetch).not.toHaveBeenCalled()
   expect(container.querySelector('[role="alert"]')?.textContent).toBe('Add one PDF at a time, without screenshots.')
+})
+
+it('reads a PDF handed over from the cookbook as soon as it opens', async () => {
+  const fetch = respond(200, { fields: { title: 'Grandma’s scones' } })
+  const pdf = new File(['%PDF-1.7'], 'card.pdf', { type: 'application/pdf' })
+  handOffFiles([pdf])
+  const onFields = render()
+
+  expect(container.textContent).toContain('Reading your PDF…')
+  expect(document.activeElement).toBe(container.querySelector('section'))
+  await act(async () => {})
+
+  expect((fetch.mock.calls[0][1].body as FormData).getAll('screenshots[]')).toEqual([pdf])
+  expect(onFields).toHaveBeenCalledWith({ title: 'Grandma’s scones' })
+})
+
+it('opens without reading anything when nothing was handed over', () => {
+  const fetch = respond(200, {})
+  render()
+
+  expect(fetch).not.toHaveBeenCalled()
+  expect(container.textContent).not.toContain('Reading')
 })

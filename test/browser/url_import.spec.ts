@@ -68,9 +68,13 @@ for (const width of [390, 1280]) {
     await galleryFixture(page)
 
     await expect(page.getByText('No recipes yet.', { exact: true })).toBeVisible()
-    await expect(page.getByRole('textbox')).toHaveCount(0)
-    await expect(page.getByRole('link', { name: /Import a link/ })).toHaveAttribute('href', '/imports')
-    await expect(page.getByRole('link', { name: /Write a recipe/ })).toHaveAttribute('href', '/imports?mode=manual')
+    // The paste box is the way to import a link, so the empty state only offers the other two.
+    await expect(page.getByRole('textbox', { name: 'Recipe link, text, PDF or screenshot' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Import a link/ })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Write a recipe.*A family favourite/ })).toHaveAttribute(
+      'href',
+      '/imports?mode=manual',
+    )
     await expect(page.getByRole('link', { name: /Share from your phone.*Save as you browse/ })).toHaveAttribute(
       'href',
       '/share',
@@ -78,7 +82,7 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`empty-${width}.png`), fullPage: true })
 
-    await page.getByRole('link', { name: /Import a link/ }).click()
+    await page.getByRole('link', { name: /Write a recipe.*A family favourite/ }).click()
     await expect(page.getByRole('heading', { name: 'Add a recipe', exact: true })).toBeVisible()
   })
 
@@ -127,7 +131,7 @@ test('a background failure shows a count in the header that leads to the imports
 })
 
 test('links are imported from the Add recipe page, and server errors keep the link', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/settings')
   await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
   const input = page.getByRole('textbox', { name: /^Recipe link/ })
   await input.fill('https://example.com:6379/pie')

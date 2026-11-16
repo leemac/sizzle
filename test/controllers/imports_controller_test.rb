@@ -237,4 +237,72 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     post retry_import_url(import), params: { allow_ai: true }
     assert import.reload.ai_allowed?
   end
+
+  test "the cookbook's paste box returns to the cookbook, where the import shows as pending" do
+    assert_enqueued_with(job: ImportJob) do
+      post imports_url, params: { input: "https://example.com/pie", return_to: "cookbook" }
+    end
+
+    assert_redirected_to root_url
+    assert_nil flash[:notice], "the pending tile is the confirmation"
+    follow_redirect!
+    assert_equal "recipes/index", inertia.component
+    assert_equal [ Import.last.id ], inertia.props[:pending_imports].map { |item| item[:id] }
+  end
+
+  test "a bad link from the paste box returns to the cookbook with the error" do
+    assert_no_difference("Import.count") do
+      post imports_url, params: { input: "https://example.com:6379/pie", return_to: "cookbook" }
+    end
+
+    assert_redirected_to root_url
+    follow_redirect!
+    assert inertia.props[:errors][:input].present?
+  end
+
+  test "going over the import budget from the paste box returns to the cookbook" do
+    previous = ImportsController.cache_store
+    ImportsController.cache_store = ActiveSupport::Cache::MemoryStore.new
+    links = ->(prefix, count) { Array.new(count) { |index| "https://example.com/#{prefix}#{index}" }.join("\n") }
+    post imports_url, params: { input: links.("a", 20) }
+
+    assert_no_difference("Import.count") do
+      post imports_url, params: { input: links.("b", 20), return_to: "cookbook" }
+    end
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_match "more than 30 imports in a minute", inertia.props[:errors][:input]
+  ensure
+    ImportsController.cache_store = previous
+  end
+
+  test "a duplicate from the paste box is reviewed on the import page with the links kept" do
+    Recipe.create!(title: "My pie", source_url: "https://example.com/pie")
+    input = "https://example.com/pie\nhttps://example.com/cake"
+
+    assert_no_difference("Import.count") { post imports_url, params: { input:, return_to: "cookbook" } }
+
+    assert_response :success
+    assert_equal "imports/index", inertia.component
+    assert inertia.props[:duplicate_review].present?
+    assert_equal input, inertia.props[:draft_input]
+  end
+
+  test "the import page's own duplicate review doesn't echo the input back" do
+    Recipe.create!(title: "My pie", source_url: "https://example.com/pie")
+    post imports_url, params: { input: "https://example.com/pie" }
+
+    assert inertia.props[:duplicate_review].present?
+    assert_nil inertia.props[:draft_input]
+  end
+
+  test "return_to only accepts the cookbook, never a URL" do
+    [ "https://evil.example/", "//evil.example", "/settings", "Cookbook" ].each do |return_to|
+      post imports_url, params: { input: "https://example.com/#{return_to.parameterize}", return_to: }
+      assert_redirected_to imports_url, "#{return_to} must not change where the import page sends you"
+
+      post imports_url, params: { input: "https://example.com:6379/pie", return_to: }
+      assert_redirected_to imports_url
+    end
+  end
 end

@@ -1,9 +1,11 @@
-import { Link, router, usePoll } from '@inertiajs/react'
-import { useEffect } from 'react'
+import { Link, router, usePage, usePoll } from '@inertiajs/react'
+import { motion } from 'motion/react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import FilterBar from '@/components/FilterBar'
 import Icon, { type IconName } from '@/components/Icon'
 import ImportStatusLabel from '@/components/ImportStatusLabel'
 import LayoutToggle from '@/components/LayoutToggle'
+import PasteBox from '@/components/PasteBox'
 import RecipeRow from '@/components/RecipeRow'
 import RecipeTile from '@/components/RecipeTile'
 import AppLayout from '@/layouts/AppLayout'
@@ -44,6 +46,12 @@ export default function RecipesIndex({
   )
   const pending = pending_imports.length > 0
   const [layout, setLayout] = useGalleryLayout()
+  const { app, preferences } = usePage().props
+  const arrival = useArrivals(
+    pending_imports.map((item) => item.id),
+    recipes.map((recipe) => recipe.id),
+    pending,
+  )
 
   useEffect(() => {
     if (pending) start()
@@ -67,6 +75,8 @@ export default function RecipesIndex({
           </div>
         )}
       </div>
+
+      <PasteBox claudeConfigured={app.claude_configured} automaticAi={preferences.ai_mode === 'automatic'} />
 
       {total_count > 0 && (
         <label className="mb-5 inline-flex items-center gap-3 text-sm text-graphite">
@@ -108,14 +118,17 @@ export default function RecipesIndex({
           )}
 
           <section aria-label="Recipes" className={`mt-8 grid ${GRIDS[layout]}`}>
-            {page === 1 && pending_imports.map((item) => <PendingTile key={item.id} item={item} layout={layout} />)}
-            {recipes.map((recipe) =>
-              layout === 'grid' ? (
-                <RecipeTile key={recipe.id} recipe={recipe} />
-              ) : (
-                <RecipeRow key={recipe.id} recipe={recipe} />
-              ),
-            )}
+            {page === 1 &&
+              pending_imports.map((item) => (
+                <Arrive key={`import-${item.id}`} delay={arrival.importDelay(item.id)}>
+                  <PendingTile item={item} layout={layout} />
+                </Arrive>
+              ))}
+            {recipes.map((recipe) => (
+              <Arrive key={recipe.id} delay={arrival.recipeDelay(recipe.id)} settle>
+                {layout === 'grid' ? <RecipeTile recipe={recipe} /> : <RecipeRow recipe={recipe} />}
+              </Arrive>
+            ))}
           </section>
 
           {recipes.length === 0 && filtered && (
@@ -140,8 +153,57 @@ export default function RecipesIndex({
 
 RecipesIndex.layout = AppLayout
 
+// A batch reads as a group, but even twenty links finish arriving quickly.
+const STAGGER = 0.04
+const MAX_STAGGER = 0.2
+
+/**
+ * Which tiles are new since the page opened, and when each should arrive. Imports queued after the page opened
+ * arrive with a short stagger; a recipe arrives only when it appears while imports were pending, so filtering and
+ * paging don't animate. Motion uses `initial` once, at mount, so polling never replays an entrance.
+ */
+function useArrivals(importIds: number[], recipeIds: number[], pending: boolean) {
+  const [knownImports] = useState(() => new Set(importIds))
+  const [knownRecipes] = useState(() => new Set(recipeIds))
+  const wasPending = useRef(pending)
+
+  useEffect(() => {
+    importIds.forEach((id) => knownImports.add(id))
+    recipeIds.forEach((id) => knownRecipes.add(id))
+    wasPending.current = pending
+  })
+
+  const freshImports = importIds.filter((id) => !knownImports.has(id))
+  // The poll that brings the last recipe also empties the queue, so a recipe is fresh if imports were running in
+  // the previous render. A usePrevious read: written only after commit, and nothing re-renders from it.
+  // oxlint-disable-next-line react/refs -- comparing with the last committed render, not rendering from the ref
+  const watching = pending || wasPending.current
+  const freshRecipes = watching ? recipeIds.filter((id) => !knownRecipes.has(id)) : []
+  return {
+    importDelay: (id: number) => arrivalDelay(freshImports, id),
+    recipeDelay: (id: number) => arrivalDelay(freshRecipes, id),
+  }
+}
+
+function arrivalDelay(fresh: number[], id: number) {
+  const index = fresh.indexOf(id)
+  return index === -1 ? null : Math.min(index * STAGGER, MAX_STAGGER)
+}
+
+function Arrive({ delay, settle = false, children }: { delay: number | null; settle?: boolean; children: ReactNode }) {
+  return (
+    <motion.div
+      initial={delay === null ? false : settle ? { opacity: 0, scale: 0.98 } : { opacity: 0, y: 8, scale: 0.99 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: settle ? 0.3 : 0.38, delay: delay ?? 0, ease: [0.2, 0.8, 0.2, 1] }}
+      className="min-w-0"
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 const FIRST_STEPS: { href: string; icon: IconName; title: string; hint: string }[] = [
-  { href: '/imports', icon: 'link', title: 'Import a link', hint: 'From a recipe site' },
   { href: '/imports?mode=manual', icon: 'edit', title: 'Write a recipe', hint: 'A family favourite' },
   { href: '/share', icon: 'share', title: 'Share from your phone', hint: 'Save as you browse' },
 ]

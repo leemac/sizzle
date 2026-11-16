@@ -1,4 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react'
+import { MotionConfig } from 'motion/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import FailedImportsLink from '@/components/FailedImportsLink'
 import ReleaseNotesLink from '@/components/ReleaseNotesLink'
@@ -40,7 +41,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <SizzleLogo />
           </Link>
           {/* Appearance and sharing from your phone live in Settings, so the header keeps
-              one main action and a few quiet ones. */}
+              one main action and a few quiet ones. On the cookbook, that action is its paste box. */}
           <nav className="flex items-center gap-1">
             <SosButton filters={inGallery ? (props.filters as RecipeFilters) : {}} inGallery={inGallery} />
             <FailedImportsLink count={props.failed_import_count} />
@@ -55,13 +56,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Icon name="settings" className="size-5" />
             </Link>
             {/* Phones only have room for the icon, like the SOS button. */}
-            <Link
-              href="/imports"
-              className="ml-1 inline-flex shrink-0 items-center sm:ml-2 gap-1.5 rounded-full bg-action p-2 text-sm font-semibold text-on-action hover:brightness-95 sm:px-4"
-            >
-              <Icon name="plus" className="size-5 sm:size-4" />
-              <span className="sr-only sm:not-sr-only">Add recipe</span>
-            </Link>
+            {!inGallery && (
+              <Link
+                href="/imports"
+                className="ml-1 inline-flex shrink-0 items-center sm:ml-2 gap-1.5 rounded-full bg-action p-2 text-sm font-semibold text-on-action hover:brightness-95 sm:px-4"
+              >
+                <Icon name="plus" className="size-5 sm:size-4" />
+                <span className="sr-only sm:not-sr-only">Add recipe</span>
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -79,7 +82,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 sm:pt-10">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 sm:pt-10">
+        {/* Motion follows prefers-reduced-motion: movement goes, fades stay, and every state still shows. */}
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      </main>
       <footer className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 pb-6 text-xs text-graphite sm:px-6">
         <Link href="/releases" aria-label="Sizzle release notes" className="footer-link">
           Sizzle {props.app.version === 'dev' ? 'dev' : `v${props.app.version}`}
