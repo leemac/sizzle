@@ -102,7 +102,7 @@ Ruby is pinned in `.ruby-version` and the Dockerfile's Ruby `FROM` tag. Bundler 
 same `.ruby-version`; CI's Ruby jobs do too. `test/lib/runtime_versions_test.rb` rejects
 version drift and checks that the Ruby and Node build stages use the same Debian release.
 
-The current baseline is Ruby 3.4.12 on Debian Trixie slim. Ruby 3.4 receives normal maintenance;
+The current baseline is Ruby 3.4.13 on Debian Trixie slim. Ruby 3.4 receives normal maintenance;
 Ruby 3.3 is security-only ([upstream status](https://www.ruby-lang.org/en/downloads/branches/)).
 Ruby 4 is a separate compatibility decision. Node is build-only; its major version is in
 `.node-version` and must match the Docker build image.
