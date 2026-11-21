@@ -27,8 +27,9 @@ function render(
     filled: 3,
     kept: 1,
   })),
+  { pdf = true } = {},
 ) {
-  act(() => root.render(<ScreenshotFill onFields={onFields} />))
+  act(() => root.render(<ScreenshotFill onFields={onFields} pdf={pdf} />))
   return onFields
 }
 
@@ -109,6 +110,18 @@ it('sends a pasted PDF on its own', async () => {
 
   expect((fetch.mock.calls[0][1].body as FormData).getAll('screenshots[]')).toHaveLength(1)
   expect(onFields).toHaveBeenCalledWith({ title: 'Coconut rice' })
+})
+
+it('leaves a pasted PDF alone and doesn’t offer PDFs when the server has them off', () => {
+  const fetch = respond(200, {})
+  render(undefined, { pdf: false })
+
+  const event = paste([new File(['%PDF-1.7'], 'recipe.pdf', { type: 'application/pdf' })])
+
+  expect(event.defaultPrevented).toBe(false)
+  expect(fetch).not.toHaveBeenCalled()
+  expect(container.textContent).not.toContain('PDF')
+  expect(container.querySelector('input[type="file"]')?.getAttribute('accept')).not.toContain('application/pdf')
 })
 
 it('won’t send a PDF together with other files', () => {

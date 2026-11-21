@@ -18,13 +18,15 @@ type Status =
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
 /**
- * Sends pasted, dropped or chosen screenshots, or a PDF, to Claude and hands the fields it read to the form. Nothing is saved
- * until the form is submitted.
+ * Sends pasted, dropped or chosen screenshots, or a PDF when `pdf` is on (SIZZLE_PDF_UPLOADS), to Claude and hands the
+ * fields it read to the form. Nothing is saved until the form is submitted.
  */
 export default function ScreenshotFill({
   onFields,
+  pdf = false,
 }: {
   onFields: (fields: Partial<ScreenshotFields>) => { filled: number; kept: number }
+  pdf?: boolean
 }) {
   const [status, setStatus] = useState<Status>({ state: 'idle' })
   const [dragging, setDragging] = useState(false)
@@ -39,15 +41,15 @@ export default function ScreenshotFill({
 
   const read = async (files: File[]) => {
     if (readingRef.current) return
-    const problem = screenshotFilesError(files)
+    const problem = screenshotFilesError(files, pdf)
     if (problem) {
       setStatus({ state: 'error', message: problem })
       return
     }
 
-    const pdf = files[0].type === PDF_TYPE
+    const isPdf = files[0].type === PDF_TYPE
     readingRef.current = true
-    setStatus({ state: 'reading', count: files.length, pdf })
+    setStatus({ state: 'reading', count: files.length, pdf: isPdf })
     const body = new FormData()
     files.forEach((file) => body.append('screenshots[]', file))
     try {
@@ -64,7 +66,7 @@ export default function ScreenshotFill({
       if (!response.ok || typeof data.fields !== 'object' || data.fields === null) {
         setStatus({
           state: 'error',
-          message: data.error ?? `Couldn’t read that ${pdf ? 'PDF' : 'screenshot'}. Try again.`,
+          message: data.error ?? `Couldn’t read that ${isPdf ? 'PDF' : 'screenshot'}. Try again.`,
         })
       } else {
         setStatus({ state: 'filled', ...onFieldsRef.current(data.fields) })
@@ -76,16 +78,18 @@ export default function ScreenshotFill({
     }
   }
   const readRef = useRef(read)
+  const pdfRef = useRef(pdf)
   useEffect(() => {
     readRef.current = read
+    pdfRef.current = pdf
   })
 
-  // Pasting or dropping an image or PDF anywhere on the page fills the form; pasting text still goes into the
+  // Pasting or dropping an image (or PDF) anywhere on the page fills the form; pasting text still goes into the
   // field, and a dropped file doesn't open in place of the page.
   useEffect(() => {
     const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false
     const paste = (event: ClipboardEvent) => {
-      const files = screenshotFiles(event.clipboardData?.files)
+      const files = screenshotFiles(event.clipboardData?.files, pdfRef.current)
       if (files.length === 0) return
       event.preventDefault()
       readRef.current(files)
@@ -102,7 +106,7 @@ export default function ScreenshotFill({
       if (!hasFiles(event)) return
       event.preventDefault()
       setDragging(false)
-      readRef.current(screenshotFiles(event.dataTransfer?.files))
+      readRef.current(screenshotFiles(event.dataTransfer?.files, pdfRef.current))
     }
     document.addEventListener('paste', paste)
     document.addEventListener('dragover', dragOver)
@@ -125,10 +129,12 @@ export default function ScreenshotFill({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="min-w-0 flex-1 basis-56">
           <h2 id="screenshot-heading" className="font-medium">
-            Fill from a screenshot or PDF
+            Fill from a screenshot{pdf && ' or PDF'}
           </h2>
           <p id="screenshot-hint" className="mt-1 text-sm text-graphite">
-            Paste or drop a screenshot or PDF of the recipe, or choose up to {MAX_SCREENSHOTS} screenshots or one PDF.
+            {pdf
+              ? `Paste or drop a screenshot or PDF of the recipe, or choose up to ${MAX_SCREENSHOTS} screenshots or one PDF.`
+              : `Paste or drop a screenshot of the recipe, or choose up to ${MAX_SCREENSHOTS}.`}{' '}
             Claude reads it and fills in the empty fields.
           </p>
         </div>
@@ -140,17 +146,17 @@ export default function ScreenshotFill({
           className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ring-1 ring-hairline hover:ring-ink/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink disabled:opacity-50"
         >
           <Icon name="image" className="size-4" />
-          Choose screenshots or a PDF
+          {pdf ? 'Choose screenshots or a PDF' : 'Choose screenshots'}
         </button>
         <input
           ref={picker}
           type="file"
-          accept={[...SCREENSHOT_TYPES, PDF_TYPE].join(',')}
+          accept={(pdf ? [...SCREENSHOT_TYPES, PDF_TYPE] : SCREENSHOT_TYPES).join(',')}
           multiple
           hidden
           tabIndex={-1}
           onChange={(event) => {
-            read(screenshotFiles(event.target.files))
+            read(screenshotFiles(event.target.files, pdf))
             event.target.value = ''
           }}
         />

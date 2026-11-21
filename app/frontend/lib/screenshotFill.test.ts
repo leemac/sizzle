@@ -65,8 +65,8 @@ it('picks out only image files from a paste or drop', () => {
   const svg = new File(['<svg/>'], 'shot.svg', { type: 'image/svg+xml' })
   const text = new File(['hi'], 'notes.txt', { type: 'text/plain' })
 
-  expect(screenshotFiles([png, svg, text])).toEqual([png])
-  expect(screenshotFiles(null)).toEqual([])
+  expect(screenshotFiles([png, svg, text], true)).toEqual([png])
+  expect(screenshotFiles(null, true)).toEqual([])
 })
 
 it('accepts up to four screenshots or one PDF within the size limit', () => {
@@ -75,12 +75,20 @@ it('accepts up to four screenshots or one PDF within the size limit', () => {
   const hugePdf = new File(['%PDF-1.7'], 'cookbook.pdf', { type: 'application/pdf' })
   Object.defineProperty(hugePdf, 'size', { value: MAX_PDF_BYTES + 1 })
 
-  expect(screenshotFiles([png, pdf, new File(['hi'], 'notes.txt', { type: 'text/plain' })])).toEqual([png, pdf])
-  expect(screenshotFilesError([pdf])).toBeNull()
-  expect(screenshotFilesError([png, png, png, png])).toBeNull()
-  expect(screenshotFilesError([])).toContain('or a PDF')
-  expect(screenshotFilesError([pdf, pdf])).toContain('one PDF')
-  expect(screenshotFilesError([pdf, png])).toContain('one PDF')
-  expect(screenshotFilesError([hugePdf])).toContain('10 MB')
-  expect(screenshotFilesError([png, png, png, png, png])).toContain('up to 4')
+  expect(screenshotFiles([png, pdf, new File(['hi'], 'notes.txt', { type: 'text/plain' })], true)).toEqual([png, pdf])
+  expect(screenshotFilesError([pdf], true)).toBeNull()
+  expect(screenshotFilesError([png, png, png, png], true)).toBeNull()
+  expect(screenshotFilesError([], true)).toContain('or a PDF')
+  expect(screenshotFilesError([pdf, pdf], true)).toContain('one PDF')
+  expect(screenshotFilesError([pdf, png], true)).toContain('one PDF')
+  expect(screenshotFilesError([hugePdf], true)).toContain('10 MB')
+  expect(screenshotFilesError([png, png, png, png, png], true)).toContain('up to 4')
+})
+
+it('drops PDFs and doesn’t mention them when the server has PDF uploads off', () => {
+  const png = new File(['png'], 'shot.png', { type: 'image/png' })
+  const pdf = new File(['%PDF-1.7'], 'recipe.pdf', { type: 'application/pdf' })
+
+  expect(screenshotFiles([png, pdf], false)).toEqual([png])
+  expect(screenshotFilesError([], false)).not.toContain('PDF')
 })

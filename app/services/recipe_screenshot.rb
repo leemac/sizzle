@@ -1,9 +1,10 @@
 # Reads a recipe from screenshots or a PDF to fill in the Write a recipe form.
 # Nothing is saved: Claude's answer goes through RecipeDraft and comes back as
 # the form's plain fields for the user to check before saving. Uploads are
-# untrusted. Only image types Claude accepts, or a PDF, identified by magic
-# bytes rather than the browser's content type, within the size limits are sent
-# on. They're never decoded, parsed, resized or stored here.
+# untrusted. Only image types Claude accepts, or a PDF when allow_pdf is set
+# (SIZZLE_PDF_UPLOADS), identified by magic bytes rather than the browser's
+# content type, within the size limits are sent on. They're never decoded,
+# parsed, resized or stored here.
 class RecipeScreenshot
   class Invalid < StandardError; end
 
@@ -19,7 +20,8 @@ class RecipeScreenshot
   # Either up to MAX_FILES images, or one PDF's bytes.
   attr_reader :images, :pdf
 
-  def initialize(uploads, extractor: nil)
+  def initialize(uploads, extractor: nil, allow_pdf: false)
+    @allow_pdf = allow_pdf
     files = read(uploads)
     @pdf = files.find { |file| file.media_type == PDF_TYPE }&.bytes
     @images = @pdf ? [] : files
@@ -65,7 +67,7 @@ class RecipeScreenshot
 
   def read(uploads)
     uploads = Array(uploads)
-    raise Invalid, "Add a screenshot or PDF of the recipe." if uploads.empty?
+    raise Invalid, "Add a #{accepted} of the recipe." if uploads.empty?
     raise Invalid, "Add up to #{MAX_FILES} screenshots at a time." if uploads.size > MAX_FILES
 
     files = uploads.map { |upload| read_file(upload) }
@@ -77,19 +79,24 @@ class RecipeScreenshot
   end
 
   def read_file(upload)
-    raise Invalid, "Add a screenshot or PDF of the recipe." unless upload.is_a?(ActionDispatch::Http::UploadedFile)
+    raise Invalid, "Add a #{accepted} of the recipe." unless upload.is_a?(ActionDispatch::Http::UploadedFile)
 
     bytes = upload.read(MAX_PDF_BYTES + 1).to_s.b
     if bytes.start_with?(PDF_MAGIC)
+      raise Invalid, "Reading PDFs is turned off on this server. Add screenshots of the recipe instead." unless @allow_pdf
       raise Invalid, "The PDF must be #{MAX_PDF_BYTES / 1.megabyte} MB or smaller." if bytes.bytesize > MAX_PDF_BYTES
 
       return Image.new(media_type: PDF_TYPE, bytes:)
     end
 
     format = MEDIA_TYPES.keys.find { |name| RecipeImages::MAGIC_BYTES.fetch(name).call(bytes) }
-    raise Invalid, "Add PNG, JPEG, WebP or GIF screenshots, or a PDF." unless format
+    raise Invalid, "Add PNG, JPEG, WebP or GIF screenshots#{", or a PDF" if @allow_pdf}." unless format
     raise Invalid, "Each screenshot must be #{MAX_BYTES / 1.megabyte} MB or smaller." if bytes.bytesize > MAX_BYTES
 
     Image.new(media_type: MEDIA_TYPES.fetch(format), bytes:)
+  end
+
+  def accepted
+    @allow_pdf ? "screenshot or PDF" : "screenshot"
   end
 end

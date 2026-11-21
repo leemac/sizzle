@@ -11,8 +11,8 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
     ActionDispatch::Http::UploadedFile.new(tempfile: file, filename: "screenshot.png", type:)
   end
 
-  def invalid_message(uploads, extractor = FakeExtractor.new)
-    assert_raises(RecipeScreenshot::Invalid) { RecipeScreenshot.new(uploads, extractor:).fields }.message
+  def invalid_message(uploads, extractor = FakeExtractor.new, allow_pdf: true)
+    assert_raises(RecipeScreenshot::Invalid) { RecipeScreenshot.new(uploads, extractor:, allow_pdf:).fields }.message
   end
 
   test "sends the screenshots to Claude and returns the form's plain fields" do
@@ -104,7 +104,7 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
   test "sends a PDF to Claude as a document and returns the form's fields" do
     extractor = FakeExtractor.new
 
-    fields = RecipeScreenshot.new([ upload(PDF, type: "application/pdf") ], extractor:).fields
+    fields = RecipeScreenshot.new([ upload(PDF, type: "application/pdf") ], extractor:, allow_pdf: true).fields
 
     assert_equal [ PDF ], extractor.pdfs
     assert_empty extractor.screenshots
@@ -114,7 +114,7 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
   test "a PDF is recognised by its bytes, one at a time, within the size limit" do
     extractor = FakeExtractor.new
 
-    assert_equal PDF, RecipeScreenshot.new([ upload(PDF, type: "image/png") ]).pdf
+    assert_equal PDF, RecipeScreenshot.new([ upload(PDF, type: "image/png") ], allow_pdf: true).pdf
     assert_match "PNG, JPEG", invalid_message([ upload("<html>%PDF-", type: "application/pdf") ], extractor)
     assert_match "one PDF", invalid_message([ upload(PDF), upload(PDF) ], extractor)
     assert_match "one PDF", invalid_message([ upload(PDF), upload ], extractor)
@@ -123,9 +123,20 @@ class RecipeScreenshotTest < ActiveSupport::TestCase
     assert_empty extractor.screenshots
   end
 
+  test "PDFs are refused unless allowed, however the browser labels them" do
+    extractor = FakeExtractor.new
+
+    assert_match "turned off", invalid_message([ upload(PDF, type: "application/pdf") ], extractor, allow_pdf: false)
+    assert_match "turned off", invalid_message([ upload(PDF, type: "image/png") ], extractor, allow_pdf: false)
+    assert_no_match "PDF", invalid_message([ upload("<html>") ], extractor, allow_pdf: false)
+    assert_empty extractor.pdfs
+    assert_empty extractor.screenshots
+    assert_equal 1, RecipeScreenshot.new([ upload ], allow_pdf: false).images.size
+  end
+
   test "a PDF's answer is validated and its failures name the PDF" do
     hostile = FakeExtractor.new(FakeExtractor.recipe("title" => "x" * 500, "seasons" => [ "monsoon" ]))
-    fields = RecipeScreenshot.new([ upload(PDF) ], extractor: hostile).fields
+    fields = RecipeScreenshot.new([ upload(PDF) ], extractor: hostile, allow_pdf: true).fields
     assert_equal 300, fields[:title].length
     assert_empty fields[:seasons]
 

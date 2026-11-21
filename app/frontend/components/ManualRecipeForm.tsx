@@ -40,6 +40,7 @@ export default function ManualRecipeForm({
       </p>
       {app.claude_configured && (
         <ScreenshotFill
+          pdf={app.pdf_uploads}
           onFields={(found) => {
             const { data, filled, kept } = mergeScreenshotFields(form.data, found)
             form.setData(data)

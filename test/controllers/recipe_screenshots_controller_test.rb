@@ -8,7 +8,9 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @original_key = ENV["ANTHROPIC_API_KEY"]
+    @original_pdf_setting = ENV["SIZZLE_PDF_UPLOADS"]
     ENV["ANTHROPIC_API_KEY"] = "test-key"
+    ENV["SIZZLE_PDF_UPLOADS"] = "true"
     @requests = []
     @answer = FakeExtractor.recipe
     stub_request(:post, "https://api.anthropic.com/v1/messages").to_return do |request|
@@ -26,6 +28,7 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     @original_key ? ENV["ANTHROPIC_API_KEY"] = @original_key : ENV.delete("ANTHROPIC_API_KEY")
+    @original_pdf_setting ? ENV["SIZZLE_PDF_UPLOADS"] = @original_pdf_setting : ENV.delete("SIZZLE_PDF_UPLOADS")
   end
 
   def screenshot(bytes = PNG)
@@ -69,6 +72,29 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
                  content.first["source"])
     assert_equal "document", content.first["type"]
     assert_equal "text", content.last["type"]
+  end
+
+  test "PDFs are refused before calling Claude unless SIZZLE_PDF_UPLOADS is set" do
+    ENV.delete("SIZZLE_PDF_UPLOADS")
+    upload = Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.7\nrecipe".b), "application/pdf", true, original_filename: "recipe.pdf")
+
+    post recipe_screenshots_url, params: { screenshots: [ upload ] }
+
+    assert_response :unprocessable_content
+    assert_match "turned off", response.parsed_body["error"]
+    assert_empty @requests
+
+    post recipe_screenshots_url, params: { screenshots: [ screenshot ] }
+    assert_response :success
+  end
+
+  test "the form is told whether PDFs are on" do
+    get imports_url
+    assert inertia.props[:app][:pdf_uploads]
+
+    ENV.delete("SIZZLE_PDF_UPLOADS")
+    get imports_url
+    assert_equal false, inertia.props[:app][:pdf_uploads]
   end
 
   test "a PDF Claude can't open comes back as a message for the form" do

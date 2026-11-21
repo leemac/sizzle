@@ -1,5 +1,5 @@
-# Fills in the Write a recipe form from screenshots or a PDF, for recipes Sizzle
-# can't fetch. Answers JSON for the form to merge; the user saves the recipe as usual.
+# Fills in the Write a recipe form from screenshots, or a PDF when
+# SIZZLE_PDF_UPLOADS is on, for recipes Sizzle can't fetch. Answers JSON for the form to merge; the user saves the recipe as usual.
 class RecipeScreenshotsController < ApplicationController
   # The screenshots plus room for the form encoding around them. One PDF fits inside the same cap.
   MAX_BODY_BYTES = (RecipeScreenshot::MAX_FILES * RecipeScreenshot::MAX_BYTES) + 64.kilobytes
@@ -16,7 +16,7 @@ class RecipeScreenshotsController < ApplicationController
                     status: :unprocessable_content
     end
 
-    screenshot = RecipeScreenshot.new(params[:screenshots])
+    screenshot = RecipeScreenshot.new(params[:screenshots], allow_pdf: Sizzle.pdf_uploads?)
     unless ImportBudget.charge(1, store: cache_store)
       return render json: { error: "Too many imports right now. Wait a minute and try again." }, status: :too_many_requests
     end

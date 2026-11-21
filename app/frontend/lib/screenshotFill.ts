@@ -38,15 +38,17 @@ export function mergeScreenshotFields(
   return { data, filled, kept }
 }
 
-/** The image and PDF files in a paste or drop, or none when it's text. */
-export function screenshotFiles(files: FileList | File[] | null | undefined): File[] {
-  return Array.from(files ?? []).filter((file) => SCREENSHOT_TYPES.includes(file.type) || file.type === PDF_TYPE)
+/** The image files in a paste or drop, plus PDFs when the server reads them (SIZZLE_PDF_UPLOADS), or none when it's text. */
+export function screenshotFiles(files: FileList | File[] | null | undefined, pdf: boolean): File[] {
+  return Array.from(files ?? []).filter(
+    (file) => SCREENSHOT_TYPES.includes(file.type) || (pdf && file.type === PDF_TYPE),
+  )
 }
 
 /** Why these files can't be sent together, or null when they can: up to four screenshots, or one PDF. */
-export function screenshotFilesError(files: File[]): string | null {
+export function screenshotFilesError(files: File[], pdf: boolean): string | null {
   const pdfs = files.filter((file) => file.type === PDF_TYPE)
-  if (files.length === 0) return 'Add a PNG, JPEG, WebP or GIF screenshot, or a PDF.'
+  if (files.length === 0) return `Add a PNG, JPEG, WebP or GIF screenshot${pdf ? ', or a PDF' : ''}.`
   if (pdfs.length > 0 && files.length > 1) return 'Add one PDF at a time, without screenshots.'
   if (pdfs.some((file) => file.size > MAX_PDF_BYTES)) return 'The PDF must be 10 MB or smaller.'
   if (files.length > MAX_SCREENSHOTS) return `Add up to ${MAX_SCREENSHOTS} screenshots at a time.`
