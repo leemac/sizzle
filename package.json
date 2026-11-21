@@ -3,16 +3,16 @@
   "type": "module",
   "devDependencies": {
     "@inertiajs/core": "^3.9.1",
-    "@playwright/test": "^1.64.1",
+    "@playwright/test": "^1.65.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "jsdom": "^31.0.0",
-    "oxlint": "^1.91.0",
-    "prettier": "^3.9.10",
+    "jsdom": "^31.0.1",
+    "oxlint": "^1.94.0",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5",
+    "vite": "^8.3.8",
     "vite-plugin-ruby": "^5.2.6",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "scripts": {
     "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
@@ -27,8 +27,8 @@
     "@inertiajs/react": "^3.11.0",
     "@inertiajs/vite": "^3.11.0",
     "@tailwindcss/forms": "^0.5.11",
-    "@tailwindcss/vite": "^4.3.4",
-    "@vitejs/plugin-react": "^6.2.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@vitejs/plugin-react": "^6.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.3"
