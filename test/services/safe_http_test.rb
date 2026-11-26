@@ -173,4 +173,30 @@ class SafeHttpTest < ActiveSupport::TestCase
   ensure
     saved.each { |key, value| ENV[key] = value }
   end
+
+  test "posts a multipart form with the same address checks, and never follows a redirect" do
+    stub_request(:post, "http://renderer.internal:3000/convert").to_return(body: "%PDF-1.7", headers: { "Content-Type" => "application/pdf" })
+    form = [ [ "files", "<h1>Hi</h1>", "index.html" ], %w[printBackground true] ]
+
+    assert_raises(SafeHttp::BlockedUrl) do
+      SafeHttp.new(resolver: FakeResolver.new("renderer.internal" => "172.18.0.2")).post_form("http://renderer.internal:3000/convert", form, max_bytes: 100)
+    end
+
+    http = SafeHttp.new(resolver: FakeResolver.new("renderer.internal" => "172.18.0.2"), allow_private: true)
+    assert_equal "%PDF-1.7", http.post_form("http://renderer.internal:3000/convert", form, max_bytes: 100).body
+    assert_requested(:post, "http://renderer.internal:3000/convert") do |request|
+      request.headers["Content-Type"].start_with?("multipart/form-data") &&
+        request.body.include?(%(name="files"; filename="index.html"\r\nContent-Type: application/octet-stream\r\n\r\n<h1>Hi</h1>\r\n)) &&
+        request.body.include?(%(name="printBackground"\r\n\r\ntrue\r\n))
+    end
+
+    stub_request(:post, "http://renderer.internal:3000/convert").to_return(status: 302, headers: { "Location" => "https://example.com/" })
+    assert_raises(SafeHttp::BadResponse) { http.post_form("http://renderer.internal:3000/convert", form, max_bytes: 100) }
+    assert_not_requested :get, "https://example.com/"
+
+    assert_raises(ArgumentError) { http.post_form("http://renderer.internal:3000/convert", [ [ "files", "x", "a\"; name=\"b" ] ], max_bytes: 100) }
+
+    stub_request(:post, "http://renderer.internal:3000/convert").to_return(body: "x" * 101)
+    assert_raises(SafeHttp::TooLarge) { http.post_form("http://renderer.internal:3000/convert", form, max_bytes: 100) }
+  end
 end

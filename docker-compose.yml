@@ -24,6 +24,44 @@ services:
     tmpfs:
       - /rails/tmp:uid=1000,gid=1000,mode=0755
       - /tmp:mode=1777
+    networks:
+      - default
+      - pdf-renderer
+
+  # Optional: saves a PDF of each imported recipe's web page (see SECURITY.md). To turn it on, set
+  # SIZZLE_PAGE_PDFS=true in .env and start it with: docker compose --profile page-pdfs up -d
+  # Sizzle sends it each page with everything the page needs; it never fetches anything itself.
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:8.40.0-chromium@sha256:a03fb9f9a7db6e1ff9b798137f3d9f60601ded73fe626b10fa72c920360b0efd
+    profiles: ["page-pdfs"]
+    restart: unless-stopped
+    command:
+      - gotenberg
+      - --chromium-disable-javascript
+      # Chromium may read only the page Sizzle sent, never the network or other files.
+      - --chromium-allow-list=^file:///tmp/
+      - --chromium-deny-private-ips
+      - --chromium-deny-public-ips
+      - --chromium-host-resolver-rules=MAP * ~NOTFOUND
+      - --chromium-max-concurrency=1
+      # Gotenberg features that fetch or call out are off.
+      - --api-disable-download-from
+      - --webhook-disable
+      - --pdfengines-disable-routes
+      - --api-body-limit=64MB
+      - --api-timeout=90s
+    networks:
+      - pdf-renderer
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777
 
 volumes:
   sizzle-storage:
+
+networks:
+  # Only Sizzle and Gotenberg are on it, and it has no route to the internet.
+  pdf-renderer:
+    internal: true

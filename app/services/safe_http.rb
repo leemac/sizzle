@@ -62,12 +62,7 @@ class SafeHttp
   # Fetches `url` and returns a Response. `max_bytes` caps the decompressed
   # body; `accept` filters on the response's media type prefix (e.g. "image/").
   def get(url, max_bytes: 5.megabytes, accept: nil, headers: {}, deadline: nil)
-    # Timeout uses CLOCK_MONOTONIC and covers DNS, headers, body reads and all
-    # redirects in one budget, including a peer that never stops trickling bytes.
-    timeout = deadline ? [ @total_timeout, deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC) ].min : @total_timeout
-    raise DeadlineExceeded, "download deadline exceeded" unless timeout.positive?
-
-    Timeout.timeout(timeout, DeadlineExceeded, "download deadline exceeded") do
+    within_deadline(deadline) do
       uri = validate_uri!(url)
 
       (MAX_REDIRECTS + 1).times do
@@ -89,6 +84,24 @@ class SafeHttp
     end
   end
 
+  # Posts a multipart form and returns a Response, with the same address checks, pinning and caps as
+  # #get. Redirects are refused. `parts` are [name, value] or [name, bytes, filename]; names and filenames
+  # come from Sizzle, never from a page. Used to send pages to the PDF renderer (PagePdf), which lives on
+  # a private address, so that caller passes allow_private.
+  def post_form(url, parts, max_bytes:, deadline: nil)
+    within_deadline(deadline) do
+      uri = validate_uri!(url)
+      boundary = "sizzle-#{SecureRandom.hex(16)}"
+      req = Net::HTTP::Post.new(uri.request_uri)
+      req["Content-Type"] = "multipart/form-data; boundary=#{boundary}"
+      req.body = multipart_body(parts, boundary)
+      response = request(uri, max_bytes:, headers: {}, req:)
+      raise BadResponse, "unexpected redirect" if response.is_a?(URI)
+
+      response
+    end
+  end
+
   # Raises BlockedUrl unless `url` is something we're willing to fetch.
   def validate_uri!(url)
     uri = URI.parse(url.to_s.strip)
@@ -103,10 +116,29 @@ class SafeHttp
 
   private
 
-  def request(uri, max_bytes:, headers:)
+  def multipart_body(parts, boundary)
+    body = parts.map do |name, value, filename|
+      raise ArgumentError, "unsafe form field name" unless [ name, filename ].compact.all? { |part| part.match?(/\A[\w.-]+\z/) }
+
+      disposition = %(form-data; name="#{name}"#{%(; filename="#{filename}") if filename})
+      type = filename ? "Content-Type: application/octet-stream\r\n" : ""
+      "--#{boundary}\r\nContent-Disposition: #{disposition}\r\n#{type}\r\n".b + value.to_s.b + "\r\n".b
+    end
+    body.join.b + "--#{boundary}--\r\n".b
+  end
+
+  # Timeout uses CLOCK_MONOTONIC and covers DNS, headers, body reads and all
+  # redirects in one budget, including a peer that never stops trickling bytes.
+  def within_deadline(deadline, &)
+    timeout = deadline ? [ @total_timeout, deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC) ].min : @total_timeout
+    raise DeadlineExceeded, "download deadline exceeded" unless timeout.positive?
+
+    Timeout.timeout(timeout, DeadlineExceeded, "download deadline exceeded", &)
+  end
+
+  def request(uri, max_bytes:, headers:, req: Net::HTTP::Get.new(uri.request_uri))
     http = build_http(uri, resolve!(uri.hostname))
 
-    req = Net::HTTP::Get.new(uri.request_uri)
     req["User-Agent"] = Sizzle.env("SIZZLE_USER_AGENT", DEFAULT_USER_AGENT)
     req["Accept-Language"] = "en-US,en;q=0.9"
     headers.each { |key, value| req[key] = value }

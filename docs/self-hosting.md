@@ -117,6 +117,21 @@ docker compose up -d --force-recreate --wait
 
 `docker compose restart` restarts the process with its previous environment; it does not reload `.env`.
 
+### Save a PDF of each recipe page (optional)
+
+Sizzle can keep a PDF of every imported recipe's web page, linked under the source on the recipe,
+so you still have the original if the site changes or disappears. The PDFs are printed by
+[Gotenberg](https://gotenberg.dev), a separate container that has no internet access. Set
+`SIZZLE_PAGE_PDFS=true` in `.env`, then start both containers:
+
+```sh
+docker compose --profile page-pdfs up -d --force-recreate --wait
+```
+
+Use `--profile page-pdfs` with `pull` and `up` when you upgrade, too. Recipes imported while it
+was off get a PDF the next time you share them. The Gotenberg image is about 1.7 GB. See
+[SECURITY.md](../SECURITY.md#optional-page-pdfs) for how it is isolated.
+
 ### Troubleshooting
 
 - **Cannot connect to the Docker daemon:** start Docker Desktop or your server's Docker service,

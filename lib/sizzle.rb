@@ -68,21 +68,16 @@ module Sizzle
 
   # --- Page PDFs -----------------------------------------------------------
 
-  # Save a PDF of each imported recipe's web page, printed by headless Chromium.
+  # Save a PDF of each imported recipe's web page, printed by the Gotenberg service.
   # Off by default: it runs a browser on pages from the open web (see SECURITY.md).
   def page_pdfs?
     env_bool("SIZZLE_PAGE_PDFS")
   end
 
-  # Path to the Chromium binary. Blank finds chromium or google-chrome on PATH.
-  def chromium_path
-    env("SIZZLE_CHROMIUM_PATH")
-  end
-
-  # Chromium's own sandbox. The Docker image turns it off because Docker's default
-  # seccomp profile blocks the namespaces it needs; the container is the boundary.
-  def chromium_sandbox?
-    env_bool("SIZZLE_CHROMIUM_SANDBOX", default: true)
+  # Where Sizzle reaches Gotenberg. docker-compose.yml runs it at this address on a
+  # private network that has no route to the internet.
+  def gotenberg_url
+    env("SIZZLE_GOTENBERG_URL", "http://gotenberg:3000")
   end
 
   # --- Cookbook import ------------------------------------------------------
