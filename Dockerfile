@@ -75,6 +75,14 @@ RUN echo "$SIZZLE_VERSION" > VERSION
 # Final stage for app image
 FROM base
 
+# Chromium prints source pages to PDF when SIZZLE_PAGE_PDFS is on (see SECURITY.md). Docker's default
+# seccomp profile blocks the namespaces Chromium's own sandbox needs, so the container is the boundary.
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y chromium fonts-liberation && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+ENV SIZZLE_CHROMIUM_PATH="/usr/bin/chromium" \
+    SIZZLE_CHROMIUM_SANDBOX="false"
+
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash

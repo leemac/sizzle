@@ -124,3 +124,12 @@ export function sourceLabel(name: string | null, host: string | null): string | 
   if (!name || name.toLowerCase() === host.toLowerCase()) return host
   return `${name} (${host})`
 }
+
+/** "840 KB", "1.2 MB" — a file's size, rounded the way people read it. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1000) return `${bytes} B`
+  const kilobytes = Math.round(bytes / 1000)
+  if (kilobytes < 1000) return `${kilobytes} KB`
+  const megabytes = bytes / 1_000_000
+  return `${megabytes < 10 ? megabytes.toFixed(1).replace(/\.0$/, '') : Math.round(megabytes)} MB`
+}

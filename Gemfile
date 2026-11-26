@@ -63,3 +63,5 @@ gem "vite_rails", "~> 3.11"
 group :test do
   gem "webmock"
 end
+# Drives headless Chromium to print source pages to PDF (opt-in, see PagePdf).
+gem "ferrum", "~> 0.21", require: false

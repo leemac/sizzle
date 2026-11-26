@@ -9,6 +9,7 @@ import AppLayout from '@/layouts/AppLayout'
 import {
   formatAmount,
   formatDay,
+  formatFileSize,
   formatMinutes,
   formatTimestamp,
   groupBySection,
@@ -16,7 +17,7 @@ import {
   sourceLabel,
   timeAgo,
 } from '@/lib/format'
-import type { RecipeDetail } from '@/types'
+import type { PagePdf, RecipeDetail } from '@/types'
 import { scaleIngredient } from '@/lib/scaleIngredient'
 import { groupByType } from '@/lib/ingredientIcons'
 import { useIngredientOrder } from '@/lib/ingredientOrder'
@@ -445,6 +446,30 @@ function MadeButton({ recipe }: { recipe: RecipeDetail }) {
   )
 }
 
+/** The saved PDF of the source page, so the recipe outlives the website. */
+function PagePdfLink({ pdf }: { pdf: PagePdf }) {
+  return (
+    <a
+      href={pdf.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mb-4 flex items-center gap-3 rounded-2xl bg-paper p-3 text-sm ring-1 ring-hairline transition-colors hover:ring-ink/30"
+    >
+      <span className="relative grid h-11 w-9 shrink-0 place-items-center text-graphite">
+        <Icon name="file" className="size-9" />
+        <span className="absolute bottom-1.5 rounded-sm bg-ink px-1 text-[9px] leading-snug font-bold text-paper">
+          PDF
+        </span>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 font-medium break-words">{pdf.title}</span>
+        <span className="block text-graphite">{formatFileSize(pdf.byte_size)}</span>
+      </span>
+      <Icon name="external" className="size-4 shrink-0 text-graphite" />
+    </a>
+  )
+}
+
 /** Where the recipe came from and its history, under the photo. */
 function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: string }) {
   const source = sourceLabel(recipe.source_metadata?.site_name || recipe.source_name, recipe.source_host)
@@ -495,6 +520,7 @@ function RecipeMeta({ recipe, className }: { recipe: RecipeDetail; className: st
           )}
         </div>
       )}
+      {recipe.page_pdf && <PagePdfLink pdf={recipe.page_pdf} />}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-paper p-4 text-sm ring-1 ring-hairline sm:grid-cols-4 lg:grid-cols-2">
         {stats.map(
           ([label, value, exact]) =>

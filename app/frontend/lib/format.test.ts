@@ -3,6 +3,7 @@ import {
   formatAmount,
   formatDate,
   formatDay,
+  formatFileSize,
   formatMinutes,
   formatQuantity,
   groupBySection,
@@ -134,5 +135,16 @@ describe('sourceLabel', () => {
   it('falls back to the name when there is no source link', () => {
     expect(sourceLabel("Grandma's cards", null)).toBe("Grandma's cards")
     expect(sourceLabel(null, null)).toBeNull()
+  })
+})
+
+describe('formatFileSize', () => {
+  it('rounds to the unit people read', () => {
+    expect(formatFileSize(512)).toBe('512 B')
+    expect(formatFileSize(84_321)).toBe('84 KB')
+    expect(formatFileSize(999_900)).toBe('1 MB')
+    expect(formatFileSize(1_240_000)).toBe('1.2 MB')
+    expect(formatFileSize(3_000_000)).toBe('3 MB')
+    expect(formatFileSize(14_600_000)).toBe('15 MB')
   })
 })

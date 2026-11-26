@@ -28,6 +28,14 @@ class CookbookExportTest < ActiveSupport::TestCase
     reject_with_limit(:MAX_METADATA_BYTES, 10)
   end
 
+  test "page PDFs don't count against the photo limits and aren't exported" do
+    recipe = Recipe.create!(title: "A recipe")
+    recipe.page_pdf.attach(io: StringIO.new("%PDF-1.4 #{'x' * 100}"), filename: "page.pdf", content_type: "application/pdf")
+    stub_const(CookbookExport, :MAX_PHOTOS, 0) do
+      stub_const(CookbookExport, :MAX_IMAGE_BYTES, 1) { assert_kind_of CookbookExport::Download, CookbookExport.new.build.tap(&:close) }
+    end
+  end
+
   test "serialized escaping and generated metadata have independent limits" do
     Recipe.create!(title: "A recipe", notes: "\n" * 100)
     # The raw row fits, but JSON escaping takes it over the per-record budget.

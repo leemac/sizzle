@@ -66,6 +66,25 @@ module Sizzle
     env_bool("SIZZLE_ALLOW_PRIVATE_NETWORK_FETCH")
   end
 
+  # --- Page PDFs -----------------------------------------------------------
+
+  # Save a PDF of each imported recipe's web page, printed by headless Chromium.
+  # Off by default: it runs a browser on pages from the open web (see SECURITY.md).
+  def page_pdfs?
+    env_bool("SIZZLE_PAGE_PDFS")
+  end
+
+  # Path to the Chromium binary. Blank finds chromium or google-chrome on PATH.
+  def chromium_path
+    env("SIZZLE_CHROMIUM_PATH")
+  end
+
+  # Chromium's own sandbox. The Docker image turns it off because Docker's default
+  # seccomp profile blocks the namespaces it needs; the container is the boundary.
+  def chromium_sandbox?
+    env_bool("SIZZLE_CHROMIUM_SANDBOX", default: true)
+  end
+
   # --- Cookbook import ------------------------------------------------------
 
   # Let people upload a Sizzle cookbook export to add its recipes here. Off by

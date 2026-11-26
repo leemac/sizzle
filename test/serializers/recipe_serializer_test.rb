@@ -49,4 +49,20 @@ class RecipeSerializerTest < ActiveSupport::TestCase
     assert_nil detail[:written_recipe_url]
     assert_empty detail[:youtube_chapters]
   end
+
+  test "links the saved page PDF with the source page's title and size" do
+    recipe = Recipe.create!(title: "Curry", source_url: "https://example.com/curry",
+                            source_metadata: { "title" => "Weeknight curry | Sam's Kitchen" })
+    assert_nil RecipeSerializer.detail(recipe)[:page_pdf]
+
+    recipe.page_pdf.attach(io: StringIO.new("%PDF-1.7 page"), filename: "Curry.pdf", content_type: "application/pdf")
+    pdf = RecipeSerializer.detail(recipe)[:page_pdf]
+
+    assert_equal "Weeknight curry | Sam's Kitchen", pdf[:title]
+    assert_equal 13, pdf[:byte_size]
+    assert_match %r{\A/rails/active_storage/blobs/proxy/.+/Curry\.pdf\z}, pdf[:url]
+
+    recipe.update!(source_metadata: {})
+    assert_equal "Curry", RecipeSerializer.detail(recipe)[:page_pdf][:title]
+  end
 end

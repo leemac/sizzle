@@ -33,12 +33,18 @@ class PageScraper
   HIDDEN_STYLE = /(?:\A|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden|(?:font-size|opacity)\s*:\s*(?:0+(?:\.0*)?|\.0+)(?:px|em|rem|pt|%)?)\s*(?:!important\s*)?(?:;|\z)/i
 
   def self.fetch(url, http: SafeHttp.new)
+    response = download(url, http:)
+    parse(response.body, base_url: response.url)
+  end
+
+  # The page's raw HTML response, through SafeHttp. Anything but a web page is refused.
+  def self.download(url, http: SafeHttp.new)
     response = http.get(url, max_bytes: MAX_HTML_BYTES)
     unless response.content_type.to_s.include?("html")
       raise SafeHttp::BadResponse, "expected a web page but got #{response.content_type.presence || 'unknown content'}"
     end
 
-    parse(response.body, base_url: response.url)
+    response
   end
 
   def self.parse(html, base_url:)

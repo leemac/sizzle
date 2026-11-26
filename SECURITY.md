@@ -53,6 +53,34 @@ as other imported content, links must be http(s), and photos are checked and re-
 downloaded images. The upload is deleted once the import finishes. A recipe that's already
 in the cookbook (same uid, source page, or title and ingredients) is skipped, never changed.
 
+### Optional page PDFs
+
+`SIZZLE_PAGE_PDFS=true` saves a PDF of each imported recipe's web page, printed by headless
+Chromium after the recipe is saved. It is off by default because it runs a browser on pages
+from the open web: a bug in Chromium's HTML, CSS, image or font handling could be reachable
+by anyone who can get you to import a link. Sizzle narrows that as far as it can:
+
+- JavaScript is off, so the page can't run code, open connections or change itself.
+- Chromium never fetches anything on its own. Every request is paused and answered by Sizzle:
+  the page from the HTML it already fetched, and stylesheets, images and fonts through
+  `SafeHttp`, with the same address checks as every other fetch, a 5 MB cap per file, 120
+  files and 40 MB per page, and a 60-second deadline. Frames, scripts, media, form posts and
+  any other navigation are refused.
+- Anything that could bypass that (preconnects, prefetches) is pointed at a dead proxy, and
+  the browser's own DNS resolves nothing.
+- Before printing, every link that doesn't resolve to http(s) (`javascript:`, `data:` and the
+  like) is removed, because Chromium copies links into the PDF and the PDF is served from
+  Sizzle's own origin.
+- Chromium's default flags are replaced: site isolation stays on and background services,
+  extensions, sync and crash reporting are off. Its profile lives in a temporary directory
+  that is deleted after each page, and only one page is printed at a time.
+
+In the Docker image Chromium's own sandbox is off (`SIZZLE_CHROMIUM_SANDBOX=false`), because
+Docker's default seccomp profile blocks the namespaces it needs. The container is the
+boundary: non-root user, read-only root filesystem and `no-new-privileges`. Outside Docker
+the sandbox stays on unless you turn it off. Saved PDFs are served by Sizzle like photos and
+are not included in cookbook exports.
+
 What Sizzle does defend against, because it processes content from the open web and email:
 
 | Risk | Defence |

@@ -17,6 +17,9 @@ class Recipe < ApplicationRecord
     attachable.variant :medium, resize_to_limit: [ 1200, 1200 ], format: :webp, saver: { quality: 80 }
   end
 
+  # A PDF of the source page as it was when imported (SIZZLE_PAGE_PDFS).
+  has_one_attached :page_pdf
+
   has_many :imports, dependent: :nullify
 
   scope :favorites, -> { where.not(favorited_at: nil) }

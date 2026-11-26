@@ -66,7 +66,7 @@ class ImportPipeline
       raise NotARecipe unless draft.recipe?
 
       @import.advance!("saving")
-      save_recipe(draft, source_url: page.canonical_url, source_name: page.site_name)
+      save_recipe(draft, source_url: page.canonical_url, source_name: page.site_name).tap { |recipe| save_page_pdf(recipe) }
     end
   end
 
@@ -108,7 +108,15 @@ class ImportPipeline
   # Sharing an archived recipe again brings it back to the gallery.
   def restore(recipe)
     @import.update!(source_metadata: recipe.source_metadata) if @import.source_metadata.blank?
-    recipe.tap(&:unarchive!)
+    recipe.unarchive!
+    save_page_pdf(recipe)
+    recipe
+  end
+
+  # Printed in the background, so the recipe is ready without waiting for a browser. Sharing a recipe again
+  # adds a PDF it doesn't have yet, such as one imported before SIZZLE_PAGE_PDFS was turned on.
+  def save_page_pdf(recipe)
+    PagePdfJob.perform_later(recipe) if PagePdfJob.wanted?(recipe)
   end
 
   def ai_extractor

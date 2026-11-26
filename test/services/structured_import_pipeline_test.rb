@@ -82,4 +82,29 @@ class StructuredImportPipelineTest < ActiveSupport::TestCase
     assert_includes import.error, "can't be fetched"
     assert_not_requested :get, "http://router.example/"
   end
+
+  test "queues a PDF of the source page only when SIZZLE_PAGE_PDFS is on" do
+    original = ENV["SIZZLE_PAGE_PDFS"]
+    ENV.delete("SIZZLE_PAGE_PDFS")
+    run_import(URL)
+    assert_no_enqueued_jobs(only: PagePdfJob)
+
+    ENV["SIZZLE_PAGE_PDFS"] = "true"
+    Recipe.destroy_all
+    recipe = run_import(URL).recipe
+    assert_enqueued_with(job: PagePdfJob, args: [ recipe ])
+  ensure
+    ENV["SIZZLE_PAGE_PDFS"] = original
+  end
+
+  test "sharing a recipe again queues the PDF it's missing" do
+    recipe = run_import(URL).recipe
+    original = ENV["SIZZLE_PAGE_PDFS"]
+    ENV["SIZZLE_PAGE_PDFS"] = "true"
+
+    assert_equal recipe, run_import(URL).recipe
+    assert_enqueued_with(job: PagePdfJob, args: [ recipe ])
+  ensure
+    ENV["SIZZLE_PAGE_PDFS"] = original
+  end
 end

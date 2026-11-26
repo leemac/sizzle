@@ -40,6 +40,7 @@ module RecipeSerializer
         chapter.merge("url" => "#{YoutubeVideo.watch_url(video_id)}&t=#{chapter.fetch('start_seconds')}s")
       end,
       written_recipe_url: video["written_recipe_url"],
+      page_pdf: page_pdf(recipe),
       servings: recipe.servings,
       yield_text: recipe.yield_text,
       prep_minutes: recipe.prep_minutes,
@@ -76,6 +77,16 @@ module RecipeSerializer
   end
 
   private
+
+  def page_pdf(recipe)
+    return unless recipe.page_pdf.attached?
+
+    {
+      url: routes.rails_storage_proxy_path(recipe.page_pdf, only_path: true),
+      title: recipe.source_metadata["title"].presence || recipe.title,
+      byte_size: recipe.page_pdf.byte_size
+    }
+  end
 
   def last_cook(recipe)
     cook = recipe.last_cook

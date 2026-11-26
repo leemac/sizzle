@@ -93,7 +93,8 @@ class CookbookExport
     raise TooLarge, LIMIT_MESSAGE if Recipe.limit(MAX_RECIPES + 1).count > MAX_RECIPES
     raise TooLarge, LIMIT_MESSAGE if Cook.limit(MAX_COOKS + 1).count > MAX_COOKS
 
-    attachments = ActiveStorage::Attachment.where(record_type: "Recipe")
+    # Only covers and photos go in the file; page PDFs stay on this server.
+    attachments = ActiveStorage::Attachment.where(record_type: "Recipe", name: %w[cover photos])
     raise TooLarge, LIMIT_MESSAGE if attachments.limit(MAX_PHOTOS + 1).count > MAX_PHOTOS
     blobs = ActiveStorage::Blob.where(id: attachments.select(:blob_id))
     raise TooLarge, LIMIT_MESSAGE if blobs.sum(:byte_size) > MAX_BYTES || blobs.where("byte_size > ?", MAX_IMAGE_BYTES).exists?

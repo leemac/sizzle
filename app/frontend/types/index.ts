@@ -140,6 +140,7 @@ export type RecipeDetail = RecipeCard & {
   youtube_duration_seconds: number | null
   youtube_chapters: VideoChapter[]
   written_recipe_url: string | null
+  page_pdf: PagePdf | null
   servings: number | null
   yield_text: string | null
   prep_minutes: number | null
@@ -161,6 +162,13 @@ export type RecipeDetail = RecipeCard & {
   cooks_count: number
   last_cook: Cook | null
   archived: boolean
+}
+
+/** A PDF of the source page, saved when the recipe was imported. */
+export type PagePdf = {
+  url: string
+  title: string
+  byte_size: number
 }
 
 export type Cook = {
