@@ -101,7 +101,6 @@ export default function ImportsIndex({
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="font-display text-4xl font-semibold sm:text-5xl">Add a recipe</h1>
-      <p className="mt-3 text-graphite">Import a recipe link or write a recipe yourself.</p>
 
       <nav aria-label="Add recipe method" className="mt-8 flex gap-2">
         {(
@@ -125,39 +124,6 @@ export default function ImportsIndex({
         <ManualRecipeForm sourceUrl={source_url} duplicate={source_duplicate} />
       ) : (
         <form onSubmit={submit} aria-busy={form.processing} className="mt-8">
-          <p className="mb-4 text-sm text-graphite">
-            Links with recipe data import directly, without AI.{' '}
-            {app.claude_configured ? (
-              preferences.ai_mode === 'automatic' ? (
-                'Claude extracts other pages and pasted recipe text automatically when needed.'
-              ) : (
-                <>
-                  Claude is turned off for imports in this browser.{' '}
-                  <Link href="/settings#imports" className="underline underline-offset-4">
-                    Change import preferences
-                  </Link>
-                  .
-                </>
-              )
-            ) : (
-              <>
-                For other pages or unstructured pasted text,{' '}
-                <Link href="/imports?mode=manual" className="underline underline-offset-4">
-                  write a recipe
-                </Link>{' '}
-                or{' '}
-                <a
-                  href="https://github.com/leemac/sizzle#install"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline underline-offset-4"
-                >
-                  set up optional AI
-                </a>
-                .
-              </>
-            )}
-          </p>
           <label htmlFor="input" className="text-sm font-medium">
             {app.claude_configured ? 'Recipe links or text' : 'Recipe links'}
           </label>
@@ -238,10 +204,7 @@ export default function ImportsIndex({
           <h2 id="attention-heading" className="font-display text-2xl font-semibold">
             Needs attention
           </h2>
-          <p className="mt-1 text-sm text-graphite">
-            Try these again, write them yourself, or dismiss them to clear the alert.
-          </p>
-          <ul className="mt-4 divide-y divide-hairline">
+          <ul className="mt-4 divide-y divide-hairline rounded-photo bg-paper px-4 ring-1 ring-hairline sm:px-5">
             {needsAttention.map((item) => (
               <ImportRow key={item.id} item={item} onRetry={() => track(item.id)} />
             ))}
@@ -294,18 +257,66 @@ function ImportRow({
   const label = item.recipe_title ?? item.source_metadata?.title ?? item.url ?? item.text_preview ?? 'Pasted recipe'
   const [entranceDelay] = useState(() => Math.min(index, 4) * 45)
   const { preferences } = usePage().props
-  const card = fresh || item.status === 'failed'
+  const compactFailure = !fresh && item.status === 'failed'
+
+  const status = (
+    <div className="flex flex-wrap items-center gap-x-2 text-sm text-graphite">
+      <ImportStatusLabel status={item.status} showIndicator={!fresh} />
+      {!fresh && (
+        <>
+          <span aria-hidden="true">·</span>
+          <time dateTime={item.created_at} title={`Added ${formatTimestamp(item.created_at)}`}>
+            {timeAgo(item.created_at)}
+          </time>
+        </>
+      )}
+    </div>
+  )
+
+  const actions = item.status === 'failed' && (
+    <div className="flex shrink-0 flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={() =>
+          router.post(
+            `/imports/${item.id}/retry`,
+            { automatic_ai: preferences.ai_mode === 'automatic' },
+            { preserveScroll: true, onSuccess: () => onRetry?.() },
+          )
+        }
+        className="min-h-9 rounded-full px-3.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
+      >
+        Try again
+      </button>
+      <Link
+        href={item.kind === 'url' ? `/imports?mode=manual&from=${item.id}` : '/imports?mode=manual'}
+        className="inline-flex min-h-9 items-center rounded-full px-3.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
+      >
+        Write a recipe
+      </Link>
+      {!item.dismissed && (
+        <button
+          type="button"
+          aria-label={`Dismiss failed import ${label}`}
+          onClick={() => router.post(`/imports/${item.id}/dismiss`, {}, { preserveScroll: true })}
+          className="min-h-9 px-2 text-sm text-graphite underline-offset-4 hover:text-ink hover:underline"
+        >
+          Dismiss
+        </button>
+      )}
+    </div>
+  )
 
   return (
     <li
       id={`import-${item.id}`}
-      className={`flex scroll-mt-24 items-start gap-4 ${card ? 'rounded-photo border border-hairline bg-paper p-4 sm:p-5' : 'py-4'} ${fresh ? 'import-card' : ''}`}
+      className={`flex scroll-mt-24 gap-4 ${fresh ? 'import-card items-start rounded-photo border border-hairline bg-paper p-4 sm:p-5' : compactFailure ? 'flex-col gap-1 py-4' : 'items-start py-4'}`}
       style={fresh ? { animationDelay: `${entranceDelay}ms` } : undefined}
     >
       {item.status === 'done' && item.recipe_image_url ? (
         <ImportPhoto url={item.recipe_image_url} />
       ) : (
-        card && (
+        fresh && (
           <span
             aria-hidden="true"
             className={`flex size-14 shrink-0 items-center justify-center rounded-photo ${item.status === 'failed' ? 'bg-porcelain text-danger' : 'bg-mark text-ink'}`}
@@ -340,7 +351,7 @@ function ImportRow({
             rel="noopener noreferrer nofollow"
             className="flex min-w-0 items-center gap-1.5 font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
           >
-            <span className="truncate">{label}</span>
+            <span className="truncate">{compactFailure && label === item.url ? shortUrl(label) : label}</span>
             <Icon name="external" className="size-4 shrink-0" />
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
@@ -351,56 +362,27 @@ function ImportRow({
           <p className="mt-0.5 text-sm text-graphite">{item.source_metadata.site_name}</p>
         )}
         {item.source_metadata?.description && (
-          <p className="mt-1 line-clamp-2 text-sm text-graphite">{item.source_metadata.description}</p>
+          <p className={`mt-1 text-sm text-graphite ${compactFailure ? 'line-clamp-1' : 'line-clamp-2'}`}>
+            {item.source_metadata.description}
+          </p>
         )}
-        <div className="flex flex-wrap items-center gap-x-2 text-sm text-graphite">
-          <ImportStatusLabel status={item.status} showIndicator={!fresh} />
-          {!fresh && (
-            <>
-              <span aria-hidden="true">·</span>
-              <time dateTime={item.created_at} title={`Added ${formatTimestamp(item.created_at)}`}>
-                {timeAgo(item.created_at)}
-              </time>
-            </>
-          )}
-        </div>
+        {!compactFailure && status}
         {item.error && <p className="mt-1 text-sm text-graphite">{item.error}</p>}
-        {item.status === 'failed' && (
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link
-              href={item.kind === 'url' ? `/imports?mode=manual&from=${item.id}` : '/imports?mode=manual'}
-              className="text-sm text-graphite underline underline-offset-4"
-            >
-              Write manually
-            </Link>
-            <button
-              type="button"
-              onClick={() =>
-                router.post(
-                  `/imports/${item.id}/retry`,
-                  { automatic_ai: preferences.ai_mode === 'automatic' },
-                  { preserveScroll: true, onSuccess: () => onRetry?.() },
-                )
-              }
-              className="shrink-0 rounded-full px-4 py-1.5 text-sm ring-1 ring-hairline hover:ring-ink/30"
-            >
-              Try again
-            </button>
-            {!item.dismissed && (
-              <button
-                type="button"
-                aria-label={`Dismiss failed import ${label}`}
-                onClick={() => router.post(`/imports/${item.id}/dismiss`, {}, { preserveScroll: true })}
-                className="shrink-0 rounded-full px-4 py-1.5 text-sm text-graphite ring-1 ring-hairline hover:text-ink hover:ring-ink/30"
-              >
-                Dismiss
-              </button>
-            )}
-          </div>
-        )}
+        {fresh && actions && <div className="mt-3">{actions}</div>}
       </div>
+      {compactFailure && (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          {status}
+          {actions}
+        </div>
+      )}
     </li>
   )
+}
+
+// "https://www.example.com/recipe/" reads as "example.com/recipe".
+function shortUrl(url: string) {
+  return url.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '')
 }
 
 function ImportPhoto({ url }: { url: string }) {

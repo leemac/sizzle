@@ -62,3 +62,5 @@ Walk through one link, a batch, duplicate review, an error, and completion at 39
 Check keyboard use, reduced motion, long labels, and a second submission while the first runs.
 Verify that polling does not clear a new draft, duplicate items, replay entrances, or move focus.
 Capture the meaningful before/after states; report visual checks separately from builds and tests.
+
+For interface text — headings, hints, helper copy, errors — follow `.claude/skills/sizzle-copy/SKILL.md`.
