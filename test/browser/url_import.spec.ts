@@ -226,7 +226,7 @@ test('Claude is automatic by default and respects the local-only preference', as
   data.props.imports[0].status = 'failed'
   data.props.preferences.ai_mode = 'ask'
   await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
-  await expect(page.getByText('Claude is turned off for imports in this browser.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Needs attention' })).toBeVisible()
   await expect(page.getByRole('checkbox')).toHaveCount(0)
   await page.locator('#input').fill('https://example.com/local-only')
   await page.getByRole('button', { name: 'Import', exact: true }).click()
@@ -425,7 +425,8 @@ for (const width of [390, 1280]) {
     data.props.submitted_import_ids = []
     await page.getByRole('link', { name: 'Add recipe', exact: true }).click()
     await expect(page.getByRole('region', { name: 'Needs attention' })).toContainText('Easy coconut rice')
-    await expect(page.locator('li.border svg')).toHaveCount(2)
+    // A compact row: just the external-link icon, no status tile.
+    await expect(page.getByRole('region', { name: 'Needs attention' }).locator('li svg')).toHaveCount(1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`source-metadata-${width}.png`), fullPage: true })
   })

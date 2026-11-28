@@ -27,7 +27,7 @@ for (const width of [390, 1280]) {
     await page.reload()
     await expect(page.getByRole('link', { name: "What's new", exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: /unread release notes/ })).toHaveCount(0)
-    await page.getByRole('link', { name: 'Sizzle release notes', exact: true }).click()
+    await page.getByRole('link', { name: "What's new", exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Release notes', level: 1 })).toBeVisible()
   })
 }

@@ -42,12 +42,7 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
   return (
     <div className="mx-auto max-w-5xl">
       <header className="mb-8 sm:mb-12">
-        <p className="mb-3 text-sm text-graphite">Make yourself at home</p>
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Settings</h1>
-        <p className="mt-4 max-w-xl text-graphite">
-          A few choices for how you browse and cook. Preferences are saved in this browser, so everyone can have their
-          own.
-        </p>
       </header>
       <div className="grid gap-8 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-12">
         <nav aria-label="Settings sections" className="md:sticky md:top-24 md:self-start">
@@ -65,7 +60,7 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
           </ul>
         </nav>
         <div className="min-w-0">
-          <Section id="appearance" title="Appearance" hint="A look that feels right, day or night.">
+          <Section id="appearance" title="Appearance">
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-photo bg-paper p-5 ring-1 ring-hairline">
               <div>
                 <p className="font-display text-xl font-semibold">{instance.theme_name}</p>
@@ -88,7 +83,7 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
               form.patch('/settings', { preserveScroll: true, onSuccess: () => form.setDefaults({ ...form.data }) })
             }}
           >
-            <Section id="cooking" title="Cooking" hint="Make the recipe easier to follow at the counter.">
+            <Section id="cooking" title="Cooking">
               <label htmlFor="text-size" className="block text-sm font-medium">
                 Recipe text in cooking mode
               </label>
@@ -126,7 +121,7 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
               </p>
               <FieldError name="keep_awake" error={form.errors.keep_awake} />
             </Section>
-            <Section id="browsing" title="Browsing" hint="Open your cookbook the way you like it.">
+            <Section id="browsing" title="Browsing">
               <label htmlFor="recipe-sort" className="block text-sm font-medium">
                 Recipe order
               </label>
@@ -143,11 +138,8 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
                 ))}
               </select>
               <FieldError name="sort" error={form.errors.sort} />
-              <p className="mt-3 text-sm text-graphite">
-                You can also change the order in your cookbook. Grid or list view is remembered there too.
-              </p>
             </Section>
-            <Section id="imports" title="Imports" hint="Recipe data is always read locally first.">
+            <Section id="imports" title="Imports">
               <p className="mb-4 text-sm text-graphite">
                 {app.claude_configured
                   ? 'Optional Claude extraction is configured on this server.'
@@ -193,64 +185,60 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
             </div>
           </form>
 
-          <Section id="your-data" title="Your data" hint="Your cookbook belongs to you.">
-            <p className="text-sm text-graphite">
-              Download all {instance.recipe_count} recipes and {instance.photo_count} photos, including archived
-              recipes, notes, favorites, ratings and cooking history.
-            </p>
-            <form
-              action="/settings/export"
-              method="post"
-              className="mt-4"
-              onSubmit={(event) => {
-                const token = event.currentTarget.elements.namedItem('authenticity_token') as HTMLInputElement
-                token.value = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? ''
-              }}
-            >
-              <input type="hidden" name="authenticity_token" defaultValue="" />
-              <button type="submit" className={linkClass}>
-                Download cookbook
-              </button>
-            </form>
-            <p className="mt-3 text-sm text-graphite">
-              Downloads a .tar.gz archive with readable JSON and original images. Another Sizzle server can import it
-              below.
-            </p>
-            <p className="mt-3 text-sm text-graphite">
-              Up to {instance.export_limits.recipes.toLocaleString()} recipes and {instance.export_limits.mib} MiB. Only
-              one export can run at a time. Preparation stops after {instance.export_limits.build_seconds} seconds;
-              downloads stop after {instance.export_limits.download_seconds} seconds. For larger collections or slow
-              connections, use a server backup.
-            </p>
-            <details className="mt-3 text-sm text-graphite">
-              <summary className="cursor-pointer py-2 text-ink">Additional export limits</summary>
-              <p className="mt-2">
-                Up to {instance.export_limits.photos.toLocaleString()} photos and{' '}
-                {instance.export_limits.cooks.toLocaleString()} cooking entries. Photos must be local and no larger than{' '}
-                {instance.export_limits.image_mib} MiB each. Recipe data is limited to{' '}
-                {instance.export_limits.metadata_mib} MiB in total and {instance.export_limits.record_mib} MiB per
-                recipe. An export is stopped in full if a limit is exceeded; recipes are never silently left out.
-              </p>
-            </details>
-            <p className="mt-3 text-sm text-graphite">
-              For a full server backup and restore, follow the{' '}
-              <a
-                href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#back-up"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-4"
+          <Section id="your-data" title="Your data">
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-photo bg-paper p-5 ring-1 ring-hairline">
+              <div>
+                <p className="font-display text-xl font-semibold">
+                  {count(instance.recipe_count, 'recipe')}, {count(instance.photo_count, 'photo')}
+                </p>
+                <p className="mt-1 text-sm text-graphite">Includes archived recipes, notes and cooking history</p>
+              </div>
+              <form
+                action="/settings/export"
+                method="post"
+                onSubmit={(event) => {
+                  const token = event.currentTarget.elements.namedItem('authenticity_token') as HTMLInputElement
+                  token.value = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? ''
+                }}
               >
-                backup instructions
-              </a>
-              .
-            </p>
-            <h3 className="mt-8 font-display text-xl font-semibold">Import a cookbook</h3>
-            <p className="mt-2 mb-4 text-sm text-graphite">
-              Add the recipes, photos, notes and cooking history from another Sizzle cookbook export.
-            </p>
+                <input type="hidden" name="authenticity_token" defaultValue="" />
+                <button type="submit" className={linkClass}>
+                  Download cookbook
+                </button>
+              </form>
+            </div>
+            <details className="mt-3 text-sm text-graphite">
+              <summary className="cursor-pointer py-2 text-ink">Export limits and backups</summary>
+              <div className="mt-2 space-y-3">
+                <p>A .tar.gz archive of readable JSON and original photos that another Sizzle server can import.</p>
+                <p>
+                  Up to {instance.export_limits.recipes.toLocaleString()} recipes,{' '}
+                  {instance.export_limits.photos.toLocaleString()} photos,{' '}
+                  {instance.export_limits.cooks.toLocaleString()} cooking entries and {instance.export_limits.mib} MiB.
+                  Photos must be local and no larger than {instance.export_limits.image_mib} MiB each. Recipe data is
+                  limited to {instance.export_limits.metadata_mib} MiB in total and {instance.export_limits.record_mib}{' '}
+                  MiB per recipe. Preparation stops after {instance.export_limits.build_seconds} seconds and downloads
+                  after {instance.export_limits.download_seconds} seconds. One export runs at a time, and an export that
+                  hits a limit stops in full rather than leaving recipes out.
+                </p>
+                <p>
+                  For larger collections or a full restore, follow the{' '}
+                  <a
+                    href="https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#back-up"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline underline-offset-4"
+                  >
+                    backup instructions
+                  </a>
+                  .
+                </p>
+              </div>
+            </details>
+            <h3 className="mt-8 mb-3 font-display text-xl font-semibold">Import a cookbook</h3>
             <CookbookImportForm settings={instance.cookbook_import} buttonClass={linkClass} />
           </Section>
-          <Section id="about" title="About this instance" hint="Server configuration is managed by your host.">
+          <Section id="about" title="About this instance">
             <Link href="/releases" className={`${linkClass} mb-4`}>
               What’s new in Sizzle
             </Link>
@@ -269,17 +257,18 @@ export default function SettingsShow({ instance }: { instance: Instance }) {
   )
 }
 
-function Section({ id, title, hint, children }: { id: string; title: string; hint: string; children: ReactNode }) {
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section id={id} aria-labelledby={`${id}-heading`} className="mb-10 scroll-mt-24 border-t border-hairline pt-6">
-      <h2 id={`${id}-heading`} className="font-display text-2xl font-semibold">
+      <h2 id={`${id}-heading`} className="mb-5 font-display text-2xl font-semibold">
         {title}
       </h2>
-      <p className="mt-2 mb-5 text-sm text-graphite">{hint}</p>
       {children}
     </section>
   )
 }
+
+const count = (n: number, noun: string) => `${n.toLocaleString()} ${n === 1 ? noun : `${noun}s`}`
 
 function Info({ label, value }: { label: string; value: string }) {
   return (

@@ -8,7 +8,7 @@
 
 # Explicit tags and multi-platform digests let Dependabot propose runtime and base-image updates.
 # Keep the Ruby tag in sync with .ruby-version and both build stages on the same Debian release.
-FROM docker.io/library/node:26.12.1-trixie-slim@sha256:94816674c62774da0d099a947bf4613b9e1972a2733abd0d0cd80e795f8411d0 AS node
+FROM docker.io/library/node:26.13.1-trixie-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc AS node
 
 FROM docker.io/library/ruby:3.4.13-slim-trixie@sha256:03e203fab47d495a1d0046d10040db89367b361328ecd4af469f0433e2dd9ce1 AS base
 
