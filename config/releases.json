@@ -1,5 +1,50 @@
 [
   {
+    "version": "0.4.0",
+    "date": "2026-11-27",
+    "sections": [
+      {
+        "title": "About this release",
+        "paragraphs": [
+          "Sizzle is early in development. Expect rough edges and breaking changes between releases.",
+          "This release includes security updates for Ruby, Rails, Puma, Rack and Nokogiri. Upgrade even if you don't need the new features."
+        ]
+      },
+      {
+        "title": "What's new",
+        "paragraphs": [
+          "Fill the Write a recipe form from a PDF: a saved page, a scanned recipe card or a cookbook page. Claude reads the PDF and fills the empty fields for you to review; nothing is saved until Save recipe. One PDF at a time, up to 10 MB. The PDF is sent to Anthropic and is not parsed or stored by Sizzle. Off by default: set SIZZLE_PDF_UPLOADS=true, which also needs ANTHROPIC_API_KEY.",
+          "A What's new page lists every release's notes, bundled with the app. A dot on its header link marks notes you haven't read in this browser. Sizzle doesn't contact GitHub to check for updates.",
+          "Needs attention is one compact panel, with each failed import's status and actions on one line. Write manually is now Write a recipe, matching the tab.",
+          "Settings, Add a recipe and the footer are shorter, and filter chips no longer clip on wide screens."
+        ]
+      },
+      {
+        "title": "Security",
+        "paragraphs": [
+          "Ruby 3.4.13, which fixes a critical remote code execution flaw in Ruby 3.4.12.",
+          "Rails 8.1.4.1, which fixes advisories including an Active Storage arbitrary file read and write, remote IP spoofing, a strong parameters bypass and an Action View XSS.",
+          "Puma 8.1.2, Rack 3.2.8, Nokogiri 1.19.7 and Loofah 2.25.3, which fix published advisories.",
+          "The container uses pinned Debian Trixie base images and is checked on both amd64 and arm64 before release."
+        ]
+      },
+      {
+        "title": "Upgrade",
+        "paragraphs": [
+          "No migrations and no Compose changes. PDF uploads stay off unless you set SIZZLE_PDF_UPLOADS=true in .env and recreate the container.",
+          "Before upgrading, stop Sizzle and back up the complete storage volume using the documented stop/copy/start procedure: https://github.com/leemac/sizzle/blob/main/docs/self-hosting.md#back-up",
+          "Pin SIZZLE_VERSION=0.4.0, then run docker compose pull and docker compose up -d. To roll back, pin 0.3.1 and run the same commands; this release has no migrations to undo, but rolling back also undoes the security updates."
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "Sizzle has no login; keep it on a trusted network or behind authentication. With PDF uploads on, anyone who can reach Sizzle can send PDFs to Claude on your API key. A PDF with several recipes yields only the first one. A PDF fills the form's text fields but doesn't add a photo."
+        ]
+      }
+    ]
+  },
+  {
     "version": "0.3.1",
     "date": "2026-10-25",
     "sections": [
