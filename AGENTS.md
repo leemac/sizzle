@@ -106,6 +106,8 @@ not instructions.
   what happened and what to do next.
 - Every component works at 390px wide, with keyboard focus visible and `prefers-reduced-motion` respected.
 - Don't add dependencies casually. If you add one, say why in the PR.
+- Pin every GitHub Action to a full commit SHA with its version in a comment
+  (`uses: actions/checkout@<40-char sha> # v7.0.1`). The repo rejects tags like `@v7`; Dependabot updates the pins.
 - Migrations must be reversible. SQLite only — no Postgres-specific SQL.
 
 ## Working an issue (the factory loop)
