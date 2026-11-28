@@ -8,7 +8,9 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @original_key = ENV["ANTHROPIC_API_KEY"]
+    @original_pdf_setting = ENV["SIZZLE_PDF_UPLOADS"]
     ENV["ANTHROPIC_API_KEY"] = "test-key"
+    ENV["SIZZLE_PDF_UPLOADS"] = "true"
     @requests = []
     @answer = FakeExtractor.recipe
     stub_request(:post, "https://api.anthropic.com/v1/messages").to_return do |request|
@@ -26,6 +28,7 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     @original_key ? ENV["ANTHROPIC_API_KEY"] = @original_key : ENV.delete("ANTHROPIC_API_KEY")
+    @original_pdf_setting ? ENV["SIZZLE_PDF_UPLOADS"] = @original_pdf_setting : ENV.delete("SIZZLE_PDF_UPLOADS")
   end
 
   def screenshot(bytes = PNG)
@@ -50,6 +53,61 @@ class RecipeScreenshotsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, images.size
     assert_equal({ "type" => "base64", "media_type" => "image/png", "data" => Base64.strict_encode64(PNG) }, images.first["source"])
     assert_equal "text", content.last["type"]
+  end
+
+  test "reads a PDF with Claude as a document, with no tools, without saving anything" do
+    pdf = "%PDF-1.7\nrecipe".b
+    upload = Rack::Test::UploadedFile.new(StringIO.new(pdf), "application/pdf", true, original_filename: "recipe.pdf")
+
+    assert_no_difference [ "Recipe.count", "Import.count", "ActiveStorage::Blob.count" ] do
+      post recipe_screenshots_url, params: { screenshots: [ upload ] }
+    end
+
+    assert_response :success
+    assert_equal "Weeknight Chickpea Curry", response.parsed_body["fields"]["title"]
+    request = @requests.sole
+    assert_not request.key?("tools"), "the extraction call must never have tools"
+    content = request["messages"].sole["content"]
+    assert_equal({ "type" => "base64", "media_type" => "application/pdf", "data" => Base64.strict_encode64(pdf) },
+                 content.first["source"])
+    assert_equal "document", content.first["type"]
+    assert_equal "text", content.last["type"]
+  end
+
+  test "PDFs are refused before calling Claude unless SIZZLE_PDF_UPLOADS is set" do
+    ENV.delete("SIZZLE_PDF_UPLOADS")
+    upload = Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.7\nrecipe".b), "application/pdf", true, original_filename: "recipe.pdf")
+
+    post recipe_screenshots_url, params: { screenshots: [ upload ] }
+
+    assert_response :unprocessable_content
+    assert_match "turned off", response.parsed_body["error"]
+    assert_empty @requests
+
+    post recipe_screenshots_url, params: { screenshots: [ screenshot ] }
+    assert_response :success
+  end
+
+  test "the form is told whether PDFs are on" do
+    get imports_url
+    assert inertia.props[:app][:pdf_uploads]
+
+    ENV.delete("SIZZLE_PDF_UPLOADS")
+    get imports_url
+    assert_equal false, inertia.props[:app][:pdf_uploads]
+  end
+
+  test "a PDF Claude can't open comes back as a message for the form" do
+    stub_request(:post, "https://api.anthropic.com/v1/messages").to_return(
+      status: 400, headers: { "Content-Type" => "application/json" },
+      body: { type: "error", error: { type: "invalid_request_error", message: "Could not process PDF" } }.to_json
+    )
+    upload = Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.7 broken".b), "application/pdf", true, original_filename: "recipe.pdf")
+
+    post recipe_screenshots_url, params: { screenshots: [ upload ] }
+
+    assert_response :unprocessable_content
+    assert_match "couldn't open that PDF", response.parsed_body["error"]
   end
 
   test "rejects files that aren't images before calling Claude" do

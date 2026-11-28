@@ -1,12 +1,13 @@
 # Stands in for RecipeExtractor so tests never call the Claude API.
 class FakeExtractor
-  attr_reader :pages, :texts, :screenshots
+  attr_reader :pages, :texts, :screenshots, :pdfs
 
   def initialize(result = FakeExtractor.recipe)
     @result = result
     @pages = []
     @texts = []
     @screenshots = []
+    @pdfs = []
   end
 
   def from_page(page)
@@ -21,6 +22,11 @@ class FakeExtractor
 
   def from_screenshots(screenshots)
     @screenshots << screenshots
+    @result
+  end
+
+  def from_pdf(bytes)
+    @pdfs << bytes
     @result
   end
 

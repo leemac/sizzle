@@ -75,6 +75,16 @@ module Sizzle
     env_bool("SIZZLE_COOKBOOK_IMPORT")
   end
 
+  # --- PDF uploads -----------------------------------------------------------
+
+  # Let Write a recipe send an uploaded PDF to Claude to fill in its fields.
+  # Off by default: it's a new upload type, and with no login anyone who can
+  # reach Sizzle could send PDFs to Claude on your API key. Needs
+  # ANTHROPIC_API_KEY too; screenshots work without this.
+  def pdf_uploads?
+    env_bool("SIZZLE_PDF_UPLOADS")
+  end
+
   # --- Themes --------------------------------------------------------------
 
   # Let people make, change and delete shared custom themes. Off by default:

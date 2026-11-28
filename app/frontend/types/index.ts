@@ -17,8 +17,11 @@ export type Appearance = {
 }
 
 export type SharedProps = {
-  /** theme_editor: whether SIZZLE_THEME_EDITOR turns on the theme editor. */
-  app: { claude_configured: boolean; version: string; theme_editor: boolean }
+  /**
+   * theme_editor: whether SIZZLE_THEME_EDITOR turns on the theme editor. pdf_uploads: whether SIZZLE_PDF_UPLOADS lets
+   * Write a recipe read a PDF.
+   */
+  app: { claude_configured: boolean; version: string; theme_editor: boolean; pdf_uploads: boolean }
   appearance: Appearance
   /** CSS for custom themes (see Theme.custom_stylesheet). */
   theme_css: string
